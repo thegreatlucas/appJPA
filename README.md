@@ -80,7 +80,7 @@ App web interno da Jampac para gestão comercial / retenção de carteira. **Sin
 - [x] **Retidos / Não Retidos / Capt./Cob. / Recuperados** = contagem por status da coluna do mês (Campo B), via `_contaStatus(colAtual)`. "Não Retido" = status do mês (comprou mês anterior, não no atual).
 - [x] **Pizzas por Entreposto (mês atual / anterior)**: `renderChartEntr` agora escreve nos IDs corretos (`chartEntr2`/`chartEntrAnt2`) e usa dados do ano (mês atual e anterior funcionam).
 - [x] **Risco por Dias Sem Compras** = Base Retenção, última compra do ano por **Data de Emissão da NF** (coluna detectada por "EMISS"; fallback "ENTREGA").
-- [ ] **Histórico de Positivações — janeiro**: HIPÓTESE = janeiro costuma ter status "Start Compra" (1ª compra do ano), que NÃO conta como positivado → barra fica baixa/zerada. **Confirmar com o cliente** se "Start Compra" deve contar como positivação no 1º mês. (sem mudança feita)
+- [x] **Histórico de Positivações — janeiro**: resolvido. "Start Compra" (1ª compra do período) agora conta como positivação — adicionado a `STATUS_POSITIVOS`.
 
 ### CARTEIRA
 - [x] **Bug visual de scroll**: `goPage` reseta `.main` scrollTop=0.
@@ -104,9 +104,9 @@ App web interno da Jampac para gestão comercial / retenção de carteira. **Sin
 - [x] **Ranking**: removidas colunas Contatos e Pontos (ordena por Positivados).
 - [x] **Importar Excel**: removido card "Nova Lógica de Dados — v4".
 
-### Aberto / a confirmar
-- Histórico de Positivações (janeiro) — ver hipótese acima.
-- Confirmar o **nome exato da coluna de Data de Emissão da NF** na planilha (detecção atual procura "EMISS" no cabeçalho; se a coluna tiver outro nome, ajustar `_emissCol`).
+### Confirmado
+- Coluna de Data de Emissão da NF = **`DATA_EMISSAO`** (a detecção por "EMISS" já cobre).
+- "Start Compra" conta como positivação (decisão do cliente).
 
 ---
 

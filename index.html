@@ -1294,7 +1294,8 @@ function getMesAnteriorKey(){
 function comprouNoMes(c,en,mesKey){return !!(c.entrepostos&&c.entrepostos[en]&&c.entrepostos[en].meses&&c.entrepostos[en].meses[mesKey]);}
 
 // STATUS que contam como POSITIVADOS (única fonte de verdade)
-const STATUS_POSITIVOS = ['Capt./Cob.', 'Recuperado', 'Retido'];
+// 'Start Compra' = primeira compra do período (ex.: janeiro) — conta como positivação.
+const STATUS_POSITIVOS = ['Capt./Cob.', 'Recuperado', 'Retido', 'Start Compra'];
 
 // ==============================
 // STATE
@@ -1453,7 +1454,7 @@ function normalizeStatus(s){
   if(/^retido$/i.test(t)) return 'Retido';
   // Recuperado
   if(/^recuperado$/i.test(t)) return 'Recuperado';
-  // Start Compra (histórico inicial — não conta como positivação)
+  // Start Compra (primeira compra do período — conta como positivação)
   if(/^start\s*compra$/i.test(t)) return 'Start Compra';
   return t;
 }
