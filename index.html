@@ -417,7 +417,7 @@ body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text);fon
     <div class="topbar-content">
       <span class="topbar-title" id="topbarTitle">Dashboard</span>
       <div class="topbar-right">
-        <span class="badge-role gestor" id="roleBadge">👑 Gestor</span>
+        <span class="badge-role gestor" id="roleBadge"><svg class="lc" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m2 4 3 12h14l3-12-6 5-4-5-4 5-6-5zm3 16h14"/></svg> Gestor</span>
         <div class="topbar-user-block">
           <div class="topbar-user" id="userDisplay">Gestor</div>
           <div class="topbar-user-sub" id="userSubDisplay">Acesso Gestor</div>
@@ -1454,14 +1454,14 @@ function mostrarSyncStatus(elId, promise){
     let linha=document.getElementById(elId+'_sync');
     if(!linha){linha=document.createElement('div');linha.id=elId+'_sync';linha.style.cssText='margin-top:8px;font-size:12px';box.appendChild(linha);}
     linha.style.color='var(--text2)';
-    linha.innerHTML='⏳ Sincronizando com o Supabase...';
+    linha.innerHTML=lc('hourglass',12)+' Sincronizando com o Supabase...';
   }
   Promise.resolve(promise).then(resultados=>{
     const s=_resumoSync(resultados);
     const linha=document.getElementById(elId+'_sync');
     if(linha){
       linha.style.color=s.ok?'var(--green)':'var(--yellow)';
-      linha.innerHTML=s.ok?'☁️ Dados sincronizados com o Supabase':('⚠️ Salvo localmente — falha ao sincronizar com o Supabase: '+s.error);
+      linha.innerHTML=s.ok?lc('cloud',12)+' Dados sincronizados com o Supabase':lc('alert-triangle',12)+(' Salvo localmente — falha ao sincronizar com o Supabase: '+s.error);
     }
     if(!s.ok) console.warn('Sync Supabase falhou:',s.error);
   });
@@ -1782,9 +1782,9 @@ function processarBaseRetencao(file){
       // Tenta salvar no Supabase (vendor_data pode não existir como coluna — não é crítico)
       sbUpsert('positivacao_atual',{id:'singleton',count:positivacaoAtualCache.count,ts:positivacaoAtualCache.ts,vendor_data:vendorData});
       document.getElementById('statusRetencaoImport').innerHTML=`<div style="background:var(--green-bg);border:1px solid var(--green-border);border-radius:var(--r-xs);padding:12px 16px;font-size:13px;color:var(--green)">
-        ✅ <b>${file.name}</b><br>
+        ${lc('check-circle',13)} <b>${file.name}</b><br>
         <span style="font-size:12px">${nC.toLocaleString('pt-BR')} clientes únicos no mês atual · Entrepostos: ITP, JPA, KRC, SUL</span>
-        <br><button class="btn btn-danger btn-sm" style="margin-top:8px" onclick="limparBaseRetencao()">🗑️ Remover</button>
+        <br><button class="btn btn-danger btn-sm" style="margin-top:8px" onclick="limparBaseRetencao()">${lc('trash-2',13)} Remover</button>
       </div>`;
       mostrarSyncStatus('statusRetencaoImport', crossReferenceAndBuild());
       showToast('Base Retenção importada com sucesso!');
@@ -1985,14 +1985,14 @@ function processarHistoricoAnual(file){
 
       const nC=totalUnicos;
       document.getElementById('statusHistoricoImport').innerHTML=`<div style="background:var(--green-bg);border:1px solid var(--green-border);border-radius:var(--r-xs);padding:12px 16px;font-size:13px;color:var(--green)">
-        ✅ <b>${file.name}</b><br>
+        ${lc('check-circle',13)} <b>${file.name}</b><br>
         <span style="font-size:12px">
           ${nC} clientes únicos (titular) · ${totalPares} registros brutos · ${deduplicados} deduplicados<br>
           Meses: ${monthCols.join(', ')}<br>
           <b>Mês Atual Detectado:</b> <span style="background:var(--accent);color:#fff;padding:2px 8px;border-radius:10px">${colMesAtualName||'não encontrado na planilha'}</span>
           ${colMesAntName?` · Mês Ant.: <b>${colMesAntName}</b>`:''}
         </span>
-        <br><button class="btn btn-danger btn-sm" style="margin-top:8px" onclick="limparHistoricoAnual()">🗑️ Remover</button>
+        <br><button class="btn btn-danger btn-sm" style="margin-top:8px" onclick="limparHistoricoAnual()">${lc('trash-2',13)} Remover</button>
       </div>`;
       mostrarSyncStatus('statusHistoricoImport', crossReferenceAndBuild());
       showToast('Histórico Anual importado! Mês detectado: '+(colMesAtualName||'não encontrado'));
@@ -2122,17 +2122,17 @@ function atualizarCrossResult(){
     const totalUnicos=Object.keys(historicoAnualRaw.clients).length;
     const colAtual=historicoAnualRaw.colMesAtual||'não detectado';
     el.innerHTML=`<div style="background:linear-gradient(135deg,#f0f5ff,#f5f3ff);border:1px solid #c7d2fe;border-radius:var(--r);padding:16px 20px;margin-bottom:16px;font-size:13px">
-      <div style="font-weight:700;font-size:14px;color:var(--accent);margin-bottom:10px">✅ Histórico Anual processado · Vendedor Titular por deduplicação</div>
+      <div style="font-weight:700;font-size:14px;color:var(--accent);margin-bottom:10px">${lc('check-circle',14)} Histórico Anual processado · Vendedor Titular por deduplicação</div>
       <div style="display:grid;grid-template-columns:repeat(5,1fr);gap:12px;font-size:12px">
         <div><div style="font-weight:700;color:var(--text)">Clientes Únicos (Titular)</div><div style="font-size:20px;font-weight:800;color:var(--accent)">${clientes.length.toLocaleString('pt-BR')}</div><div style="color:var(--text2)">deduplicados por vendedor</div></div>
         <div><div style="font-weight:700;color:var(--text)">Clientes no Histórico</div><div style="font-size:20px;font-weight:800;color:var(--purple)">${totalUnicos}</div><div style="color:var(--text2)">registros únicos</div></div>
         <div><div style="font-weight:700;color:var(--text)">Positivados (${colAtual})</div><div style="font-size:20px;font-weight:800;color:var(--green)">${positivados}</div><div style="color:var(--text2)">Ret.+Rec.+Capt./Cob.</div></div>
         <div><div style="font-weight:700;color:var(--text)">Mês Atual Detectado</div><div style="font-size:16px;font-weight:800;color:var(--blue)">${colAtual}</div><div style="color:var(--text2)">automático — sem config manual</div></div>
-        <div><div style="font-weight:700;color:var(--text)">Com Base Retenção</div><div style="font-size:16px;font-weight:800;color:${baseRetencaoRaw?'var(--green)':'var(--text3)'}">${baseRetencaoRaw?'✅ Ativa':'❌ Não importada'}</div><div style="color:var(--text2)">dados de entreposto/última compra</div></div>
+        <div><div style="font-weight:700;color:var(--text)">Com Base Retenção</div><div style="font-size:16px;font-weight:800;color:${baseRetencaoRaw?'var(--green)':'var(--text3)'}">${baseRetencaoRaw?lc('check-circle',14)+' Ativa':lc('x-circle',14)+' Não importada'}</div><div style="color:var(--text2)">dados de entreposto/última compra</div></div>
       </div>
     </div>`;
   } else {
-    el.innerHTML=`<div style="background:var(--yellow-bg);border:1px solid var(--yellow-border);border-radius:var(--r);padding:12px 16px;margin-bottom:16px;font-size:13px;color:var(--yellow)">⚠️ Importe o <b>Histórico Anual por Vendedor</b> (Campo B) para ativar as métricas de positivação e contagem de carteira.</div>`;
+    el.innerHTML=`<div style="background:var(--yellow-bg);border:1px solid var(--yellow-border);border-radius:var(--r);padding:12px 16px;margin-bottom:16px;font-size:13px;color:var(--yellow)">${lc('alert-triangle',13)} Importe o <b>Histórico Anual por Vendedor</b> (Campo B) para ativar as métricas de positivação e contagem de carteira.</div>`;
   }
 }
 
@@ -3005,7 +3005,7 @@ function openClienteModal(id){
       </div>
     </div>
     ${histMensalHtml}
-    ${c.classificacao?.tipo==='processo_retencao'?`<div style="margin-bottom:12px;padding:12px;background:var(--yellow-bg);border:1px solid var(--yellow-border);border-radius:var(--r-sm)"><span class="processo-badge" style="margin-bottom:6px;display:inline-block">🔄 Em Processo de Retenção</span>${c.classificacao.obs?`<div style="font-size:12px;color:var(--text);margin-top:6px">${c.classificacao.obs}</div>`:''}</div>`:''}
+    ${c.classificacao?.tipo==='processo_retencao'?`<div style="margin-bottom:12px;padding:12px;background:var(--yellow-bg);border:1px solid var(--yellow-border);border-radius:var(--r-sm)"><span class="processo-badge" style="margin-bottom:6px;display:inline-block">${lc('refresh-cw',11)} Em Processo de Retenção</span>${c.classificacao.obs?`<div style="font-size:12px;color:var(--text);margin-top:6px">${c.classificacao.obs}</div>`:''}</div>`:''}
     ${c.justificativa?.motivo?`<div style="margin-bottom:12px;padding:10px;background:var(--yellow-bg);border:1px solid var(--yellow-border);border-radius:var(--r-sm)"><span style="font-size:11px;color:var(--yellow)">JUSTIFICATIVA: </span><span class="just-badge">${c.justificativa.motivo}</span>${c.justificativa.submotivo?`<span class="just-badge" style="margin-left:4px">${c.justificativa.submotivo}</span>`:''}${c.justificativa.obs?`<span style="font-size:12px;color:var(--text2);margin-left:8px">${c.justificativa.obs}</span>`:''}</div>`:''}
     <div style="margin-bottom:16px"><div style="font-size:13px;font-weight:700;margin-bottom:10px">Entrepostos</div>${entrRows}</div>
     <div style="margin-bottom:12px">
@@ -3133,7 +3133,7 @@ function renderRanking(){
     const minhaPosEl=document.getElementById('minhaPosicaoRank');
     const pos=ranking.findIndex(r=>r.v===currentVendedor)+1;
     if(pos>0&&minhaPosEl){
-      minhaPosEl.innerHTML=`<div style="background:var(--yellow-bg);border:1px solid var(--yellow-border);border-radius:var(--r);padding:14px 18px;display:inline-flex;align-items:center;gap:12px"><span style="font-size:24px">🏆</span><div><div style="font-size:13px;font-weight:600">Sua posição no ranking</div><div style="font-size:22px;font-weight:800;color:var(--yellow)">#${pos} de ${ranking.length}</div></div></div>`;
+      minhaPosEl.innerHTML=`<div style="background:var(--yellow-bg);border:1px solid var(--yellow-border);border-radius:var(--r);padding:14px 18px;display:inline-flex;align-items:center;gap:12px">${lc('trophy',24)}<div><div style="font-size:13px;font-weight:600">Sua posição no ranking</div><div style="font-size:22px;font-weight:800;color:var(--yellow)">#${pos} de ${ranking.length}</div></div></div>`;
     }
   }
   document.getElementById('rankBody').innerHTML=ranking.map((r,i)=>{
@@ -3208,28 +3208,28 @@ function renderAdmin(){
     <td style="font-weight:600">${v.nome}</td>
     <td style="font-family:'DM Mono',monospace;font-size:12px">${'*'.repeat(v.senha.length)||'—'}</td>
     <td><span style="font-size:11px;color:var(--text3)">${fromSupa?'Supabase':'Local'}</span></td>
-    <td><button class="btn btn-danger btn-sm" onclick="removerVendedor('${v.nome}')">🗑️ Remover</button></td>
+    <td><button class="btn btn-danger btn-sm" onclick="removerVendedor('${v.nome}')">${lc('trash-2',13)} Remover</button></td>
   </tr>`).join('');
 }
 async function testarConexaoAdmin(){
   const el=document.getElementById('adminDiagResult');
-  el.innerHTML='⏳ Testando...';
+  el.innerHTML=`${lc('hourglass',13)} Testando...`;
   const testes=[];
   try{
     const rows=await sbGet('usuarios','limit=1&');
-    testes.push({ok:true,msg:'Tabela <b>usuarios</b>: acessível ('+rows.length+' registro(s))'});
+    testes.push({ok:true,msg:lc('check-circle',12)+' Tabela <b>usuarios</b>: acessível ('+rows.length+' registro(s))'});
   }catch(e){testes.push({ok:false,msg:'Tabela <b>usuarios</b>: ERRO — '+e.message});}
   const testLogin='__teste_diag__';
   try{
     const res=await sbUpsert('usuarios',[{login:testLogin,senha:'teste',role:'vendedor',ativo:false}]);
     if(res?.ok){
-      testes.push({ok:true,msg:'Escrita na tabela <b>usuarios</b>: ✅ funcionando'});
+      testes.push({ok:true,msg:lc('check-circle',12)+' Escrita na tabela <b>usuarios</b>: funcionando'});
       await fetch(SUPABASE_URL+'/rest/v1/usuarios?login=eq.'+testLogin,{method:'DELETE',headers:SB_H()});
     }else{
-      testes.push({ok:false,msg:'Escrita: ❌ FALHOU — '+(res?.error||'erro')+'<br><small>Verifique RLS no Supabase → Policy INSERT para anon</small>'});
+      testes.push({ok:false,msg:lc('x-circle',12)+' Escrita: FALHOU — '+(res?.error||'erro')+'<br><small>Verifique RLS no Supabase → Policy INSERT para anon</small>'});
     }
   }catch(e){testes.push({ok:false,msg:'Escrita ERRO: '+e.message});}
-  el.innerHTML=testes.map(t=>`<div style="padding:6px 0;border-bottom:1px solid var(--border);color:${t.ok?'var(--green)':'var(--red)'}">${t.ok?'✅':'❌'} ${t.msg}</div>`).join('')+
+  el.innerHTML=testes.map(t=>`<div style="padding:6px 0;border-bottom:1px solid var(--border);color:${t.ok?'var(--green)':'var(--red)'}">${t.ok?lc('check-circle',13):lc('x-circle',13)} ${t.msg}</div>`).join('')+
     `<div style="margin-top:8px;font-size:11px;color:var(--text3)">Se escrita falhar: Supabase → Authentication → Policies → tabela <b>usuarios</b> → INSERT para <b>anon</b>.</div>`;
 }
 async function cadastrarVendedor(){
@@ -3240,11 +3240,11 @@ async function cadastrarVendedor(){
   // Verifica duplicata ignorando case
   if(getAllVendedores().find(v=>v.nome.trim().toLowerCase()===nome.toLowerCase())){
     showToast('Vendedor já cadastrado',true);
-    if(diagEl) diagEl.innerHTML='<span style="color:var(--yellow)">⚠️ Vendedor <b>'+nome+'</b> já está cadastrado e ativo.</span>';
+    if(diagEl) diagEl.innerHTML=`<span style="color:var(--yellow)">${lc('alert-triangle',13)} Vendedor <b>`+nome+'</b> já está cadastrado e ativo.</span>';
     return;
   }
 
-  if(diagEl) diagEl.innerHTML='⏳ Cadastrando <b>'+nome+'</b>...';
+  if(diagEl) diagEl.innerHTML=lc('hourglass',13)+' Cadastrando <b>'+nome+'</b>...';
   showToast('Cadastrando...',false,true);
 
   try{
@@ -3264,7 +3264,7 @@ async function cadastrarVendedor(){
       // Tenta diagnóstico mais claro do erro
       let errMsg='HTTP '+res.status;
       try{const j=JSON.parse(bodyText);errMsg=j.message||j.hint||j.details||errMsg;}catch(ex){}
-      if(diagEl) diagEl.innerHTML='<span style="color:var(--red)">❌ Erro ao cadastrar: '+errMsg+'<br><small>Verifique RLS no Supabase → tabela <b>usuarios</b> → políticas INSERT/UPDATE para <b>anon</b>.</small></span>';
+      if(diagEl) diagEl.innerHTML=`<span style="color:var(--red)">${lc('x-circle',13)} Erro ao cadastrar: `+errMsg+'<br><small>Verifique RLS no Supabase → tabela <b>usuarios</b> → políticas INSERT/UPDATE para <b>anon</b>.</small></span>';
       showToast('Erro ao cadastrar: '+errMsg,true);
       console.error('cadastrarVendedor falhou:',res.status,bodyText);
       return;
@@ -3275,12 +3275,12 @@ async function cadastrarVendedor(){
     _usuarios.push({login:nome,senha:senha,role:'vendedor',ativo:true});
     document.getElementById('adminNome').value='';
     document.getElementById('adminSenha').value='';
-    if(diagEl) diagEl.innerHTML='<span style="color:var(--green)">✅ Vendedor <b>'+nome+'</b> cadastrado com sucesso!</span>';
+    if(diagEl) diagEl.innerHTML=`<span style="color:var(--green)">${lc('check-circle',13)} Vendedor <b>`+nome+'</b> cadastrado com sucesso!</span>';
     renderAdmin();
     populateVendSelect();
     showToast('Vendedor "'+nome+'" cadastrado!');
   }catch(e){
-    if(diagEl) diagEl.innerHTML='<span style="color:var(--red)">❌ Erro de rede: '+e.message+'</span>';
+    if(diagEl) diagEl.innerHTML=`<span style="color:var(--red)">${lc('x-circle',13)} Erro de rede: `+e.message+'</span>';
     showToast('Erro de rede: '+e.message,true);
     console.error('cadastrarVendedor erro de rede:',e);
   }
