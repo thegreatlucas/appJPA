@@ -227,6 +227,7 @@ body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text);fon
 .hist-mes-atual{background:linear-gradient(135deg,var(--accent),var(--accent2));color:#fff;font-weight:800;box-shadow:0 1px 4px rgba(0,91,255,.3)}
 .entr-dot{display:inline-flex;align-items:center;justify-content:center;width:36px;height:22px;border-radius:5px;font-size:10px;font-weight:700;margin-right:2px}
 .entr-comprou{background:var(--green-bg);color:var(--green);border:1px solid var(--green-border)}
+.entr-ano{background:var(--yellow-bg);color:var(--yellow);border:1px solid var(--yellow-border)}
 .entr-nao{background:var(--bg3);color:var(--text3);border:1px solid var(--border)}
 .processo-badge{display:inline-flex;align-items:center;gap:4px;padding:2px 8px;border-radius:4px;font-size:10px;font-weight:600;background:#fff7ed;color:#9a3412;border:1px solid #fed7aa;animation:pulse 2s infinite}
 @keyframes pulse{0%,100%{opacity:1}50%{opacity:.6}}
@@ -1211,6 +1212,7 @@ async function sbLoadAll(){
       const vdLocal=ld('vendorData',null);
       positivacaoAtualCache={
         count:paRows[0].count,
+        countAno:paRows[0].count_ano||paRows[0].count,
         ts:paRows[0].ts,
         vendorData:vdSupa||vdLocal||null
       };
@@ -1677,16 +1679,20 @@ function processarBaseRetencao(file){
       const ws=wb.Sheets[wb.SheetNames[0]];
       const rows=XLSX.utils.sheet_to_json(ws,{cellDates:true,defval:null});
       if(!rows.length){showToast('Arquivo vazio',true);return;}
-      // clientData  = apenas mês atual (para Positivação Atual)
-      // allClientData = todos os meses do ano (para Total de Atendimentos / carteira anual)
+      // clientData    = apenas mês atual (para Positivação Atual)
+      // allClientData = todos os meses do ano (Total de Atendimentos / risco / entrepostos)
       const clientData={};
-      // allClientData: índice por vendedor → Set de códigos de cliente
-      // Chave = nome do vendedor com trim().toLowerCase() para matching seguro
-      const allClientData={};        // { código → {code,name,vendedor} } — igual antes, para compatibilidade
-      const vendorClientMap={};      // { 'nome_vendedor_lower' → Set<codigo> } — índice direto por vendedor
+      const allClientData={};        // { código → {code,name,vendedor,entrepostos,lastDate,ultimaCompra} }
+      const vendorClientMap={};      // { 'nome_vendedor_lower' → Set<codigo> }
       const _agora=new Date();
       const _mesAtual=_agora.getMonth();
       const _anoAtual=_agora.getFullYear();
+      // ── Detecta a coluna de data: prioriza DATA DE EMISSÃO da NF; cai para Entrega ──
+      const _deburr=s=>String(s).normalize('NFD').replace(/[\u0300-\u036f]/g,'').toUpperCase();
+      const _cols=Object.keys(rows[0]||{});
+      const _emissCol=_cols.find(k=>_deburr(k).includes('EMISS'))||null;
+      const _entregaCol=_cols.find(k=>_deburr(k).includes('ENTREGA'))||null;
+      const _dateCol=_emissCol||_entregaCol||null;
       rows.forEach(row=>{
         const code=String(row.CODIGO_CLIENTE||'').trim();
         const vendedorBruto=String(row.VENDEDOR_CLIENTE||'').trim();
@@ -1694,9 +1700,10 @@ function processarBaseRetencao(file){
         const name=String(row.NOME_CLIENTE||'').trim();
         const entre=String(row.ENTREPOSTO||'').trim();
         if(['JCS','JSP','NBS'].includes(entre)) return;
+        const _rawDate=_dateCol?row[_dateCol]:row.DATA_ENTREGA;
         let date=null;
-        if(row.DATA_ENTREGA instanceof Date&&!isNaN(row.DATA_ENTREGA.getTime())){date=row.DATA_ENTREGA;}
-        else if(row.DATA_ENTREGA){const d=new Date(row.DATA_ENTREGA);if(!isNaN(d.getTime())) date=d;}
+        if(_rawDate instanceof Date&&!isNaN(_rawDate.getTime())){date=_rawDate;}
+        else if(_rawDate){const d=new Date(_rawDate);if(!isNaN(d.getTime())) date=d;}
         if(!code) return;
         // Detecta mês/ano da linha — prioridade para colunas MES/ANO (evita serial do Excel)
         const rowMes=row.MES!=null?Number(row.MES):null;
@@ -1705,8 +1712,20 @@ function processarBaseRetencao(file){
           ?(rowMes===(_mesAtual+1)&&rowAno===_anoAtual)
           :(date&&date.getMonth()===_mesAtual&&date.getFullYear()===_anoAtual);
         // allClientData + vendorClientMap: TODOS os clientes de TODOS os meses da planilha
-        if(!allClientData[code]){allClientData[code]={code,name,vendedor:vendedorCampoA};}
+        if(!allClientData[code]){allClientData[code]={code,name,vendedor:vendedorCampoA,entrepostos:{},lastDate:null,ultimaCompra:null};}
         else{if(name&&!allClientData[code].name) allClientData[code].name=name;}
+        // Detalhe de entreposto/compra do ANO inteiro (entrepostos 3 estados, última compra e risco)
+        if(entre&&date&&ENTRS_ATIVOS.includes(entre)){
+          const ae=allClientData[code].entrepostos;
+          if(!ae[entre]) ae[entre]={date,ultimaCompra:formatDate(date),meses:{}};
+          if(date>ae[entre].date){ae[entre].date=date;ae[entre].ultimaCompra=formatDate(date);}
+          const mkAno=MESES_ABREV[date.getMonth()]+'/'+date.getFullYear();
+          ae[entre].meses[mkAno]=(ae[entre].meses[mkAno]||0)+1;
+          if(!allClientData[code].lastDate||date>allClientData[code].lastDate){
+            allClientData[code].lastDate=date;
+            allClientData[code].ultimaCompra=formatDate(date);
+          }
+        }
         // Indexa pelo nome bruto (trim+lower) E pelo nome resolvido (login cadastrado)
         [vendedorBruto.toLowerCase(), vendedorCampoA.trim().toLowerCase()].forEach(vKey=>{
           if(!vKey) return;
@@ -1736,13 +1755,14 @@ function processarBaseRetencao(file){
         const countMes=Object.keys(clientData).filter(code=>codesAno.has(code)).length;
         vendorData[vk]={mes:countMes,ano:countAno};
       });
-      positivacaoAtualCache={count:nC,ts:new Date().toISOString(),vendorData};
+      const nAno=Object.keys(allClientData).length;
+      positivacaoAtualCache={count:nC,countAno:nAno,ts:new Date().toISOString(),vendorData};
       // Salva no localStorage com vendorData para acesso offline/vendedor
       sv('positivacaoAtual',positivacaoAtualCache);
       // Salva vendorData separado no localStorage (garante acesso mesmo sem coluna no Supabase)
       sv('vendorData',vendorData);
-      // Tenta salvar no Supabase (vendor_data pode não existir como coluna — não é crítico)
-      sbUpsert('positivacao_atual',{id:'singleton',count:positivacaoAtualCache.count,ts:positivacaoAtualCache.ts,vendor_data:vendorData});
+      // Tenta salvar no Supabase (count_ano/vendor_data podem não existir como coluna — não é crítico)
+      sbUpsert('positivacao_atual',{id:'singleton',count:nC,count_ano:nAno,ts:positivacaoAtualCache.ts,vendor_data:vendorData});
       document.getElementById('statusRetencaoImport').innerHTML=`<div style="background:var(--green-bg);border:1px solid var(--green-border);border-radius:var(--r-xs);padding:12px 16px;font-size:13px;color:var(--green)">
         ${lc('check-circle',13)} <b>${file.name}</b><br>
         <span style="font-size:12px">${nC.toLocaleString('pt-BR')} clientes únicos no mês atual · Entrepostos: ITP, JPA, KRC, SUL</span>
@@ -1982,20 +2002,18 @@ function limparHistoricoAnual(){
 // ==============================
 function crossReferenceAndBuild(){
   if(!historicoAnualRaw){
-    // Sem Histórico Anual: usa somente Campo A se disponível (modo legado)
+    // Sem Histórico Anual: usa somente Campo A se disponível (modo legado) — ANO inteiro
     if(baseRetencaoRaw){
       const novos=[];
-      Object.values(baseRetencaoRaw.clientData).forEach(cb=>{
-        let lastDate=null,lastStr=null;
+      Object.values(baseRetencaoRaw.allClientData).forEach(cb=>{
         const ef={};
         Object.entries(cb.entrepostos||{}).forEach(([en,info])=>{
           ef[en]={ultimaCompra:info.ultimaCompra,status:null,meses:info.meses||{}};
-          if(info.date&&(!lastDate||info.date>lastDate)){lastDate=info.date;lastStr=info.ultimaCompra;}
         });
         novos.push({
           id:cb.code+'_sem_hist',codigo:cb.code,nome:cb.name||cb.code,
-          vendedor:'',status:'Sem Histórico',statusHistorico:{},
-          ultimaCompra:lastStr,semana:'',entrepostos:ef,
+          vendedor:cb.vendedor||'',status:'Sem Histórico',statusHistorico:{},
+          ultimaCompra:cb.ultimaCompra||null,semana:'',entrepostos:ef,
           justificativa:null,capcobObs:null,classificacao:null,historico:[]
         });
       });
@@ -2022,17 +2040,13 @@ function crossReferenceAndBuild(){
   Object.entries(clientesPorVendedor).forEach(([vendedor,chList])=>{
     chList.forEach(ch=>{
       const code=ch.code;
-      // Dados de entreposto do Campo A (se disponível)
-      const cb=baseRetencaoRaw?.clientData[code]||null;
-      let lastPurchaseStr=null;
+      // Dados de entreposto do Campo A — ANO inteiro (entrepostos 3 estados, última compra, risco)
+      const cb=baseRetencaoRaw?.allClientData[code]||null;
+      let lastPurchaseStr=cb?.ultimaCompra||null;
       const entrepostosFmt={};
       if(cb?.entrepostos){
-        let lastDate=null;
         Object.entries(cb.entrepostos).forEach(([entr,info])=>{
           entrepostosFmt[entr]={ultimaCompra:info.ultimaCompra,status:null,meses:info.meses||{}};
-          if(info.date&&(!lastDate||info.date>lastDate)){
-            lastDate=info.date;lastPurchaseStr=info.ultimaCompra;
-          }
         });
       }
 
@@ -2209,6 +2223,20 @@ function renderDash(){
   const colAtual=historicoAnualRaw?.colMesAtual||null;
   const colAnt=historicoAnualRaw?.colMesAnterior||null;
 
+  // ── STATUS DO MÊS (Campo B) — fonte única dos 4 cards de status ──
+  // Retido / Não Retido / Capt./Cob. / Recuperado, conforme a coluna do mês.
+  // Não Retido = comprou no mês anterior mas ainda não no mês atual (status da planilha).
+  const _contaStatus=(col)=>{
+    const r={Retido:0,'Não Retido':0,'Capt./Cob.':0,Recuperado:0};
+    base.forEach(c=>{
+      const sn=col?normalizeStatus(c.statusHistorico?.[col]):normalizeStatus(c.status);
+      if(sn&&r[sn]!==undefined) r[sn]++;
+    });
+    return r;
+  };
+  const stAtual=_contaStatus(colAtual);
+  const stAnt=colAnt?_contaStatus(colAnt):{Retido:0,'Não Retido':0,'Capt./Cob.':0,Recuperado:0};
+
   // ════════════════════════════════════════════════════════════════
   // POSITIVAÇÃO ATUAL — fonte primária: clientes distintos do Campo A
   // (Base Retenção). Quando Campo A não está carregado, usa Campo B
@@ -2290,11 +2318,12 @@ function renderDash(){
     if(vf||currentRole==='vendedor'){
       totalAtendimentos=vKey?positivacaoAtualCache.vendorData[vKey].ano:totalCarteira;
     } else {
-      totalAtendimentos=positivacaoAtualCache.count;
+      // gestor sem filtro: total de atendimentos do ANO
+      totalAtendimentos=positivacaoAtualCache.countAno||positivacaoAtualCache.count;
     }
-  } else if(positivacaoAtualCache?.count&&!(vf||currentRole==='vendedor')){
-    // Só gestor sem filtro pode usar o total geral do cache
-    totalAtendimentos=positivacaoAtualCache.count;
+  } else if(positivacaoAtualCache?.countAno&&!(vf||currentRole==='vendedor')){
+    // Só gestor sem filtro pode usar o total geral do cache (ano)
+    totalAtendimentos=positivacaoAtualCache.countAno;
   } else {
     // Sem Campo A nenhum — usa carteira do Campo B
     totalAtendimentos=totalCarteira;
@@ -2367,14 +2396,15 @@ function renderDash(){
     const pct=ant>0?Math.abs(Math.round(diff/ant*100)):0;
     return `<span style="${cor}">${seta}${pct}% vs ${colAnt} (${ant})</span>`;
   };
-  document.getElementById('kpi-ret').textContent=posRet;
-  document.getElementById('kpi-ret-pct').innerHTML=fmtVar(posRet,posRetAnt);
-  document.getElementById('kpi-nao').textContent=naoPositivados;
-  document.getElementById('kpi-nao-pct').innerHTML=fmtVar(naoPositivados,naoPositivadosAnt);
-  document.getElementById('kpi-cap').textContent=posCap;
-  document.getElementById('kpi-cap-pct').textContent=colAtual?`mês: ${colAtual}`:'—';
-  document.getElementById('kpi-recup').textContent=posRecup;
-  document.getElementById('kpi-recup-pct').textContent=colAtual?`mês: ${colAtual}`:'—';
+  // Cards de status — fonte: status da coluna do mês (Campo B)
+  document.getElementById('kpi-ret').textContent=stAtual['Retido'];
+  document.getElementById('kpi-ret-pct').innerHTML=fmtVar(stAtual['Retido'],stAnt['Retido']);
+  document.getElementById('kpi-nao').textContent=stAtual['Não Retido'];
+  document.getElementById('kpi-nao-pct').innerHTML=fmtVar(stAtual['Não Retido'],stAnt['Não Retido']);
+  document.getElementById('kpi-cap').textContent=stAtual['Capt./Cob.'];
+  document.getElementById('kpi-cap-pct').innerHTML=fmtVar(stAtual['Capt./Cob.'],stAnt['Capt./Cob.']);
+  document.getElementById('kpi-recup').textContent=stAtual['Recuperado'];
+  document.getElementById('kpi-recup-pct').innerHTML=fmtVar(stAtual['Recuperado'],stAnt['Recuperado']);
 
   // kpi-retencao removido (Taxa de Fidelidade removida)
 
@@ -2391,7 +2421,7 @@ function renderDash(){
     document.getElementById('metaProgressFill').style.width='0%';
   }
 
-  // Risco por dias sem compra (usa Campo A — data de entrega)
+  // Risco por dias sem compra (Base Retenção — última compra do ano por Data de Emissão da NF)
   const naoRet=base.filter(c=>{
     const sAtual=colAtual?c.statusHistorico?.[colAtual]:null;
     const sn=sAtual?normalizeStatus(sAtual):c.status;
@@ -2492,11 +2522,11 @@ function pieSVG(counts){
 }
 function renderChartEntr(base){
   const mAtual=getMesAtualKey(), mAnt=getMesAnteriorKey();
-  const tagA=document.getElementById('entrPieMesAtual'); if(tagA) tagA.textContent=mAtual;
-  const tagP=document.getElementById('entrPieMesAnt'); if(tagP) tagP.textContent=mAnt;
+  const tagA=document.getElementById('entrPieMesAtual2'); if(tagA) tagA.textContent=mAtual;
+  const tagP=document.getElementById('entrPieMesAnt2'); if(tagP) tagP.textContent=mAnt;
   const mk=(mesKey)=>ENTRS_ATIVOS.map(en=>({en,n:base.filter(c=>comprouNoMes(c,en,mesKey)).length,c:ENTRS_CORES[en]||'var(--accent)'}));
-  const elA=document.getElementById('chartEntr'); if(elA) elA.innerHTML=pieSVG(mk(mAtual));
-  const elP=document.getElementById('chartEntrAnt'); if(elP) elP.innerHTML=pieSVG(mk(mAnt));
+  const elA=document.getElementById('chartEntr2'); if(elA) elA.innerHTML=pieSVG(mk(mAtual));
+  const elP=document.getElementById('chartEntrAnt2'); if(elP) elP.innerHTML=pieSVG(mk(mAnt));
 }
 
 // ==============================
@@ -2744,8 +2774,12 @@ function renderClientes(){
     const statusDisplay=sAtual?normalizeStatus(sAtual):(c.status||'—');
     const mAtual=getMesAtualKey();
     const entrDots=ENTRS_ATIVOS.map(en=>{
-      const ok=comprouNoMes(c,en,mAtual);
-      return `<span class="entr-dot ${ok?'entr-comprou':'entr-nao'}" title="${en}: ${ok?'comprou em '+mAtual:'sem compra no mês'}">${en}</span>`;
+      const info=c.entrepostos&&c.entrepostos[en];
+      const noMes=comprouNoMes(c,en,mAtual);
+      const noAno=!!(info&&info.meses&&Object.keys(info.meses).length);
+      const cls=noMes?'entr-comprou':(noAno?'entr-ano':'entr-nao');
+      const title=noMes?`${en}: comprou em ${mAtual}`:(noAno?`${en}: comprou no ano, não no mês atual`:`${en}: nunca comprou`);
+      return `<span class="entr-dot ${cls}" title="${title}">${en}</span>`;
     }).join('');
     const justBadge=c.justificativa?.motivo?`<span class="just-badge">${c.justificativa.motivo}${c.justificativa.submotivo?` · ${c.justificativa.submotivo}`:''}</span>`:'';
     const showVend=currentRole==='gestor';
@@ -3264,6 +3298,7 @@ const PAGE_TITLES={
 const GESTOR_ONLY_PAGES=new Set(['ranking','importar','admin']);
 function goPage(name){
   if(currentRole==='vendedor'&&GESTOR_ONLY_PAGES.has(name)) return;
+  const _mainEl=document.querySelector('.main'); if(_mainEl) _mainEl.scrollTop=0;
   document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
   document.querySelectorAll('.sidebar-item').forEach(b=>b.classList.remove('active'));
   const pg=document.getElementById('page-'+name);if(pg) pg.classList.add('active');

@@ -154,7 +154,8 @@ create table if not exists public.metas (
 -- ---------------------------------------------------------------------
 create table if not exists public.positivacao_atual (
   id               text primary key,
-  count            integer default 0,
+  count            integer default 0,    -- clientes distintos no MÊS atual (Base Retenção)
+  count_ano        integer default 0,    -- clientes distintos no ANO (Total de Atendimentos)
   ts               text,                 -- ISO string gerada pelo app
   vendor_data      jsonb,                -- { "nome_vendedor": { mes, ano }, ... }
   mes_atual        text,                 -- ex.: "jun/2026"
@@ -162,6 +163,8 @@ create table if not exists public.positivacao_atual (
   meses_historico  jsonb,                -- ["jan/2026", "fev/2026", ...]
   atualizado_em    timestamptz not null default now()
 );
+-- Migração p/ bancos já criados (adiciona count_ano se faltar)
+alter table public.positivacao_atual add column if not exists count_ano integer default 0;
 
 -- =====================================================================
 -- RLS + POLÍTICAS DE ACESSO

@@ -73,38 +73,40 @@ App web interno da Jampac para gestão comercial / retenção de carteira. **Sin
 
 ## Correções pendentes (checklist) — pedido do cliente
 
+> ⚠️ As correções de lógica de dados (entrepostos/última compra/risco/total anual) **só têm efeito após o gestor RE-IMPORTAR** a Base Retenção, pois passam a guardar dados do ano inteiro (antes era só o mês). E rode o `supabase_setup.sql` atualizado (coluna `count_ano`).
+
 ### DASHBOARD
-- [ ] **Total de Atendimentos**: mostrar acumulado do **ANO** (clientes únicos atendidos no ano), não do mês. Hoje mostra 178 (mês). Causa: `positivacaoAtualCache.count` guarda só o mês; persistir/usar contagem anual (`allClientData`).
-- [ ] **Retidos** = clientes do total que **compraram no mês atual**.
-- [ ] **Não Retidos** = clientes que compraram no **mês anterior** mas **ainda não** no mês atual.
-- [ ] **Captação ou Cobertura** = clientes do Histórico Anual com status Captação/Cobertura **do mês atual**.
-- [ ] **Recuperados** = clientes do Histórico Anual com status Recuperado **do mês atual**.
-- [ ] **Pizza "Clientes por Entreposto — Mês Atual"** = dividir por entreposto da **Base Retenção** (mês atual).
-- [ ] **Pizza "Mês Anterior"** = mesma lógica, mês anterior.
-- [ ] **Risco por Dias Sem Compras** = pela **Base Retenção**: dias desde a última compra (qualquer entreposto), usando **DATA EMISSÃO da NF** como base.
-- [ ] **Histórico de Positivações**: **janeiro não funciona** — investigar iteração/detecção de meses.
+- [x] **Total de Atendimentos** = acumulado do ANO. Agora persistido como `countAno`/`count_ano` (Supabase) e usado nos fallbacks de `renderDash`.
+- [x] **Retidos / Não Retidos / Capt./Cob. / Recuperados** = contagem por status da coluna do mês (Campo B), via `_contaStatus(colAtual)`. "Não Retido" = status do mês (comprou mês anterior, não no atual).
+- [x] **Pizzas por Entreposto (mês atual / anterior)**: `renderChartEntr` agora escreve nos IDs corretos (`chartEntr2`/`chartEntrAnt2`) e usa dados do ano (mês atual e anterior funcionam).
+- [x] **Risco por Dias Sem Compras** = Base Retenção, última compra do ano por **Data de Emissão da NF** (coluna detectada por "EMISS"; fallback "ENTREGA").
+- [ ] **Histórico de Positivações — janeiro**: HIPÓTESE = janeiro costuma ter status "Start Compra" (1ª compra do ano), que NÃO conta como positivado → barra fica baixa/zerada. **Confirmar com o cliente** se "Start Compra" deve contar como positivação no 1º mês. (sem mudança feita)
 
 ### CARTEIRA
-- [ ] **Bug visual**: ao abrir a página ela desce ~200px em vez de abrir no topo (provável `scrollIntoView`/foco em input). Corrigir.
-- [ ] **Sequência** (seq-bar): "1. Classificar → 2. Justificar não Recompra → 3. Concluir Tratativa".
-- [ ] **Risco por Dias Sem Compras**: igual ao dashboard (Base Retenção / Data Emissão).
-- [ ] **Coluna ENTREPOSTOS** (3 estados): comprou no **mês atual** naquele entreposto → **verde**; comprou no **ano** mas não naquele entreposto no mês atual → **amarelo**; **nunca** comprou naquele entreposto → mantém cor neutra.
-- [ ] **ÚLT. COMPRA** não puxa data — corrigir (deve usar última compra do ano por Data Emissão, não só mês atual).
-- [ ] **AÇÕES → Classificar**: remover "Cliente Oportunidade".
-- [ ] **AÇÕES → Justificar**: nos motivos, **adicionar** "Financeiro"; **remover** os "Produção *" (JPA/ITP/SUL/KRC); **adicionar** "Não quis informar" e "Consumo Próprio".
-- [ ] **Detalhe do cliente**: remover o campo/seção "Contatos".
+- [x] **Bug visual de scroll**: `goPage` reseta `.main` scrollTop=0.
+- [x] **Sequência**: adicionado "3. Concluir Tratativa".
+- [x] **Risco**: agora idêntico ao dashboard (mesma `ultimaCompra` anual).
+- [x] **Coluna ENTREPOSTOS (3 estados)**: verde (mês atual) / amarelo `.entr-ano` (comprou no ano, não no mês) / neutro (nunca comprou).
+- [x] **ÚLT. COMPRA**: corrigido — usa última compra do ano (Data Emissão).
+- [x] **Classificar**: removido "Cliente Oportunidade".
+- [x] **Justificar**: adicionado Financeiro / Não quis informar / Consumo Próprio; removidos os "Produção *".
+- [x] **Detalhe do cliente**: removida seção "Contatos".
 
 ### EM PROCESSO
-- [ ] Bolha de notificação com **contador** de quantos clientes estão em Processo de Retenção (visualização rápida). [badge `emProcessoCount` já existe — garantir contador correto e visível.]
-- [ ] No **detalhe do cliente**: trazer a **observação** dada na Justificativa do Processo de Retenção + a **classificação**.
+- [x] Badge contador (`emProcessoCount`) — clientes em processo de retenção.
+- [x] Detalhe do cliente mostra a **Justificativa do Processo** (`classificacao.justProcesso`) + observação + classificação.
 
 ### OBS. COORDENADOR
-- [ ] Bolha de notificação com contador de quantas observações o Coordenador enviou para o Vendedor (**visão do vendedor**). Hoje o badge `emProcessoCountObs` usa contagem de processo — trocar para contar `obsCoord` destinadas ao vendedor logado.
+- [x] Badge `emProcessoCountObs` conta observações do coordenador (visão vendedor = só as destinadas a ele).
 
 ### GESTÃO
-- [ ] **Por Vendedor**: **REMOVER** a página/menu (`gestoresMenu`, page `gestores`, `renderGestores`).
-- [ ] **Ranking**: remover colunas **Contatos** e **Pontos**.
-- [ ] **Importar Excel**: remover o card de visualização **"Nova Lógica de Dados — v4"** (~linha 855).
+- [x] **Por Vendedor**: página/menu removidos.
+- [x] **Ranking**: removidas colunas Contatos e Pontos (ordena por Positivados).
+- [x] **Importar Excel**: removido card "Nova Lógica de Dados — v4".
+
+### Aberto / a confirmar
+- Histórico de Positivações (janeiro) — ver hipótese acima.
+- Confirmar o **nome exato da coluna de Data de Emissão da NF** na planilha (detecção atual procura "EMISS" no cabeçalho; se a coluna tiver outro nome, ajustar `_emissCol`).
 
 ---
 
