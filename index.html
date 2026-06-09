@@ -1019,13 +1019,13 @@ body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text);fon
       <div class="form-group"><label>Classificação</label>
         <select id="class-tipo" onchange="onClassTipoChange()">
           <option value="">Sem classificação</option>
-          <option value="captacao">🆕 Captação</option>
-          <option value="cob_ferias">🏖️ Cobertura de Férias</option>
-          <option value="cob_ausencias">👤 Cobertura de Ausências</option>
-          <option value="cob_licenca">👶 Cobertura de Licença-Maternidade</option>
-          <option value="oportunidade">💡 Cliente Oportunidade</option>
-          <option value="consumo_proprio">🏠 Consumo Próprio</option>
-          <option value="processo_retencao">🔄 Em Processo de Retenção</option>
+          <option value="captacao">Captação</option>
+          <option value="cob_ferias">Cobertura de Férias</option>
+          <option value="cob_ausencias">Cobertura de Ausências</option>
+          <option value="cob_licenca">Cobertura de Licença-Maternidade</option>
+          <option value="oportunidade">Cliente Oportunidade</option>
+          <option value="consumo_proprio">Consumo Próprio</option>
+          <option value="processo_retencao">Em Processo de Retenção</option>
         </select>
       </div>
       <div class="form-group" id="justProcessoGroup" style="display:none">
@@ -3357,10 +3357,10 @@ document.addEventListener('DOMContentLoaded',function(){document.getElementById(
     <div class="modal-box" onclick="event.stopPropagation()" style="max-width:480px;border-radius:var(--r);background:var(--bg);box-shadow:0 8px 40px rgba(0,0,0,.18)">
       <div class="modal-header" style="border-bottom:1px solid var(--border);padding:18px 20px 14px">
         <div>
-          <div class="modal-title" style="font-size:16px;font-weight:700">✅ Concluir Tratativa</div>
+          <div class="modal-title" style="font-size:16px;font-weight:700"><svg class="lc" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><path d="m9 11 3 3L22 4"/></svg> Concluir Tratativa</div>
           <div id="tratativaClienteNome" style="font-size:12px;color:var(--text2);margin-top:2px"></div>
         </div>
-        <button class="modal-close" onclick="closeModal('modalTratativa')">✕</button>
+        <button class="modal-close" onclick="closeModal('modalTratativa')"><svg class="lc" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></svg></button>
       </div>
       <div class="modal-body" style="padding:20px">
         <input type="hidden" id="tratativaClienteId">
@@ -3370,13 +3370,13 @@ document.addEventListener('DOMContentLoaded',function(){document.getElementById(
             <label style="cursor:pointer">
               <input type="radio" name="tratativaDesfecho" value="recuperado" onchange="atualizarBotaoTratativa(this.value)" style="display:none">
               <div class="tratativa-opt" id="opt-recuperado" style="border:2px solid var(--border);border-radius:10px;padding:10px 6px;text-align:center;font-size:12px;font-weight:600;transition:.15s">
-                <div style="font-size:20px;margin-bottom:4px">🟢</div>Recuperado
+                <div style="margin-bottom:4px"><span style="display:inline-block;width:20px;height:20px;border-radius:50%;background:#16a34a"></span></div>Recuperado
               </div>
             </label>
             <label style="cursor:pointer">
               <input type="radio" name="tratativaDesfecho" value="em_tratativa" onchange="atualizarBotaoTratativa(this.value)" style="display:none">
               <div class="tratativa-opt" id="opt-em_tratativa" style="border:2px solid var(--border);border-radius:10px;padding:10px 6px;text-align:center;font-size:12px;font-weight:600;transition:.15s">
-                <div style="font-size:20px;margin-bottom:4px">🔄</div>Em Tratativa
+                <div style="margin-bottom:4px"><svg class="lc" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 12a9 9 0 0 1 9-9 9.75 9.75 0 0 1 6.74 2.74L21 8"/><path d="M21 3v5h-5"/><path d="M21 12a9 9 0 0 1-9 9 9.75 9.75 0 0 1-6.74-2.74L3 16"/><path d="M8 16H3v5"/></svg></div>Em Tratativa
               </div>
             </label>
             <label style="cursor:pointer">
