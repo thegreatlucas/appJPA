@@ -1274,7 +1274,7 @@ const SUBMOTIVOS = {
 };
 
 const ENTRS_ATIVOS = ['ITP','JPA','KRC','SUL'];
-const ENTRS_CORES = {ITP:'var(--accent)',JPA:'var(--yellow)',KRC:'var(--purple)',SUL:'var(--blue)'};
+const ENTRS_CORES = {ITP:'#ADD7F6',JPA:'#87BFFF',KRC:'#3F8EFC',SUL:'#2667FF'};
 
 // Meses em pt-BR abreviados para detecção dinâmica
 const MESES_ABREV = ['jan','fev','mar','abr','mai','jun','jul','ago','set','out','nov','dez'];
@@ -1478,6 +1478,18 @@ function formatDate(d){
   if(!dt||isNaN(dt.getTime())) return '—';
   return dt.toLocaleDateString('pt-BR');
 }
+function countUp(el,target,suffix=''){
+  if(!el) return;
+  const dur=700,start=performance.now();
+  const from=parseInt(el.textContent.replace(/[^0-9]/g,''))||0;
+  const step=ts=>{
+    const p=Math.min((ts-start)/dur,1),e=1-Math.pow(1-p,3);
+    el.textContent=Math.round(from+(target-from)*e)+suffix;
+    if(p<1) requestAnimationFrame(step);
+  };
+  requestAnimationFrame(step);
+}
+
 function calcDias(ultimaCompra){
   if(!ultimaCompra||ultimaCompra==='—') return 999;
   const dt=parseDateStr(ultimaCompra);
@@ -2377,9 +2389,9 @@ function renderDash(){
   const subAtual=_temCampoA
     ?(_vendorAtivo?'Clientes distintos — mês atual (Campo A)':'Clientes distintos — Base Retenção')
     :(colAtual?`Mês: ${colAtual}`:'—');
-  document.getElementById('kpi-total').textContent=positivacaoTotal;
+  countUp(document.getElementById('kpi-total'),positivacaoTotal);
   document.getElementById('kpi-total-sub').textContent=subAtual;
-  document.getElementById('kpi-total-acum').textContent=totalAtendimentos;
+  countUp(document.getElementById('kpi-total-acum'),totalAtendimentos);
   {
     const isVend=currentRole==='vendedor';
     const hasFiltro=!!(document.getElementById('dashVendFilter')?.value||'');
@@ -2391,7 +2403,7 @@ function renderDash(){
     }
     document.getElementById('kpi-acum-sub').textContent=subText;
   }
-  document.getElementById('kpi-pct').textContent=pctPositivacao+'%';
+  countUp(document.getElementById('kpi-pct'),pctPositivacao,'%');
 
   // Calcular valores do mês anterior para comparação
   let posRetAnt=0,naoPositivadosAnt=0;
@@ -2414,13 +2426,13 @@ function renderDash(){
     return `<span style="${cor}">${seta}${pct}% vs ${colAnt} (${ant})</span>`;
   };
   // Cards de status — fonte: status da coluna do mês (Campo B)
-  document.getElementById('kpi-ret').textContent=stAtual['Retido'];
+  countUp(document.getElementById('kpi-ret'),stAtual['Retido']);
   document.getElementById('kpi-ret-pct').innerHTML=fmtVar(stAtual['Retido'],stAnt['Retido']);
-  document.getElementById('kpi-nao').textContent=stAtual['Não Retido'];
+  countUp(document.getElementById('kpi-nao'),stAtual['Não Retido']);
   document.getElementById('kpi-nao-pct').innerHTML=fmtVar(stAtual['Não Retido'],stAnt['Não Retido']);
-  document.getElementById('kpi-cap').textContent=stAtual['Capt./Cob.'];
+  countUp(document.getElementById('kpi-cap'),stAtual['Capt./Cob.']);
   document.getElementById('kpi-cap-pct').innerHTML=fmtVar(stAtual['Capt./Cob.'],stAnt['Capt./Cob.']);
-  document.getElementById('kpi-recup').textContent=stAtual['Recuperado'];
+  countUp(document.getElementById('kpi-recup'),stAtual['Recuperado']);
   document.getElementById('kpi-recup-pct').innerHTML=fmtVar(stAtual['Recuperado'],stAnt['Recuperado']);
 
   // kpi-retencao removido (Taxa de Fidelidade removida)
@@ -2429,7 +2441,7 @@ function renderDash(){
   const key=getMetaKey();const meta=metas[key];
   if(meta&&meta.geral>0){
     const metaPct=Math.round(positivacaoTotal/meta.geral*100);
-    document.getElementById('kpi-meta-pct').textContent=metaPct+'%';
+    countUp(document.getElementById('kpi-meta-pct'),metaPct,'%');
     document.getElementById('kpi-meta-sub').textContent=`${positivacaoTotal} / ${meta.geral} positivados`;
     document.getElementById('metaProgressFill').style.width=Math.min(100,metaPct)+'%';
   } else {
@@ -2438,19 +2450,14 @@ function renderDash(){
     document.getElementById('metaProgressFill').style.width='0%';
   }
 
-  // Risco por dias sem compra (Base Retenção — última compra do ano por Data de Emissão da NF)
-  const naoRet=base.filter(c=>{
-    const sAtual=colAtual?c.statusHistorico?.[colAtual]:null;
-    const sn=sAtual?normalizeStatus(sAtual):c.status;
-    return !STATUS_POSITIVOS.includes(sn);
-  });
-  const r0=naoRet.filter(c=>{const d=calcDias(c.ultimaCompra);return d<=10;});
-  const r1=naoRet.filter(c=>{const d=calcDias(c.ultimaCompra);return d>=11&&d<=20;});
-  const r2=naoRet.filter(c=>{const d=calcDias(c.ultimaCompra);return d>=21&&d<=30;});
-  const r3=naoRet.filter(c=>{const d=calcDias(c.ultimaCompra);return d>=31&&d<=40;});
-  const r4=naoRet.filter(c=>{const d=calcDias(c.ultimaCompra);return d>40;});
+  // Risco por dias sem compra — todos os clientes, independente de status
+  const r0=base.filter(c=>{const d=calcDias(c.ultimaCompra);return d<=10;});
+  const r1=base.filter(c=>{const d=calcDias(c.ultimaCompra);return d>=11&&d<=20;});
+  const r2=base.filter(c=>{const d=calcDias(c.ultimaCompra);return d>=21&&d<=30;});
+  const r3=base.filter(c=>{const d=calcDias(c.ultimaCompra);return d>=31&&d<=40;});
+  const r4=base.filter(c=>{const d=calcDias(c.ultimaCompra);return d>40;});
   ['kpi-r0','kpi-r1','kpi-r2','kpi-r3','kpi-r4'].forEach((id,i)=>{
-    document.getElementById(id).textContent=[r0,r1,r2,r3,r4][i].length;
+    countUp(document.getElementById(id),[r0,r1,r2,r3,r4][i].length);
   });
   [r0,r1,r2,r3,r4].forEach((arr,i)=>{
     const tip=document.getElementById('tooltip-r'+i);
@@ -2462,7 +2469,7 @@ function renderDash(){
   });
 
   renderComprouMesEntreposto(base);
-  renderChartHistorico(base);
+  renderChartHistorico(base,positivacaoTotal);
   renderChartEntr(base);
 
   if(currentRole==='vendedor'){
@@ -2492,14 +2499,17 @@ function renderComprouMesEntreposto(base){
   build(document.getElementById('comprouMesEntrepostoAnt'),mAnt);
 }
 
-function renderChartHistorico(base){
+function renderChartHistorico(base,positivacaoMesAtual){
   const el=document.getElementById('chartHistorico');
   const labEl=document.getElementById('chartHistoricoLabels');
   if(!base||!base.length){if(el) el.innerHTML='<p style="color:var(--text3);font-size:12px">Sem dados importados</p>';if(labEl) labEl.innerHTML='';return;}
   const colAtual=historicoAnualRaw?.colMesAtual||null;
   if(mesesHistorico.length&&base.some(c=>c.statusHistorico&&Object.keys(c.statusHistorico).length)){
     const entries=mesesHistorico.map(m=>{
-      const positivos=base.filter(c=>isPositivado(c.statusHistorico?.[m])).length;
+      // Mês atual: usa o mesmo valor do KPI de positivação para consistência
+      const positivos=(m===colAtual&&positivacaoMesAtual!=null)
+        ?positivacaoMesAtual
+        :base.filter(c=>isPositivado(c.statusHistorico?.[m])).length;
       return [m,positivos];
     });
     const max=Math.max(...entries.map(e=>e[1]),1);
@@ -2640,11 +2650,11 @@ function renderAlertas(){
   if(search) base=base.filter(c=>c.nome.toLowerCase().includes(search));
   base.sort((a,b)=>calcDias(b.ultimaCompra)-calcDias(a.ultimaCompra));
   const all=getClientesFiltrados().filter(c=>{const s=colAtual?c.statusHistorico?.[colAtual]:null;return !isPositivado(s||c.status);});
-  document.getElementById('al-10').textContent=all.filter(c=>{const d=calcDias(c.ultimaCompra);return d<=10;}).length;
-  document.getElementById('al-20').textContent=all.filter(c=>{const d=calcDias(c.ultimaCompra);return d>=11&&d<=20;}).length;
-  document.getElementById('al-30').textContent=all.filter(c=>{const d=calcDias(c.ultimaCompra);return d>=21&&d<=30;}).length;
-  document.getElementById('al-40').textContent=all.filter(c=>{const d=calcDias(c.ultimaCompra);return d>=31&&d<=40;}).length;
-  document.getElementById('al-40p').textContent=all.filter(c=>{const d=calcDias(c.ultimaCompra);return d>40;}).length;
+  countUp(document.getElementById('al-10'),all.filter(c=>{const d=calcDias(c.ultimaCompra);return d<=10;}).length);
+  countUp(document.getElementById('al-20'),all.filter(c=>{const d=calcDias(c.ultimaCompra);return d>=11&&d<=20;}).length);
+  countUp(document.getElementById('al-30'),all.filter(c=>{const d=calcDias(c.ultimaCompra);return d>=21&&d<=30;}).length);
+  countUp(document.getElementById('al-40'),all.filter(c=>{const d=calcDias(c.ultimaCompra);return d>=31&&d<=40;}).length);
+  countUp(document.getElementById('al-40p'),all.filter(c=>{const d=calcDias(c.ultimaCompra);return d>40;}).length);
   const pages=Math.max(1,Math.ceil(base.length/PER));
   if(alertaPage>pages) alertaPage=1;
   const slice=base.slice((alertaPage-1)*PER,alertaPage*PER);
