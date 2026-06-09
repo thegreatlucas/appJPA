@@ -1592,7 +1592,21 @@ function populateVendSelect(){
 // depois sobrescreve com usuários do Supabase
 // Usuários carregados via DOMContentLoaded abaixo
 
-document.addEventListener('DOMContentLoaded',function(){carregarUsuarios();});
+async function tentarAutoLogin(){
+  const raw=localStorage.getItem('crm4_session');
+  if(!raw) return false;
+  let sess;try{sess=JSON.parse(raw);}catch(e){localStorage.removeItem('crm4_session');return false;}
+  if(!sess||!sess.role) return false;
+  await carregarUsuarios();
+  if(sess.role==='gestor'){iniciarApp('gestor',sess.user||'Gestor');return true;}
+  if(sess.role==='vendedor'&&sess.user){
+    const u=_usuarios.find(u=>u.login===sess.user&&u.role==='vendedor'&&u.ativo);
+    if(u){iniciarApp('vendedor',u.login);return true;}
+  }
+  localStorage.removeItem('crm4_session');
+  return false;
+}
+document.addEventListener('DOMContentLoaded',function(){tentarAutoLogin().then(ok=>{if(!ok) carregarUsuarios();});});
 
 function selectRole(role){
   currentRole=role;
@@ -1625,6 +1639,7 @@ async function doLogin(){
   iniciarApp('vendedor',u.login);
 }
 function iniciarApp(role,user){
+  localStorage.setItem('crm4_session',JSON.stringify({role,user}));
   currentRole=role;currentUser=user;
   currentVendedor=role==='vendedor'?user:'';
   loadLocalForUser();
@@ -1652,6 +1667,7 @@ function iniciarApp(role,user){
   });
 }
 function doLogout(){
+  localStorage.removeItem('crm4_session');
   clientes=[];contatos=[];metas={};obsCoord=[];
   procRetencaoHist=[];positivacaoAtualCache=null;
   baseRetencaoRaw=null;historicoAnualRaw=null;
