@@ -387,8 +387,8 @@ body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text);fon
     <div class="login-divider"></div>
     <p class="login-subtitle">Selecione seu perfil para entrar</p>
     <div class="role-tabs">
-      <button class="role-tab active" id="tabGestor" onclick="selectRole('gestor')">👑 Gestor</button>
-      <button class="role-tab" id="tabVendedor" onclick="selectRole('vendedor')">👤 Vendedor</button>
+      <button class="role-tab active" id="tabGestor" onclick="selectRole('gestor')"><svg class="lc" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m2 4 3 12h14l3-12-6 5-4-5-4 5-6-5zm3 16h14"/></svg> Gestor</button>
+      <button class="role-tab" id="tabVendedor" onclick="selectRole('vendedor')"><svg class="lc" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg> Vendedor</button>
     </div>
     <div class="inp-group" id="vendedorSelectGroup" style="display:none">
       <label>Seu Nome</label>
@@ -412,7 +412,7 @@ body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text);fon
         <div class="brand-icon">J</div>
         <span class="brand-name" id="brandName">Jampac CRM</span>
       </div>
-      <button class="collapse-btn" id="collapseBtn" onclick="toggleSidebar()" title="Colapsar menu">‹</button>
+      <button class="collapse-btn" id="collapseBtn" onclick="toggleSidebar()" title="Colapsar menu"><svg class="lc" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m15 18-6-6 6-6"/></svg></button>
     </div>
     <div class="topbar-content">
       <span class="topbar-title" id="topbarTitle">Dashboard</span>
@@ -432,17 +432,17 @@ body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text);fon
     <!-- SIDEBAR -->
     <div class="sidebar" id="sidebar">
       <span class="sidebar-section">Visão Geral</span>
-      <button class="sidebar-item active" data-label="Dashboard" onclick="goPage('dashboard')"><span class="sidebar-icon">📊</span><span class="sidebar-label">Dashboard</span></button>
+      <button class="sidebar-item active" data-label="Dashboard" onclick="goPage('dashboard')"><span class="sidebar-icon"><svg class="lc" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="7" height="9" x="3" y="3" rx="1"/><rect width="7" height="5" x="14" y="3" rx="1"/><rect width="7" height="9" x="14" y="12" rx="1"/><rect width="7" height="5" x="3" y="16" rx="1"/></svg></span><span class="sidebar-label">Dashboard</span></button>
       <span class="sidebar-section">Clientes</span>
-      <button class="sidebar-item" data-label="Carteira" onclick="goPage('clientes')"><span class="sidebar-icon">👥</span><span class="sidebar-label">Carteira</span></button>
-      <button class="sidebar-item" data-label="Em Processo" onclick="goPage('processo_retencao');document.getElementById('emProcessoCount').style.display='none';"><span class="sidebar-icon">🔄</span><span class="sidebar-label"><span id="emProcessoBadge" style="display:inline-flex;align-items:center;gap:6px">Em Processo <span id="emProcessoCount" style="background:var(--red);color:#fff;border-radius:10px;padding:1px 7px;font-size:10px;font-weight:700;display:none">0</span></span></span></button>
-      <button class="sidebar-item" data-label="Obs. Coordenador" onclick="goPage('obs_coordenador');document.getElementById('emProcessoCountObs').style.display='none';"><span class="sidebar-icon">💬</span><span class="sidebar-label"><span style="display:inline-flex;align-items:center;gap:6px">Obs. Coordenador <span id="emProcessoCountObs" style="background:var(--red);color:#fff;border-radius:10px;padding:1px 7px;font-size:10px;font-weight:700;display:none">0</span></span></span></button>
+      <button class="sidebar-item" data-label="Carteira" onclick="goPage('clientes')"><span class="sidebar-icon"><svg class="lc" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg></span><span class="sidebar-label">Carteira</span></button>
+      <button class="sidebar-item" data-label="Em Processo" onclick="goPage('processo_retencao');document.getElementById('emProcessoCount').style.display='none';"><span class="sidebar-icon"><svg class="lc" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 12a9 9 0 0 1 9-9 9.75 9.75 0 0 1 6.74 2.74L21 8"/><path d="M21 3v5h-5"/><path d="M21 12a9 9 0 0 1-9 9 9.75 9.75 0 0 1-6.74-2.74L3 16"/><path d="M8 16H3v5"/></svg></span><span class="sidebar-label"><span id="emProcessoBadge" style="display:inline-flex;align-items:center;gap:6px">Em Processo <span id="emProcessoCount" style="background:var(--red);color:#fff;border-radius:10px;padding:1px 7px;font-size:10px;font-weight:700;display:none">0</span></span></span></button>
+      <button class="sidebar-item" data-label="Obs. Coordenador" onclick="goPage('obs_coordenador');document.getElementById('emProcessoCountObs').style.display='none';"><span class="sidebar-icon"><svg class="lc" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg></span><span class="sidebar-label"><span style="display:inline-flex;align-items:center;gap:6px">Obs. Coordenador <span id="emProcessoCountObs" style="background:var(--red);color:#fff;border-radius:10px;padding:1px 7px;font-size:10px;font-weight:700;display:none">0</span></span></span></button>
       <span class="sidebar-section" id="gestorSection">Gestão</span>
-      <button class="sidebar-item" id="gestoresMenu" data-label="Por Vendedor" onclick="goPage('gestores')"><span class="sidebar-icon">👥</span><span class="sidebar-label">Por Vendedor</span></button>
-      <button class="sidebar-item" id="rankMenu" data-label="Ranking" onclick="goPage('ranking')"><span class="sidebar-icon">🏆</span><span class="sidebar-label">Ranking</span></button>
-      <button class="sidebar-item" id="importMenu" data-label="Importar Excel" onclick="goPage('importar')"><span class="sidebar-icon">📤</span><span class="sidebar-label">Importar Excel</span></button>
-      <button class="sidebar-item" id="adminMenu" data-label="Administração" onclick="goPage('admin')"><span class="sidebar-icon">⚙️</span><span class="sidebar-label">Administração</span></button>
-      <button class="sidebar-item" id="exportMenuBtn" data-label="Exportar CSV" onclick="exportCSV()"><span class="sidebar-icon">📥</span><span class="sidebar-label">Exportar CSV</span></button>
+      <button class="sidebar-item" id="gestoresMenu" data-label="Por Vendedor" onclick="goPage('gestores')"><span class="sidebar-icon"><svg class="lc" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg></span><span class="sidebar-label">Por Vendedor</span></button>
+      <button class="sidebar-item" id="rankMenu" data-label="Ranking" onclick="goPage('ranking')"><span class="sidebar-icon"><svg class="lc" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9H4.5a2.5 2.5 0 0 1 0-5H6"/><path d="M18 9h1.5a2.5 2.5 0 0 0 0-5H18"/><path d="M4 22h16"/><path d="M10 14.66V17c0 .55-.47.98-.97 1.21C7.85 18.75 7 20.24 7 22"/><path d="M14 14.66V17c0 .55.47.98.97 1.21C16.15 18.75 17 20.24 17 22"/><path d="M18 2H6v7a6 6 0 0 0 12 0V2Z"/></svg></span><span class="sidebar-label">Ranking</span></button>
+      <button class="sidebar-item" id="importMenu" data-label="Importar Excel" onclick="goPage('importar')"><span class="sidebar-icon"><svg class="lc" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" x2="12" y1="3" y2="15"/></svg></span><span class="sidebar-label">Importar Excel</span></button>
+      <button class="sidebar-item" id="adminMenu" data-label="Administração" onclick="goPage('admin')"><span class="sidebar-icon"><svg class="lc" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12.22 2h-.44a2 2 0 0 0-2 2v.18a2 2 0 0 1-1 1.73l-.43.25a2 2 0 0 1-2 0l-.15-.08a2 2 0 0 0-2.73.73l-.22.38a2 2 0 0 0 .73 2.73l.15.1a2 2 0 0 1 1 1.72v.51a2 2 0 0 1-1 1.74l-.15.09a2 2 0 0 0-.73 2.73l.22.38a2 2 0 0 0 2.73.73l.15-.08a2 2 0 0 1 2 0l.43.25a2 2 0 0 1 1 1.73V20a2 2 0 0 0 2 2h.44a2 2 0 0 0 2-2v-.18a2 2 0 0 1 1-1.73l.43-.25a2 2 0 0 1 2 0l.15.08a2 2 0 0 0 2.73-.73l.22-.39a2 2 0 0 0-.73-2.73l-.15-.08a2 2 0 0 1-1-1.74v-.5a2 2 0 0 1 1-1.74l.15-.09a2 2 0 0 0 .73-2.73l-.22-.38a2 2 0 0 0-2.73-.73l-.15.08a2 2 0 0 1-2 0l-.43-.25a2 2 0 0 1-1-1.73V4a2 2 0 0 0-2-2z"/><circle cx="12" cy="12" r="3"/></svg></span><span class="sidebar-label">Administração</span></button>
+      <button class="sidebar-item" id="exportMenuBtn" data-label="Exportar CSV" onclick="exportCSV()"><span class="sidebar-icon"><svg class="lc" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" x2="12" y1="15" y2="3"/></svg></span><span class="sidebar-label">Exportar CSV</span></button>
     </div>
 
     <!-- MAIN -->
@@ -453,7 +453,7 @@ body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text);fon
         <div id="vendedorHeaderDiv"></div>
         <!-- BARRA INFORMATIVA MÊS DETECTADO -->
         <div id="mesDetectadoBar" style="display:none" class="mes-detectado-bar">
-          <span style="font-size:18px">📆</span>
+          <svg class="lc" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M8 2v4"/><path d="M16 2v4"/><rect width="18" height="18" x="3" y="4" rx="2"/><path d="M3 10h18"/><path d="M8 14h.01"/><path d="M12 14h.01"/><path d="M16 14h.01"/><path d="M8 18h.01"/><path d="M12 18h.01"/><path d="M16 18h.01"/></svg>
           <div>
             <span style="font-size:11px;font-weight:700;color:var(--text2);text-transform:uppercase;letter-spacing:.5px">Mês Atual Detectado Automaticamente</span>
             <div style="display:flex;align-items:center;gap:8px;margin-top:4px">
@@ -493,7 +493,7 @@ body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text);fon
           <div class="meta-card" style="min-width:200px">
             <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px">
               <div class="kpi-label" style="margin:0">Meta de Positivação</div>
-              <button class="btn btn-ghost btn-sm" onclick="openMetaModal()">✏️</button>
+              <button class="btn btn-ghost btn-sm" onclick="openMetaModal()"><svg class="lc" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 3a2.85 2.83 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5Z"/><path d="m15 5 4 4"/></svg></button>
             </div>
             <div class="kpi-value" id="kpi-meta-pct" style="font-size:28px;color:var(--accent)">—</div>
             <div id="kpi-meta-sub" class="kpi-sub">Defina sua meta mensal</div>
@@ -525,50 +525,50 @@ body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text);fon
         </div>
         <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:20px">
           <div class="chart-panel" style="padding:18px">
-            <div class="chart-panel-title">🏭 Clientes por Entreposto — Mês Atual <span id="entrPieMesAtual2" class="mes-tag-mini">—</span></div>
+            <div class="chart-panel-title"><svg class="lc" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M2 20a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V8l-7 5V8l-7 5V4a2 2 0 0 0-2-2H4a2 2 0 0 0-2 2Z"/><path d="M17 18h1"/><path d="M12 18h1"/><path d="M7 18h1"/></svg> Clientes por Entreposto — Mês Atual <span id="entrPieMesAtual2" class="mes-tag-mini">—</span></div>
             <div id="chartEntr2" style="margin-top:8px"></div>
           </div>
           <div class="chart-panel" style="padding:18px">
-            <div class="chart-panel-title">🏭 Clientes por Entreposto — Mês Anterior <span id="entrPieMesAnt2" class="mes-tag-mini">—</span></div>
+            <div class="chart-panel-title"><svg class="lc" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M2 20a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V8l-7 5V8l-7 5V4a2 2 0 0 0-2-2H4a2 2 0 0 0-2 2Z"/><path d="M17 18h1"/><path d="M12 18h1"/><path d="M7 18h1"/></svg> Clientes por Entreposto — Mês Anterior <span id="entrPieMesAnt2" class="mes-tag-mini">—</span></div>
             <div id="chartEntrAnt2" style="margin-top:8px"></div>
           </div>
         </div>
-        <div class="risco-section-title">🔴 Risco por Dias Sem Compras</div>
+        <div class="risco-section-title"><span style="display:inline-block;width:8px;height:8px;border-radius:50%;background:#dc2626;flex-shrink:0;vertical-align:middle"></span> Risco por Dias Sem Compras</div>
         <div class="cards-row cards-5">
           <div class="kpi-card risco-card-hover risco-baixo" style="position:relative">
             <div class="kpi-label" style="color:#16a34a">0–10 dias</div>
             <div class="kpi-value" id="kpi-r0">—</div>
-            <div class="kpi-sub">🟢 Risco Baixo</div>
+            <div class="kpi-sub" style="display:flex;align-items:center;gap:4px"><span style="display:inline-block;width:8px;height:8px;border-radius:50%;background:#16a34a;flex-shrink:0;vertical-align:middle"></span> Risco Baixo</div>
             <div class="risco-tooltip" id="tooltip-r0"></div>
           </div>
           <div class="kpi-card risco-card-hover risco-medio" style="position:relative">
             <div class="kpi-label" style="color:#65a30d">11–20 dias</div>
             <div class="kpi-value" id="kpi-r1">—</div>
-            <div class="kpi-sub">🟡 Risco Médio</div>
+            <div class="kpi-sub" style="display:flex;align-items:center;gap:4px"><span style="display:inline-block;width:8px;height:8px;border-radius:50%;background:#d97706;flex-shrink:0;vertical-align:middle"></span> Risco Médio</div>
             <div class="risco-tooltip" id="tooltip-r1"></div>
           </div>
           <div class="kpi-card risco-card-hover risco-alto" style="position:relative">
             <div class="kpi-label" style="color:var(--yellow)">21–30 dias</div>
             <div class="kpi-value" id="kpi-r2">—</div>
-            <div class="kpi-sub">🟠 Risco Alto</div>
+            <div class="kpi-sub" style="display:flex;align-items:center;gap:4px"><span style="display:inline-block;width:8px;height:8px;border-radius:50%;background:#ea580c;flex-shrink:0;vertical-align:middle"></span> Risco Alto</div>
             <div class="risco-tooltip" id="tooltip-r2"></div>
           </div>
           <div class="kpi-card risco-card-hover risco-grave" style="position:relative">
             <div class="kpi-label" style="color:var(--orange)">31–40 dias</div>
             <div class="kpi-value" id="kpi-r3">—</div>
-            <div class="kpi-sub">🔴 Gravíssimo</div>
+            <div class="kpi-sub" style="display:flex;align-items:center;gap:4px"><span style="display:inline-block;width:8px;height:8px;border-radius:50%;background:#dc2626;flex-shrink:0;vertical-align:middle"></span> Gravíssimo</div>
             <div class="risco-tooltip" id="tooltip-r3"></div>
           </div>
           <div class="kpi-card risco-card-hover risco-perda" style="position:relative">
             <div class="kpi-label" style="color:var(--red)">40+ dias</div>
             <div class="kpi-value" id="kpi-r4">—</div>
-            <div class="kpi-sub">🚨 Perda</div>
+            <div class="kpi-sub" style="display:flex;align-items:center;gap:4px"><span style="display:inline-block;width:8px;height:8px;border-radius:50%;background:#dc2626;flex-shrink:0;vertical-align:middle"></span> Perda</div>
             <div class="risco-tooltip" id="tooltip-r4"></div>
           </div>
         </div>
         <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:20px">
           <div class="chart-panel">
-            <div class="chart-panel-title">📈 Histórico de Positivações (meses)</div>
+            <div class="chart-panel-title"><svg class="lc" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="22 7 13.5 15.5 8.5 10.5 2 17"/><polyline points="16 7 22 7 22 13"/></svg> Histórico de Positivações (meses)</div>
             <div id="chartHistorico" style="display:flex;align-items:flex-end;gap:6px;height:100px;padding:4px 0 0"></div>
             <div id="chartHistoricoLabels" style="display:flex;gap:6px;margin-top:4px"></div>
           </div>
@@ -577,7 +577,7 @@ body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text);fon
 
       <!-- ENTREPOSTOS -->
       <div class="page" id="page-entrepostos">
-        <div class="page-header"><div class="section-title">🏭 Visão por Entreposto</div></div>
+        <div class="page-header"><div class="section-title"><svg class="lc" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M2 20a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V8l-7 5V8l-7 5V4a2 2 0 0 0-2-2H4a2 2 0 0 0-2 2Z"/><path d="M17 18h1"/><path d="M12 18h1"/><path d="M7 18h1"/></svg> Visão por Entreposto</div></div>
         <div id="entrResumoCards" style="display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-bottom:20px"></div>
         <div class="tab-bar" id="entrTab">
           <button class="tab-btn active" onclick="selectEntrTab('JPA')">JPA</button>
@@ -593,7 +593,7 @@ body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text);fon
           <div class="cards-row cards-3" id="entrKpis" style="flex:1;margin:0"></div>
         </div>
         <div class="filters-bar">
-          <input class="filter-inp" type="text" placeholder="🔍 Buscar cliente..." id="entrSearch" oninput="renderEntrTable()" style="width:220px">
+          <input class="filter-inp" type="text" placeholder="Buscar cliente..." id="entrSearch" oninput="renderEntrTable()" style="width:220px">
           <select class="filter-inp" id="entrStatusFilter" onchange="renderEntrTable()">
             <option value="">Todos os status</option>
             <option value="Retido">Retidos</option>
@@ -616,13 +616,13 @@ body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text);fon
 
       <!-- ALERTAS -->
       <div class="page" id="page-alertas">
-        <div class="page-header"><div class="section-title">🔔 Alertas — Clientes sem Compra</div></div>
+        <div class="page-header"><div class="section-title"><svg class="lc" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 8a6 6 0 0 1 12 0c0 7 3 9 3 9H3s3-2 3-9"/><path d="M10.3 21a1.94 1.94 0 0 0 3.4 0"/></svg> Alertas — Clientes sem Compra</div></div>
         <div class="cards-row cards-5">
-          <div class="kpi-card risco-baixo"><div class="kpi-label">0–10 dias</div><div class="kpi-value" id="al-10">—</div><div class="kpi-sub">🟢 Risco Baixo</div></div>
-          <div class="kpi-card risco-medio"><div class="kpi-label">11–20 dias</div><div class="kpi-value" id="al-20">—</div><div class="kpi-sub">🟡 Risco Médio</div></div>
-          <div class="kpi-card risco-alto"><div class="kpi-label">21–30 dias</div><div class="kpi-value" id="al-30">—</div><div class="kpi-sub">🟠 Risco Alto</div></div>
-          <div class="kpi-card risco-grave"><div class="kpi-label">31–40 dias</div><div class="kpi-value" id="al-40">—</div><div class="kpi-sub">🔴 Gravíssimo</div></div>
-          <div class="kpi-card risco-perda"><div class="kpi-label">40+ dias</div><div class="kpi-value" id="al-40p">—</div><div class="kpi-sub">🚨 Perda</div></div>
+          <div class="kpi-card risco-baixo"><div class="kpi-label">0–10 dias</div><div class="kpi-value" id="al-10">—</div><div class="kpi-sub" style="display:flex;align-items:center;gap:4px"><span style="display:inline-block;width:8px;height:8px;border-radius:50%;background:#16a34a;flex-shrink:0"></span> Risco Baixo</div></div>
+          <div class="kpi-card risco-medio"><div class="kpi-label">11–20 dias</div><div class="kpi-value" id="al-20">—</div><div class="kpi-sub" style="display:flex;align-items:center;gap:4px"><span style="display:inline-block;width:8px;height:8px;border-radius:50%;background:#d97706;flex-shrink:0"></span> Risco Médio</div></div>
+          <div class="kpi-card risco-alto"><div class="kpi-label">21–30 dias</div><div class="kpi-value" id="al-30">—</div><div class="kpi-sub" style="display:flex;align-items:center;gap:4px"><span style="display:inline-block;width:8px;height:8px;border-radius:50%;background:#ea580c;flex-shrink:0"></span> Risco Alto</div></div>
+          <div class="kpi-card risco-grave"><div class="kpi-label">31–40 dias</div><div class="kpi-value" id="al-40">—</div><div class="kpi-sub" style="display:flex;align-items:center;gap:4px"><span style="display:inline-block;width:8px;height:8px;border-radius:50%;background:#dc2626;flex-shrink:0"></span> Gravíssimo</div></div>
+          <div class="kpi-card risco-perda"><div class="kpi-label">40+ dias</div><div class="kpi-value" id="al-40p">—</div><div class="kpi-sub" style="display:flex;align-items:center;gap:4px"><span style="display:inline-block;width:8px;height:8px;border-radius:50%;background:#dc2626;flex-shrink:0"></span> Perda</div></div>
         </div>
         <div class="hierarquia-bar">
           <span style="font-size:11px;font-weight:700;color:var(--text2);text-transform:uppercase">Sequência:</span>
@@ -642,7 +642,7 @@ body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text);fon
             <option value="41">40d+ (Perda)</option>
           </select>
           <select class="filter-inp" id="alertaVendFilter" onchange="renderAlertas()"><option value="">Todos os vendedores</option></select>
-          <input class="filter-inp" type="text" placeholder="🔍 Buscar cliente..." id="alertaSearch" oninput="renderAlertas()" style="width:200px">
+          <input class="filter-inp" type="text" placeholder="Buscar cliente..." id="alertaSearch" oninput="renderAlertas()" style="width:200px">
         </div>
         <div class="table-wrap">
           <table>
@@ -658,7 +658,7 @@ body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text);fon
         <div class="page-header">
           <div class="page-header-top">
             <div>
-              <div class="section-title">👥 Carteira de Clientes</div>
+              <div class="section-title"><svg class="lc" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg> Carteira de Clientes</div>
               <div class="section-sub" id="clienteCount">0 clientes</div>
             </div>
           </div>
@@ -672,7 +672,7 @@ body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text);fon
         </div>
         <div id="carteiraEntrResumo" style="margin-bottom:16px"></div>
         <div class="filters-bar">
-          <input class="filter-inp" type="text" placeholder="🔍 Nome ou código..." id="srchCliente" oninput="renderClientes()" style="width:220px">
+          <input class="filter-inp" type="text" placeholder="Nome ou código..." id="srchCliente" oninput="renderClientes()" style="width:220px">
           <select class="filter-inp" id="fStatus" onchange="renderClientes()">
             <option value="">Todos os Status</option>
             <option value="Retido">Retido</option>
@@ -718,9 +718,9 @@ body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text);fon
 
       <!-- CONTATOS -->
       <div class="page" id="page-contatos">
-        <div class="page-header"><div class="section-title">📞 Registrar Contato</div></div>
+        <div class="page-header"><div class="section-title"><svg class="lc" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07A19.5 19.5 0 0 1 4.69 13.1a19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 3.18 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"/></svg> Registrar Contato</div></div>
         <div class="filters-bar">
-          <input class="filter-inp" type="text" placeholder="🔍 Buscar cliente..." id="srchContato" oninput="renderContatoList()" style="width:220px">
+          <input class="filter-inp" type="text" placeholder="Buscar cliente..." id="srchContato" oninput="renderContatoList()" style="width:220px">
           <select class="filter-inp" id="fContatoVend" onchange="renderContatoList()"><option value="">Todos</option></select>
           <select class="filter-inp" id="fContatoStatus" onchange="renderContatoList()">
             <option value="">Todos status</option>
@@ -742,12 +742,12 @@ body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text);fon
       <div class="page" id="page-justificativas">
         <div class="page-header">
           <div>
-            <div class="section-title">📝 Justificativas — Clientes 30d+ sem compra</div>
+            <div class="section-title"><svg class="lc" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22h6a2 2 0 0 0 2-2V7l-5-5H6a2 2 0 0 0-2 2v10"/><path d="M14 2v4a2 2 0 0 0 2 2h4"/><path d="M10.4 12.6a2 2 0 1 1 3 3L8 21l-4 1 1-4Z"/></svg> Justificativas — Clientes 30d+ sem compra</div>
             <div class="section-sub">Clientes com 30+ dias sem compra que precisam de justificativa</div>
           </div>
         </div>
         <div class="filters-bar">
-          <input class="filter-inp" type="text" placeholder="🔍 Buscar..." id="srchJust" oninput="renderJustificativas()" style="width:220px">
+          <input class="filter-inp" type="text" placeholder="Buscar..." id="srchJust" oninput="renderJustificativas()" style="width:220px">
           <select class="filter-inp" id="fJustVend" onchange="renderJustificativas()"><option value="">Todos vendedores</option></select>
           <select class="filter-inp" id="fJustMotivo" onchange="renderJustificativas()">
             <option value="">Todos motivos</option>
@@ -773,20 +773,20 @@ body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text);fon
 
       <!-- PROCESSO RETENÇÃO -->
       <div class="page" id="page-processo_retencao">
-        <div class="page-header"><div class="section-title">🔄 Clientes em Processo de Retenção</div></div>
+        <div class="page-header"><div class="section-title"><svg class="lc" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 12a9 9 0 0 1 9-9 9.75 9.75 0 0 1 6.74 2.74L21 8"/><path d="M21 3v5h-5"/><path d="M21 12a9 9 0 0 1-9 9 9.75 9.75 0 0 1-6.74-2.74L3 16"/><path d="M8 16H3v5"/></svg> Clientes em Processo de Retenção</div></div>
         <div id="processoRetencaoList"><p style="color:var(--text3);font-size:13px">Nenhum cliente em processo de retenção.</p></div>
       </div>
 
       <!-- OBS COORDENADOR -->
       <div class="page" id="page-obs_coordenador">
-        <div class="page-header"><div class="section-title">💬 Observações do Coordenador</div></div>
+        <div class="page-header"><div class="section-title"><svg class="lc" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg> Observações do Coordenador</div></div>
         <div id="obsCoordContent"></div>
       </div>
 
       <!-- GESTORES - POR VENDEDOR -->
       <div class="page" id="page-gestores">
         <div class="page-header">
-          <div class="section-title">👥 Visão por Vendedor</div>
+          <div class="section-title"><svg class="lc" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg> Visão por Vendedor</div>
           <div class="section-sub">KPIs individuais por vendedor — clique na aba para alternar</div>
         </div>
         <div class="tab-bar" id="gestoresTabBar" style="flex-wrap:wrap;gap:4px"></div>
@@ -795,7 +795,7 @@ body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text);fon
 
       <!-- RANKING -->
       <div class="page" id="page-ranking">
-        <div class="page-header"><div class="section-title">🏆 Ranking de Positivações</div></div>
+        <div class="page-header"><div class="section-title"><svg class="lc" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9H4.5a2.5 2.5 0 0 1 0-5H6"/><path d="M18 9h1.5a2.5 2.5 0 0 0 0-5H18"/><path d="M4 22h16"/><path d="M10 14.66V17c0 .55-.47.98-.97 1.21C7.85 18.75 7 20.24 7 22"/><path d="M14 14.66V17c0 .55.47.98.97 1.21C16.15 18.75 17 20.24 17 22"/><path d="M18 2H6v7a6 6 0 0 0 12 0V2Z"/></svg> Ranking de Positivações</div></div>
         <div id="minhaPosicaoRank" style="margin-bottom:14px"></div>
         <div class="table-wrap">
           <table>
@@ -809,7 +809,7 @@ body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text);fon
       <div class="page" id="page-importar">
         <div class="page-header">
           <div>
-            <div class="section-title">📤 Importar Bases de Dados</div>
+            <div class="section-title"><svg class="lc" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" x2="12" y1="3" y2="15"/></svg> Importar Bases de Dados</div>
             <div class="section-sub">Dois inputs fixos — substituição integral a cada upload</div>
           </div>
         </div>
@@ -1097,6 +1097,66 @@ body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text);fon
 <div class="toast" id="toast"></div>
 
 <script>
+
+// ==============================
+// LUCIDE ICON HELPERS
+// ==============================
+function lc(name,size=16,cls=''){
+  const p=LC_PATHS[name];
+  if(!p) return '';
+  return `<svg class="lc ${cls}" width="${size}" height="${size}" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">${p}</svg>`;
+}
+function riskDot(color){return `<span style="display:inline-block;width:8px;height:8px;border-radius:50%;background:${color};flex-shrink:0;vertical-align:middle"></span>`;}
+const LC_PATHS={
+  'crown':          `<path d="m2 4 3 12h14l3-12-6 5-4-5-4 5-6-5zm3 16h14"/>`,
+  'user':           `<path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/>`,
+  'users':          `<path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/>`,
+  'layout-dashboard':`<rect width="7" height="9" x="3" y="3" rx="1"/><rect width="7" height="5" x="14" y="3" rx="1"/><rect width="7" height="9" x="14" y="12" rx="1"/><rect width="7" height="5" x="3" y="16" rx="1"/>`,
+  'refresh-cw':     `<path d="M3 12a9 9 0 0 1 9-9 9.75 9.75 0 0 1 6.74 2.74L21 8"/><path d="M21 3v5h-5"/><path d="M21 12a9 9 0 0 1-9 9 9.75 9.75 0 0 1-6.74-2.74L3 16"/><path d="M8 16H3v5"/>`,
+  'message-square': `<path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/>`,
+  'trophy':         `<path d="M6 9H4.5a2.5 2.5 0 0 1 0-5H6"/><path d="M18 9h1.5a2.5 2.5 0 0 0 0-5H18"/><path d="M4 22h16"/><path d="M10 14.66V17c0 .55-.47.98-.97 1.21C7.85 18.75 7 20.24 7 22"/><path d="M14 14.66V17c0 .55.47.98.97 1.21C16.15 18.75 17 20.24 17 22"/><path d="M18 2H6v7a6 6 0 0 0 12 0V2Z"/>`,
+  'upload':         `<path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" x2="12" y1="3" y2="15"/>`,
+  'download':       `<path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" x2="12" y1="15" y2="3"/>`,
+  'settings':       `<path d="M12.22 2h-.44a2 2 0 0 0-2 2v.18a2 2 0 0 1-1 1.73l-.43.25a2 2 0 0 1-2 0l-.15-.08a2 2 0 0 0-2.73.73l-.22.38a2 2 0 0 0 .73 2.73l.15.1a2 2 0 0 1 1 1.72v.51a2 2 0 0 1-1 1.74l-.15.09a2 2 0 0 0-.73 2.73l.22.38a2 2 0 0 0 2.73.73l.15-.08a2 2 0 0 1 2 0l.43.25a2 2 0 0 1 1 1.73V20a2 2 0 0 0 2 2h.44a2 2 0 0 0 2-2v-.18a2 2 0 0 1 1-1.73l.43-.25a2 2 0 0 1 2 0l.15.08a2 2 0 0 0 2.73-.73l.22-.39a2 2 0 0 0-.73-2.73l-.15-.08a2 2 0 0 1-1-1.74v-.5a2 2 0 0 1 1-1.74l.15-.09a2 2 0 0 0 .73-2.73l-.22-.38a2 2 0 0 0-2.73-.73l-.15.08a2 2 0 0 1-2 0l-.43-.25a2 2 0 0 1-1-1.73V4a2 2 0 0 0-2-2z"/><circle cx="12" cy="12" r="3"/>`,
+  'calendar-days':  `<path d="M8 2v4"/><path d="M16 2v4"/><rect width="18" height="18" x="3" y="4" rx="2"/><path d="M3 10h18"/><path d="M8 14h.01"/><path d="M12 14h.01"/><path d="M16 14h.01"/><path d="M8 18h.01"/><path d="M12 18h.01"/><path d="M16 18h.01"/>`,
+  'calendar':       `<path d="M8 2v4"/><path d="M16 2v4"/><rect width="18" height="18" x="3" y="4" rx="2"/><path d="M3 10h18"/>`,
+  'pencil':         `<path d="M17 3a2.85 2.83 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5Z"/><path d="m15 5 4 4"/>`,
+  'factory':        `<path d="M2 20a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V8l-7 5V8l-7 5V4a2 2 0 0 0-2-2H4a2 2 0 0 0-2 2Z"/><path d="M17 18h1"/><path d="M12 18h1"/><path d="M7 18h1"/>`,
+  'trending-up':    `<polyline points="22 7 13.5 15.5 8.5 10.5 2 17"/><polyline points="16 7 22 7 22 13"/>`,
+  'search':         `<circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/>`,
+  'bell':           `<path d="M6 8a6 6 0 0 1 12 0c0 7 3 9 3 9H3s3-2 3-9"/><path d="M10.3 21a1.94 1.94 0 0 0 3.4 0"/>`,
+  'check-circle':   `<path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><path d="m9 11 3 3L22 4"/>`,
+  'trash-2':        `<path d="M3 6h18"/><path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6"/><path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2"/><line x1="10" x2="10" y1="11" y2="17"/><line x1="14" x2="14" y1="11" y2="17"/>`,
+  'file-pen':       `<path d="M12 22h6a2 2 0 0 0 2-2V7l-5-5H6a2 2 0 0 0-2 2v10"/><path d="M14 2v4a2 2 0 0 0 2 2h4"/><path d="M10.4 12.6a2 2 0 1 1 3 3L8 21l-4 1 1-4Z"/>`,
+  'plug':           `<path d="M12 22v-5"/><path d="M9 8V2"/><path d="M15 8V2"/><path d="M18 8v5a4 4 0 0 1-4 4h-4a4 4 0 0 1-4-4V8Z"/>`,
+  'info':           `<circle cx="12" cy="12" r="10"/><path d="M12 16v-4"/><path d="M12 8h.01"/>`,
+  'plus':           `<path d="M5 12h14"/><path d="M12 5v14"/>`,
+  'plus-circle':    `<circle cx="12" cy="12" r="10"/><path d="M8 12h8"/><path d="M12 8v8"/>`,
+  'save':           `<path d="M15.2 3a2 2 0 0 1 1.4.6l3.8 3.8a2 2 0 0 1 .6 1.4V19a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2z"/><path d="M17 21v-7a1 1 0 0 0-1-1H8a1 1 0 0 0-1 1v7"/><path d="M7 3v4a1 1 0 0 0 1 1h7"/>`,
+  'target':         `<circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="6"/><circle cx="12" cy="12" r="2"/>`,
+  'umbrella':       `<path d="M22 12a10.06 10.06 1 0 0-20 0Z"/><path d="M12 12v8a2 2 0 0 0 4 0"/><path d="M12 2v1"/>`,
+  'baby':           `<path d="M9 12h.01"/><path d="M15 12h.01"/><path d="M10 16c.5.3 1.2.5 2 .5s1.5-.2 2-.5"/><path d="M19 6.3a9 9 0 0 1 1.8 3.9 2 2 0 0 1 0 3.6 9 9 0 0 1-17.6 0 2 2 0 0 1 0-3.6A9 9 0 0 1 12 3c2 0 3.5 1.1 3.5 2.5s-.9 2.5-2 2.5c-.8 0-1.5-.4-1.5-1"/>`,
+  'lightbulb':      `<path d="M15 14c.2-1 .7-1.7 1.5-2.5 1-.9 1.5-2.2 1.5-3.5A6 6 0 0 0 6 8c0 1 .2 2.2 1.5 3.5.7.7 1.3 1.5 1.5 2.5"/><path d="M9 18h6"/><path d="M10 22h4"/>`,
+  'home':           `<path d="m3 9 9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/>`,
+  'alert-triangle': `<path d="m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3Z"/><path d="M12 9v4"/><path d="M12 17h.01"/>`,
+  'phone':          `<path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07A19.5 19.5 0 0 1 4.69 13.1a19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 3.18 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"/>`,
+  'clipboard-list': `<rect width="8" height="4" x="8" y="2" rx="1" ry="1"/><path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"/><path d="M12 11h4"/><path d="M12 16h4"/><path d="M8 11h.01"/><path d="M8 16h.01"/>`,
+  'map-pin':        `<path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0Z"/><circle cx="12" cy="10" r="3"/>`,
+  'tag':            `<path d="M12.586 2.586A2 2 0 0 0 11.172 2H4a2 2 0 0 0-2 2v7.172a2 2 0 0 0 .586 1.414l8.704 8.704a2.426 2.426 0 0 0 3.42 0l6.58-6.58a2.426 2.426 0 0 0 0-3.42z"/><circle cx="7.5" cy="7.5" r=".5" fill="currentColor"/>`,
+  'x-circle':       `<circle cx="12" cy="12" r="10"/><path d="m15 9-6 6"/><path d="m9 9 6 6"/>`,
+  'x':              `<path d="M18 6 6 18"/><path d="m6 6 12 12"/>`,
+  'loader':         `<path d="M21 12a9 9 0 1 1-6.219-8.56"/>`,
+  'chevron-left':   `<path d="m15 18-6-6 6-6"/>`,
+  'chevron-right':  `<path d="m9 18 6-6-6-6"/>`,
+  'brain':          `<path d="M12 5a3 3 0 1 0-5.997.125 4 4 0 0 0-2.526 5.77 4 4 0 0 0 .556 6.588A4 4 0 1 0 12 18Z"/><path d="M12 5a3 3 0 1 1 5.997.125 4 4 0 0 1 2.526 5.77 4 4 0 0 1-.556 6.588A4 4 0 1 1 12 18Z"/><path d="M15 13a4.5 4.5 0 0 1-3-4 4.5 4.5 0 0 1-3 4"/><path d="M17.599 6.5a3 3 0 0 0 .399-1.375"/><path d="M6.003 5.125A3 3 0 0 0 6.401 6.5"/><path d="M3.477 10.896a4 4 0 0 1 .585-.396"/><path d="M19.938 10.5a4 4 0 0 1 .585.396"/><path d="M6 18a4 4 0 0 1-1.967-.516"/><path d="M19.967 17.484A4 4 0 0 1 18 18"/>`,
+  'cloud':          `<path d="M17.5 19H9a7 7 0 1 1 6.71-9h1.79a4.5 4.5 0 1 1 0 9Z"/>`,
+  'send':           `<path d="m22 2-7 20-4-9-9-4Z"/><path d="M22 2 11 13"/>`,
+  'alert-circle':   `<circle cx="12" cy="12" r="10"/><line x1="12" x2="12" y1="8" y2="12"/><line x1="12" x2="12.01" y1="16" y2="16"/>`,
+  'check':          `<path d="M20 6 9 17l-5-5"/>`,
+  'circle-x':       `<circle cx="12" cy="12" r="10"/><path d="m15 9-6 6"/><path d="m9 9 6 6"/>`,
+  'hourglass':      `<path d="M5 22h14"/><path d="M5 2h14"/><path d="M17 22v-4.172a2 2 0 0 0-.586-1.414L12 12l-4.414 4.414A2 2 0 0 0 7 17.828V22"/><path d="M7 2v4.172a2 2 0 0 0 .586 1.414L12 12l4.414-4.414A2 2 0 0 0 17 6.172V2"/>`,
+  'send-horizontal':`<path d="m3 3 3 9-3 9 19-9Z"/><path d="M6 12h16"/>`,
+};
 
 // ==============================
 // SUPABASE CONFIG
