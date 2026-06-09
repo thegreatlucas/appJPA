@@ -320,6 +320,11 @@ body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text);fon
 .form-group input:focus,.form-group select:focus,.form-group textarea:focus{border-color:var(--accent);background:#fff;box-shadow:0 0 0 3px rgba(0,91,255,.08)}
 .form-group textarea{resize:vertical;min-height:70px}
 
+/* TRATATIVA OPTIONS */
+.tratativa-opt{border:1.5px solid var(--border);border-radius:var(--r-xs);padding:12px 6px;text-align:center;font-size:12px;font-weight:600;color:var(--text2);transition:all var(--transition);background:var(--bg3);display:flex;flex-direction:column;align-items:center;gap:6px}
+.tratativa-opt:hover{border-color:var(--accent);background:var(--accent-light)}
+.tratativa-opt-icon{display:flex;align-items:center;justify-content:center;height:20px}
+
 /* TOAST */
 .toast{position:fixed;bottom:24px;right:24px;background:#fff;border:1px solid var(--green-border);color:var(--green);padding:12px 18px;border-radius:var(--r-sm);font-size:13px;font-weight:600;z-index:9999;transform:translateY(80px);opacity:0;transition:all .3s ease;max-width:400px;box-shadow:var(--shadow-md)}
 .toast.show{transform:translateY(0);opacity:1}
@@ -2029,7 +2034,36 @@ function limparHistoricoAnual(){
 //  - Dados de entrepostos/última compra vêm do Campo A (quando disponível)
 //  - Status = coluna do mês atual OU coluna TOTAL se mês atual não encontrado
 // ==============================
+// Preserva dados de negócio (inseridos pelo usuário no dia a dia) ao reimportar planilhas.
+// A planilha só ATUALIZA status/entrepostos/última compra — nunca apaga justificativa,
+// classificação (ex.: Em Processo de Retenção), tratativa, obs de Capt./Cob. ou histórico.
+function _snapshotDadosNegocio(){
+  const map={};
+  (clientes||[]).forEach(c=>{
+    if(!c||!c.codigo) return;
+    map[c.codigo]={
+      justificativa:c.justificativa||null,
+      classificacao:c.classificacao||null,
+      tratativa:c.tratativa||null,
+      capcobObs:c.capcobObs||null,
+      historico:c.historico||[]
+    };
+  });
+  return map;
+}
+function _aplicarDadosNegocio(cli,map){
+  const d=map[cli.codigo];
+  if(!d) return cli;
+  cli.justificativa=d.justificativa;
+  cli.classificacao=d.classificacao;
+  cli.tratativa=d.tratativa;
+  cli.capcobObs=d.capcobObs;
+  cli.historico=d.historico||[];
+  return cli;
+}
+
 function crossReferenceAndBuild(){
+  const _dadosNegocio=_snapshotDadosNegocio();
   if(!historicoAnualRaw){
     // Sem Histórico Anual: usa somente Campo A se disponível (modo legado) — ANO inteiro
     if(baseRetencaoRaw){
@@ -2039,12 +2073,12 @@ function crossReferenceAndBuild(){
         Object.entries(cb.entrepostos||{}).forEach(([en,info])=>{
           ef[en]={ultimaCompra:info.ultimaCompra,status:null,meses:info.meses||{}};
         });
-        novos.push({
+        novos.push(_aplicarDadosNegocio({
           id:cb.code+'_sem_hist',codigo:cb.code,nome:cb.name||cb.code,
           vendedor:cb.vendedor||'',status:'Sem Histórico',statusHistorico:{},
           ultimaCompra:cb.ultimaCompra||null,semana:'',entrepostos:ef,
           justificativa:null,capcobObs:null,classificacao:null,historico:[]
-        });
+        },_dadosNegocio));
       });
       clientes=novos;
     } else {
@@ -2091,7 +2125,7 @@ function crossReferenceAndBuild(){
 
       const vendedorFinal=(cb?.vendedor)||vendedor||'';
       const clientId=code+'_'+vendedorFinal.replace(/\W/g,'_');
-      novosClientes.push({
+      novosClientes.push(_aplicarDadosNegocio({
         id:clientId,
         codigo:code,
         nome:cb?.name||ch.name||code,
@@ -2103,7 +2137,7 @@ function crossReferenceAndBuild(){
         semana:colMesAtual||mesReferencia||'',
         entrepostos:entrepostosFmt,
         justificativa:null,capcobObs:null,classificacao:null,historico:[]
-      });
+      },_dadosNegocio));
     });
   });
 
@@ -2819,12 +2853,14 @@ function renderClientes(){
       <td><span class="status-badge ${statusClass(statusDisplay)}">${statusDisplay}</span></td>
       <td>${classBadgeHtml(c)}</td>
       <td>${justBadge}</td>
-      <td onclick="event.stopPropagation()" style="white-space:nowrap;display:flex;gap:4px;align-items:center">
+      <td onclick="event.stopPropagation()" style="white-space:nowrap">
+        <div style="display:flex;gap:4px;align-items:center">
         <button class="btn btn-ghost btn-sm" title="Classificar" onclick="openClassModal('${c.id}')">${lc('tag',13)}</button>
         ${dias>=30
           ? `<button class="btn btn-warn btn-sm" title="Justificar — Sem Compra 30d+" onclick="openJustModal('${c.id}')">${lc('file-pen',13)}</button>`
           : `<button class="btn btn-ghost btn-sm" title="Justificar — Sem Compra 30d+" onclick="openJustModal('${c.id}')" disabled style="opacity:0.3">${lc('file-pen',13)}</button>`}
         <button class="btn btn-sm" style="background:#6366f1;color:#fff" title="Concluir Tratativa" onclick="openTratativaModal('${c.id}')">${getTratativaIcon(c)}</button>
+        </div>
       </td>
     </tr>`;
   }).join('');
@@ -3373,45 +3409,48 @@ document.addEventListener('DOMContentLoaded',function(){document.getElementById(
 </script>
 
   <!-- MODAL CONCLUIR TRATATIVA -->
-  <div class="modal-overlay" id="modalTratativa" onclick="closeModal('modalTratativa')">
-    <div class="modal-box" onclick="event.stopPropagation()" style="max-width:480px;border-radius:var(--r);background:var(--bg);box-shadow:0 8px 40px rgba(0,0,0,.18)">
-      <div class="modal-header" style="border-bottom:1px solid var(--border);padding:18px 20px 14px">
+  <div class="modal-overlay" id="modalTratativa">
+    <div class="modal" style="width:480px">
+      <div class="modal-header">
         <div>
-          <div class="modal-title" style="font-size:16px;font-weight:700"><svg class="lc" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><path d="m9 11 3 3L22 4"/></svg> Concluir Tratativa</div>
+          <div class="modal-title"><svg class="lc" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><path d="m9 11 3 3L22 4"/></svg> Concluir Tratativa</div>
           <div id="tratativaClienteNome" style="font-size:12px;color:var(--text2);margin-top:2px"></div>
         </div>
-        <button class="modal-close" onclick="closeModal('modalTratativa')"><svg class="lc" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></svg></button>
+        <button class="modal-close" onclick="closeModal('modalTratativa')">×</button>
       </div>
-      <div class="modal-body" style="padding:20px">
+      <div class="modal-body">
         <input type="hidden" id="tratativaClienteId">
-        <div style="margin-bottom:16px">
-          <div style="font-size:11px;font-weight:700;color:var(--text2);text-transform:uppercase;letter-spacing:.5px;margin-bottom:8px">Desfecho da Tratativa</div>
+        <div class="form-group">
+          <label>Desfecho da Tratativa</label>
           <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px">
             <label style="cursor:pointer">
               <input type="radio" name="tratativaDesfecho" value="recuperado" onchange="atualizarBotaoTratativa(this.value)" style="display:none">
-              <div class="tratativa-opt" id="opt-recuperado" style="border:2px solid var(--border);border-radius:10px;padding:10px 6px;text-align:center;font-size:12px;font-weight:600;transition:.15s">
-                <div style="margin-bottom:4px"><span style="display:inline-block;width:20px;height:20px;border-radius:50%;background:#16a34a"></span></div>Recuperado
+              <div class="tratativa-opt" id="opt-recuperado">
+                <span class="tratativa-opt-icon"><span style="display:inline-block;width:18px;height:18px;border-radius:50%;background:#16a34a"></span></span>Recuperado
               </div>
             </label>
             <label style="cursor:pointer">
               <input type="radio" name="tratativaDesfecho" value="em_tratativa" onchange="atualizarBotaoTratativa(this.value)" style="display:none">
-              <div class="tratativa-opt" id="opt-em_tratativa" style="border:2px solid var(--border);border-radius:10px;padding:10px 6px;text-align:center;font-size:12px;font-weight:600;transition:.15s">
-                <div style="margin-bottom:4px"><svg class="lc" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 12a9 9 0 0 1 9-9 9.75 9.75 0 0 1 6.74 2.74L21 8"/><path d="M21 3v5h-5"/><path d="M21 12a9 9 0 0 1-9 9 9.75 9.75 0 0 1-6.74-2.74L3 16"/><path d="M8 16H3v5"/></svg></div>Em Tratativa
+              <div class="tratativa-opt" id="opt-em_tratativa">
+                <span class="tratativa-opt-icon"><svg class="lc" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#d97706" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 12a9 9 0 0 1 9-9 9.75 9.75 0 0 1 6.74 2.74L21 8"/><path d="M21 3v5h-5"/><path d="M21 12a9 9 0 0 1-9 9 9.75 9.75 0 0 1-6.74-2.74L3 16"/><path d="M8 16H3v5"/></svg></span>Em Tratativa
               </div>
             </label>
             <label style="cursor:pointer">
               <input type="radio" name="tratativaDesfecho" value="sem_sucesso" onchange="atualizarBotaoTratativa(this.value)" style="display:none">
-              <div class="tratativa-opt" id="opt-sem_sucesso" style="border:2px solid var(--border);border-radius:10px;padding:10px 6px;text-align:center;font-size:12px;font-weight:600;transition:.15s">
-                <div style="margin-bottom:4px"><span style="display:inline-block;width:20px;height:20px;border-radius:50%;background:#dc2626"></span></div>Sem Sucesso
+              <div class="tratativa-opt" id="opt-sem_sucesso">
+                <span class="tratativa-opt-icon"><span style="display:inline-block;width:18px;height:18px;border-radius:50%;background:#dc2626"></span></span>Sem Sucesso
               </div>
             </label>
           </div>
         </div>
-        <div style="margin-bottom:20px">
-          <div style="font-size:11px;font-weight:700;color:var(--text2);text-transform:uppercase;letter-spacing:.5px;margin-bottom:6px">Relato / Detalhes</div>
-          <textarea id="tratativaObs" placeholder="Descreva o desfecho, detalhes da conversa, motivos..." style="width:100%;height:90px;resize:vertical;padding:10px;border:1px solid var(--border);border-radius:8px;font-size:13px;font-family:inherit;background:var(--bg2);color:var(--text);box-sizing:border-box"></textarea>
+        <div class="form-group">
+          <label>Relato / Detalhes</label>
+          <textarea id="tratativaObs" placeholder="Descreva o desfecho, detalhes da conversa, motivos..."></textarea>
         </div>
-        <button id="btnSalvarTratativa" class="btn" style="width:100%;padding:12px;font-weight:700;font-size:14px;border-radius:8px;background:#6366f1;color:#fff" onclick="salvarTratativa()">Salvar</button>
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-ghost" onclick="closeModal('modalTratativa')">Cancelar</button>
+        <button id="btnSalvarTratativa" class="btn btn-accent" onclick="salvarTratativa()">Salvar Tratativa</button>
       </div>
     </div>
   </div>
