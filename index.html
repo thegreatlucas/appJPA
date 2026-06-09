@@ -438,7 +438,6 @@ body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text);fon
       <button class="sidebar-item" data-label="Em Processo" onclick="goPage('processo_retencao');document.getElementById('emProcessoCount').style.display='none';"><span class="sidebar-icon"><svg class="lc" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 12a9 9 0 0 1 9-9 9.75 9.75 0 0 1 6.74 2.74L21 8"/><path d="M21 3v5h-5"/><path d="M21 12a9 9 0 0 1-9 9 9.75 9.75 0 0 1-6.74-2.74L3 16"/><path d="M8 16H3v5"/></svg></span><span class="sidebar-label"><span id="emProcessoBadge" style="display:inline-flex;align-items:center;gap:6px">Em Processo <span id="emProcessoCount" style="background:var(--red);color:#fff;border-radius:10px;padding:1px 7px;font-size:10px;font-weight:700;display:none">0</span></span></span></button>
       <button class="sidebar-item" data-label="Obs. Coordenador" onclick="goPage('obs_coordenador');document.getElementById('emProcessoCountObs').style.display='none';"><span class="sidebar-icon"><svg class="lc" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg></span><span class="sidebar-label"><span style="display:inline-flex;align-items:center;gap:6px">Obs. Coordenador <span id="emProcessoCountObs" style="background:var(--red);color:#fff;border-radius:10px;padding:1px 7px;font-size:10px;font-weight:700;display:none">0</span></span></span></button>
       <span class="sidebar-section" id="gestorSection">Gestão</span>
-      <button class="sidebar-item" id="gestoresMenu" data-label="Por Vendedor" onclick="goPage('gestores')"><span class="sidebar-icon"><svg class="lc" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg></span><span class="sidebar-label">Por Vendedor</span></button>
       <button class="sidebar-item" id="rankMenu" data-label="Ranking" onclick="goPage('ranking')"><span class="sidebar-icon"><svg class="lc" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9H4.5a2.5 2.5 0 0 1 0-5H6"/><path d="M18 9h1.5a2.5 2.5 0 0 0 0-5H18"/><path d="M4 22h16"/><path d="M10 14.66V17c0 .55-.47.98-.97 1.21C7.85 18.75 7 20.24 7 22"/><path d="M14 14.66V17c0 .55.47.98.97 1.21C16.15 18.75 17 20.24 17 22"/><path d="M18 2H6v7a6 6 0 0 0 12 0V2Z"/></svg></span><span class="sidebar-label">Ranking</span></button>
       <button class="sidebar-item" id="importMenu" data-label="Importar Excel" onclick="goPage('importar')"><span class="sidebar-icon"><svg class="lc" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" x2="12" y1="3" y2="15"/></svg></span><span class="sidebar-label">Importar Excel</span></button>
       <button class="sidebar-item" id="adminMenu" data-label="Administração" onclick="goPage('admin')"><span class="sidebar-icon"><svg class="lc" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12.22 2h-.44a2 2 0 0 0-2 2v.18a2 2 0 0 1-1 1.73l-.43.25a2 2 0 0 1-2 0l-.15-.08a2 2 0 0 0-2.73.73l-.22.38a2 2 0 0 0 .73 2.73l.15.1a2 2 0 0 1 1 1.72v.51a2 2 0 0 1-1 1.74l-.15.09a2 2 0 0 0-.73 2.73l.22.38a2 2 0 0 0 2.73.73l.15-.08a2 2 0 0 1 2 0l.43.25a2 2 0 0 1 1 1.73V20a2 2 0 0 0 2 2h.44a2 2 0 0 0 2-2v-.18a2 2 0 0 1 1-1.73l.43-.25a2 2 0 0 1 2 0l.15.08a2 2 0 0 0 2.73-.73l.22-.39a2 2 0 0 0-.73-2.73l-.15-.08a2 2 0 0 1-1-1.74v-.5a2 2 0 0 1 1-1.74l.15-.09a2 2 0 0 0 .73-2.73l-.22-.38a2 2 0 0 0-2.73-.73l-.15.08a2 2 0 0 1-2 0l-.43-.25a2 2 0 0 1-1-1.73V4a2 2 0 0 0-2-2z"/><circle cx="12" cy="12" r="3"/></svg></span><span class="sidebar-label">Administração</span></button>
@@ -668,7 +667,8 @@ body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text);fon
           <span class="seq-step s1"><b>1.</b> Classificar</span>
           <span class="seq-arrow">→</span>
           <span class="seq-step s2"><b>2.</b> Justificar Não Recompra</span>
-
+          <span class="seq-arrow">→</span>
+          <span class="seq-step s3"><b>3.</b> Concluir Tratativa</span>
         </div>
         <div id="carteiraEntrResumo" style="margin-bottom:16px"></div>
         <div class="filters-bar">
@@ -695,7 +695,6 @@ body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text);fon
             <option value="cob_ferias">Cobertura de Férias</option>
             <option value="cob_ausencias">Cobertura de Ausências</option>
             <option value="cob_licenca">Cob. Licença-Maternidade</option>
-            <option value="oportunidade">Cliente Oportunidade</option>
             <option value="consumo_proprio">Consumo Próprio</option>
             <option value="processo_retencao">Em Processo de Retenção</option>
           </select>
@@ -754,11 +753,10 @@ body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text);fon
             <option value="Logística">Logística</option>
             <option value="Comercial">Comercial</option>
             <option value="Faturamento">Faturamento</option>
-            <option value="Produção JPA">Produção JPA</option>
-            <option value="Produção ITP">Produção ITP</option>
-            <option value="Produção SUL">Produção SUL</option>
-            <option value="Produção KRC">Produção KRC</option>
+            <option value="Financeiro">Financeiro</option>
             <option value="Cliente">Cliente</option>
+            <option value="Não quis informar">Não quis informar</option>
+            <option value="Consumo Próprio">Consumo Próprio</option>
             <option value="Sem justificativa">Sem justificativa</option>
           </select>
         </div>
@@ -783,23 +781,13 @@ body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text);fon
         <div id="obsCoordContent"></div>
       </div>
 
-      <!-- GESTORES - POR VENDEDOR -->
-      <div class="page" id="page-gestores">
-        <div class="page-header">
-          <div class="section-title"><svg class="lc" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg> Visão por Vendedor</div>
-          <div class="section-sub">KPIs individuais por vendedor — clique na aba para alternar</div>
-        </div>
-        <div class="tab-bar" id="gestoresTabBar" style="flex-wrap:wrap;gap:4px"></div>
-        <div id="gestoresContent"></div>
-      </div>
-
       <!-- RANKING -->
       <div class="page" id="page-ranking">
         <div class="page-header"><div class="section-title"><svg class="lc" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9H4.5a2.5 2.5 0 0 1 0-5H6"/><path d="M18 9h1.5a2.5 2.5 0 0 0 0-5H18"/><path d="M4 22h16"/><path d="M10 14.66V17c0 .55-.47.98-.97 1.21C7.85 18.75 7 20.24 7 22"/><path d="M14 14.66V17c0 .55.47.98.97 1.21C16.15 18.75 17 20.24 17 22"/><path d="M18 2H6v7a6 6 0 0 0 12 0V2Z"/></svg> Ranking de Positivações</div></div>
         <div id="minhaPosicaoRank" style="margin-bottom:14px"></div>
         <div class="table-wrap">
           <table>
-            <thead><tr><th>#</th><th>Vendedor</th><th>Carteira</th><th>Positivados</th><th>Retidos</th><th>Não Retidos</th><th>Capt./Cob.</th><th>Recuperados</th><th>% Positivação</th><th>Contatos</th><th>Pontos</th></tr></thead>
+            <thead><tr><th>#</th><th>Vendedor</th><th>Carteira</th><th>Positivados</th><th>Retidos</th><th>Não Retidos</th><th>Capt./Cob.</th><th>Recuperados</th><th>% Positivação</th></tr></thead>
             <tbody id="rankBody"></tbody>
           </table>
         </div>
@@ -851,27 +839,6 @@ body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text);fon
               <div style="font-size:12px;color:var(--text2)">Arraste ou clique para selecionar</div>
             </div>
             <div id="statusHistoricoImport" style="margin-top:12px"></div>
-          </div>
-        </div>
-        <div style="background:#fff;border:1px solid var(--border);border-radius:var(--r);padding:20px;box-shadow:var(--shadow)">
-          <div style="font-size:13px;font-weight:700;margin-bottom:14px;color:var(--text)"><svg class="lc" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 5a3 3 0 1 0-5.997.125 4 4 0 0 0-2.526 5.77 4 4 0 0 0 .556 6.588A4 4 0 1 0 12 18Z"/><path d="M12 5a3 3 0 1 1 5.997.125 4 4 0 0 1 2.526 5.77 4 4 0 0 1-.556 6.588A4 4 0 1 1 12 18Z"/><path d="M15 13a4.5 4.5 0 0 1-3-4 4.5 4.5 0 0 1-3 4"/><path d="M17.599 6.5a3 3 0 0 0 .399-1.375"/><path d="M6.003 5.125A3 3 0 0 0 6.401 6.5"/><path d="M3.477 10.896a4 4 0 0 1 .585-.396"/><path d="M19.938 10.5a4 4 0 0 1 .585.396"/><path d="M6 18a4 4 0 0 1-1.967-.516"/><path d="M19.967 17.484A4 4 0 0 1 18 18"/></svg> Nova Lógica de Dados — v4</div>
-          <div style="display:grid;grid-template-columns:1fr 1fr 1fr 1fr;gap:14px;font-size:12px;color:var(--text2)">
-            <div style="background:var(--bg3);border-radius:var(--r-sm);padding:14px;border-left:3px solid var(--accent)">
-              <div style="font-weight:700;color:var(--text);margin-bottom:6px">1 · Contagem via Histórico Anual</div>
-              Clientes contados exclusivamente pela planilha "Histórico Anual por Vendedor". O Campo B é a única fonte para contagem de carteira.
-            </div>
-            <div style="background:var(--bg3);border-radius:var(--r-sm);padding:14px;border-left:3px solid var(--purple)">
-              <div style="font-weight:700;color:var(--text);margin-bottom:6px">2 · Mês Detectado Dinamicamente</div>
-              O app identifica automaticamente a coluna correspondente ao mês vigente (ex: <b style="color:var(--purple)">mai/2026</b>) sem intervenção manual.
-            </div>
-            <div style="background:var(--bg3);border-radius:var(--r-sm);padding:14px;border-left:3px solid var(--green)">
-              <div style="font-weight:700;color:var(--text);margin-bottom:6px">3 · Vendedor Titular (Deduplicação)</div>
-              Cliente com múltiplos vendedores: o <b style="color:var(--green)">titular</b> é quem fez a venda mais recente (coluna mensal mais à direita com status preenchido).
-            </div>
-            <div style="background:var(--bg3);border-radius:var(--r-sm);padding:14px;border-left:3px solid var(--yellow)">
-              <div style="font-weight:700;color:var(--accent);margin-bottom:6px">4 · Positivação = Coluna Mês Atual</div>
-              Só contam como positivados: <b>Capt./Cob.</b>, <b>Recuperado</b> e <b>Retido</b> na coluna do mês atual. Status vazio ou outro valor é desconsiderado.
-            </div>
           </div>
         </div>
       </div>
@@ -985,11 +952,10 @@ body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text);fon
           <option value="Comercial">Comercial</option>
           <option value="Logística">Logística</option>
           <option value="Faturamento">Faturamento</option>
-          <option value="Produção JPA">Produção JPA</option>
-          <option value="Produção ITP">Produção ITP</option>
-          <option value="Produção SUL">Produção SUL</option>
-          <option value="Produção KRC">Produção KRC</option>
+          <option value="Financeiro">Financeiro</option>
           <option value="Cliente">Cliente</option>
+          <option value="Não quis informar">Não quis informar</option>
+          <option value="Consumo Próprio">Consumo Próprio</option>
         </select>
       </div>
       <div class="form-group" id="submotivoGroup" style="display:none">
@@ -1023,7 +989,6 @@ body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text);fon
           <option value="cob_ferias">Cobertura de Férias</option>
           <option value="cob_ausencias">Cobertura de Ausências</option>
           <option value="cob_licenca">Cobertura de Licença-Maternidade</option>
-          <option value="oportunidade">Cliente Oportunidade</option>
           <option value="consumo_proprio">Consumo Próprio</option>
           <option value="processo_retencao">Em Processo de Retenção</option>
         </select>
@@ -1302,10 +1267,7 @@ const SUBMOTIVOS = {
   'Comercial':['Preço acima do mercado','Prazo de pagamento insuficiente','Abertura para concorrência'],
   'Logística':['Atraso no horário da entrega','Reembarque','Má conduta do motorista','Demora no processo de retirada','Produto fora de temperatura','Mercadoria avariada','Caixa avariada'],
   'Faturamento':['Limite de crédito insuficiente','Inadimplência do cliente','Envio indevido para cartório'],
-  'Produção JPA':['Falta de produto (ruptura)','Qualidade inconsistente','Produto fora do especificado','Divergência de peso (quebra de peso)'],
-  'Produção ITP':['Falta de produto (ruptura)','Qualidade inconsistente','Produto fora do especificado','Divergência de peso (quebra de peso)'],
-  'Produção SUL':['Falta de produto (ruptura)','Qualidade inconsistente','Produto fora do especificado','Divergência de peso (quebra de peso)'],
-  'Produção KRC':['Falta de produto (ruptura)','Qualidade inconsistente','Produto fora do especificado','Divergência de peso (quebra de peso)'],
+  'Financeiro':['Limite de crédito insuficiente','Inadimplência do cliente','Dificuldade de pagamento'],
   'Cliente':['Abertura para concorrência','Redução de consumo','Sazonalidade','Encerrou as atividades']
 };
 
@@ -1670,7 +1632,7 @@ function iniciarApp(role,user){
   const rb=document.getElementById('roleBadge');
   rb.innerHTML=role==='gestor'?`${lc('crown',12)} Gestor`:`${lc('user',12)} Vendedor`;
   rb.className='badge-role '+(role==='gestor'?'gestor':'vendedor');
-  ['gestorSection','rankMenu','importMenu','exportMenuBtn','adminMenu','gestoresMenu'].forEach(id=>{
+  ['gestorSection','rankMenu','importMenu','exportMenuBtn','adminMenu'].forEach(id=>{
     const el=document.getElementById(id);
     if(el) el.style.display=role==='gestor'?'':'none';
   });
@@ -2140,19 +2102,23 @@ function atualizarCrossResult(){
 // REFRESH ALL
 // ==============================
 
-// Atualiza badge de "Em Processo" no menu
+// Atualiza badges do menu: "Em Processo" e "Obs. Coordenador"
 function atualizarBadgeEmProcesso(){
+  // Em Processo de Retenção — nº de clientes classificados
   const total=clientes.filter(c=>c.classificacao&&c.classificacao.tipo==='processo_retencao').length;
   const el=document.getElementById('emProcessoCount');
   if(el){
     el.textContent=total;
     el.style.display=total>0?'inline-flex':'none';
   }
-  // Obs Coordenador - mesma lógica
+  // Obs. Coordenador — nº de observações enviadas (visão do vendedor: só as destinadas a ele)
+  const totalObs=(currentRole==='vendedor')
+    ? obsCoord.filter(o=>(o.vendedorDest||'').trim().toLowerCase()===(currentVendedor||'').trim().toLowerCase()).length
+    : obsCoord.length;
   const elObs=document.getElementById('emProcessoCountObs');
   if(elObs){
-    elObs.textContent=total;
-    elObs.style.display=total>0?'inline-flex':'none';
+    elObs.textContent=totalObs;
+    elObs.style.display=totalObs>0?'inline-flex':'none';
   }
 }
 
@@ -2953,7 +2919,6 @@ function salvarObsCoord(){
 function openClienteModal(id){
   const c=clientes.find(x=>x.id===id);if(!c) return;
   const dias=calcDias(c.ultimaCompra);
-  const conts=getContatosCliente(id).sort((a,b)=>new Date(b.data)-new Date(a.data));
   const colAtual=historicoAnualRaw?.colMesAtual||null;
   const sAtual=colAtual?c.statusHistorico?.[colAtual]:null;
   const statusDisplay=sAtual?normalizeStatus(sAtual):(c.status||'—');
@@ -3005,13 +2970,10 @@ function openClienteModal(id){
       </div>
     </div>
     ${histMensalHtml}
-    ${c.classificacao?.tipo==='processo_retencao'?`<div style="margin-bottom:12px;padding:12px;background:var(--yellow-bg);border:1px solid var(--yellow-border);border-radius:var(--r-sm)"><span class="processo-badge" style="margin-bottom:6px;display:inline-block">${lc('refresh-cw',11)} Em Processo de Retenção</span>${c.classificacao.obs?`<div style="font-size:12px;color:var(--text);margin-top:6px">${c.classificacao.obs}</div>`:''}</div>`:''}
+    ${c.classificacao?.tipo==='processo_retencao'?`<div style="margin-bottom:12px;padding:12px;background:var(--yellow-bg);border:1px solid var(--yellow-border);border-radius:var(--r-sm)"><span class="processo-badge" style="margin-bottom:6px;display:inline-block">${lc('refresh-cw',11)} Em Processo de Retenção</span>${c.classificacao.justProcesso?`<div style="font-size:12px;color:var(--text);margin-top:6px"><b>Justificativa do Processo:</b> ${c.classificacao.justProcesso}</div>`:''}${c.classificacao.obs?`<div style="font-size:12px;color:var(--text2);margin-top:4px"><b>Observação:</b> ${c.classificacao.obs}</div>`:''}</div>`:''}
+    ${c.classificacao?.tipo&&c.classificacao.tipo!=='processo_retencao'?`<div style="margin-bottom:12px;padding:10px;background:var(--bg3);border:1px solid var(--border);border-radius:var(--r-sm)"><span style="font-size:11px;color:var(--text3);text-transform:uppercase;letter-spacing:.5px">Classificação: </span>${classBadgeHtml(c)}${c.classificacao.obs?`<div style="font-size:12px;color:var(--text2);margin-top:4px">${c.classificacao.obs}</div>`:''}</div>`:''}
     ${c.justificativa?.motivo?`<div style="margin-bottom:12px;padding:10px;background:var(--yellow-bg);border:1px solid var(--yellow-border);border-radius:var(--r-sm)"><span style="font-size:11px;color:var(--yellow)">JUSTIFICATIVA: </span><span class="just-badge">${c.justificativa.motivo}</span>${c.justificativa.submotivo?`<span class="just-badge" style="margin-left:4px">${c.justificativa.submotivo}</span>`:''}${c.justificativa.obs?`<span style="font-size:12px;color:var(--text2);margin-left:8px">${c.justificativa.obs}</span>`:''}</div>`:''}
     <div style="margin-bottom:16px"><div style="font-size:13px;font-weight:700;margin-bottom:10px">Entrepostos</div>${entrRows}</div>
-    <div style="margin-bottom:12px">
-      <div style="font-size:13px;font-weight:700;margin-bottom:10px">Contatos (${conts.length})</div>
-      ${conts.length?conts.map(ct=>`<div class="contact-card"><div class="ch"><span class="contact-num">${ct.num}º Contato</span><span class="contact-date-s">${ct.data}</span></div><div style="font-size:12px;color:var(--text2)">Tipo: <b>${ct.tipo}</b> · Status: <b>${ct.status}</b> · Tentativas: <b>${ct.tentativas}</b></div>${ct.motivo?`<div style="font-size:12px;color:var(--text2);margin-top:4px">Motivo: ${ct.motivo}</div>`:''}${ct.dif?`<div style="font-size:12px;color:var(--text2);margin-top:3px">Dificuldades: ${ct.dif}</div>`:''}${ct.obs?`<div style="font-size:12px;color:var(--text2);margin-top:3px">Obs: ${ct.obs}</div>`:''}</div>`).join(''):'<p style="color:var(--text3);font-size:12px">Nenhum contato registrado</p>'}
-    </div>
     `;
   openModal('modalCliente');
 }
@@ -3128,7 +3090,7 @@ function renderRanking(){
     const pct=base.length?Math.round(positivos/base.length*100):0;
     const pts=ret*10+recup*15+cap*5+contsV.length*2;
     return {v,total:base.length,positivos,ret,nao,cap,recup,pct,conts:contsV.length,pts};
-  }).filter(x=>x.total>0).sort((a,b)=>b.pts-a.pts);
+  }).filter(x=>x.total>0).sort((a,b)=>b.positivos-a.positivos||b.pct-a.pct);
   if(currentRole==='vendedor'){
     const minhaPosEl=document.getElementById('minhaPosicaoRank');
     const pos=ranking.findIndex(r=>r.v===currentVendedor)+1;
@@ -3148,8 +3110,6 @@ function renderRanking(){
       <td style="color:var(--yellow)">${r.cap}</td>
       <td style="color:var(--blue)">${r.recup}</td>
       <td style="font-weight:700;color:${r.pct>=70?'var(--green)':r.pct>=50?'var(--yellow)':'var(--red)'}">${r.pct}%</td>
-      <td>${r.conts}</td>
-      <td style="font-weight:800;color:var(--yellow)">${r.pts}pts</td>
     </tr>`;
   }).join('');
 }
@@ -3299,10 +3259,9 @@ const PAGE_TITLES={
   dashboard:'Dashboard',entrepostos:'Por Entreposto',alertas:'Alertas',
   clientes:'Carteira de Clientes',contatos:'Registrar Contato',
   justificativas:'Justificativas',ranking:'Ranking',importar:'Importar Excel',
-  admin:'Administração',processo_retencao:'Em Processo de Retenção',obs_coordenador:'Obs. Coordenador',
-  gestores:'Por Vendedor'
+  admin:'Administração',processo_retencao:'Em Processo de Retenção',obs_coordenador:'Obs. Coordenador'
 };
-const GESTOR_ONLY_PAGES=new Set(['ranking','gestores','importar','admin']);
+const GESTOR_ONLY_PAGES=new Set(['ranking','importar','admin']);
 function goPage(name){
   if(currentRole==='vendedor'&&GESTOR_ONLY_PAGES.has(name)) return;
   document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
@@ -3319,7 +3278,6 @@ function goPage(name){
   if(name==='contatos'){contatoPage=1;renderContatoList();}
   if(name==='justificativas'){justPage=1;renderJustificativas();}
   if(name==='ranking') renderRanking();
-  if(name==='gestores') renderGestores();
   if(name==='importar') atualizarCrossResult();
   if(name==='processo_retencao') renderProcessoRetencao();
   if(name==='obs_coordenador') renderObsCoord();
