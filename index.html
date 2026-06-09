@@ -1529,11 +1529,11 @@ function statusClass(s){
 }
 function riscoDias(dias){
   if(dias===999) return null;
-  if(dias<=10) return {cls:'risco-0',label:'🟢 Baixo'};
-  if(dias<=20) return {cls:'risco-1',label:'🟡 Médio'};
-  if(dias<=30) return {cls:'risco-2',label:'🟠 Alto'};
-  if(dias<=40) return {cls:'risco-3',label:'🔴 Gravíssimo'};
-  return {cls:'risco-4',label:'🚨 Perda'};
+  if(dias<=10) return {cls:'risco-0',label:`${riskDot('#16a34a')} Baixo`};
+  if(dias<=20) return {cls:'risco-1',label:`${riskDot('#d97706')} Médio`};
+  if(dias<=30) return {cls:'risco-2',label:`${riskDot('#ea580c')} Alto`};
+  if(dias<=40) return {cls:'risco-3',label:`${riskDot('#dc2626')} Gravíssimo`};
+  return {cls:'risco-4',label:`${riskDot('#dc2626')} Perda`};
 }
 function riscoBadge(dias){
   if(dias===999) return '<span style="color:var(--text3)">—</span>';
@@ -1567,13 +1567,13 @@ function calcDiasInativacao(ultimaCompra){
 function classBadgeHtml(c){
   if(!c.classificacao?.tipo) return '';
   const map={
-    captacao:'<span class="class-badge class-capt">🆕 Captação</span>',
-    cob_ferias:'<span class="class-badge class-cob">🏖️ Cob. Férias</span>',
-    cob_ausencias:'<span class="class-badge class-cob">👤 Cob. Ausências</span>',
-    cob_licenca:'<span class="class-badge class-cob">👶 Cob. Licença</span>',
-    oportunidade:'<span class="class-badge class-oport">💡 Oportunidade</span>',
-    consumo_proprio:'<span class="class-badge class-proprio">🏠 Cons. Próprio</span>',
-    processo_retencao:'<span class="class-badge class-processo">🔄 Em Processo</span>'
+    captacao:`<span class="class-badge class-capt">${lc('plus-circle',11)} Captação</span>`,
+    cob_ferias:`<span class="class-badge class-cob">${lc('umbrella',11)} Cob. Férias</span>`,
+    cob_ausencias:`<span class="class-badge class-cob">${lc('user',11)} Cob. Ausências</span>`,
+    cob_licenca:`<span class="class-badge class-cob">${lc('baby',11)} Cob. Licença</span>`,
+    oportunidade:`<span class="class-badge class-oport">${lc('lightbulb',11)} Oportunidade</span>`,
+    consumo_proprio:`<span class="class-badge class-proprio">${lc('home',11)} Cons. Próprio</span>`,
+    processo_retencao:`<span class="class-badge class-processo">${lc('refresh-cw',11)} Em Processo</span>`
   };
   return map[c.classificacao.tipo]||'';
 }
@@ -1668,7 +1668,7 @@ function iniciarApp(role,user){
   document.getElementById('userDisplay').textContent=user.replace(' (ITA)','');
   document.getElementById('userSubDisplay').textContent=role==='gestor'?'Acesso Gestor':'Vendedor';
   const rb=document.getElementById('roleBadge');
-  rb.textContent=role==='gestor'?'👑 Gestor':'👤 Vendedor';
+  rb.innerHTML=role==='gestor'?`${lc('crown',12)} Gestor`:`${lc('user',12)} Vendedor`;
   rb.className='badge-role '+(role==='gestor'?'gestor':'vendedor');
   ['gestorSection','rankMenu','importMenu','exportMenuBtn','adminMenu','gestoresMenu'].forEach(id=>{
     const el=document.getElementById(id);
@@ -2454,7 +2454,7 @@ function renderDash(){
 
   if(currentRole==='vendedor'){
     const nomeLimpo=currentVendedor.replace(' (ITA)','');
-    document.getElementById('vendedorHeaderDiv').innerHTML=`<div class="vendedor-header"><div class="vendedor-header-icon">👤</div><div><h2>${nomeLimpo}</h2><p>Carteira · ${colAtual?'Positivação: '+colAtual:new Date().toLocaleDateString('pt-BR',{month:'long',year:'numeric'})}</p></div></div>`;
+    document.getElementById('vendedorHeaderDiv').innerHTML=`<div class="vendedor-header"><div class="vendedor-header-icon">${lc('user',24)}</div><div><h2>${nomeLimpo}</h2><p>Carteira · ${colAtual?'Positivação: '+colAtual:new Date().toLocaleDateString('pt-BR',{month:'long',year:'numeric'})}</p></div></div>`;
   } else {
     document.getElementById('vendedorHeaderDiv').innerHTML='';
   }
@@ -2595,7 +2595,7 @@ function renderEntrTable(){
       <td style="font-size:12px">${comprou?info.ultimaCompra:'—'}</td>
       <td>${comprou?riscoBadge(dias):'<span style="color:var(--text3)">—</span>'}</td>
       <td><span class="status-badge ${statusClass(statusDisplay)}">${statusDisplay}</span></td>
-      <td>${comprou?'<span style="color:var(--green);font-weight:700;font-size:12px">✅ Comprou</span>':'<span style="color:var(--red);font-weight:700;font-size:12px">❌ Não Retido</span>'}</td>
+      <td>${comprou?`<span style="color:var(--green);font-weight:700;font-size:12px">${lc('check-circle',13)} Comprou</span>`:`<span style="color:var(--red);font-weight:700;font-size:12px">${lc('x-circle',13)} Não Retido</span>`}</td>
     </tr>`;
   }).join('');
   renderPag('entrPag',entrPage,pages,p=>{entrPage=p;renderEntrTable();});
@@ -2649,8 +2649,8 @@ function renderAlertas(){
       <td><span class="status-badge ${statusClass(statusDisplay)}">${statusDisplay}</span></td>
       <td>${justText}</td>
       <td onclick="event.stopPropagation()">
-        <button class="btn btn-ghost btn-sm" onclick="openContatoModal('${c.id}')">📞</button>
-        ${dias>=30?`<button class="btn btn-warn btn-sm" onclick="openJustModal('${c.id}')">📝</button>`:''}
+        <button class="btn btn-ghost btn-sm" onclick="openContatoModal('${c.id}')">${lc('phone',13)}</button>
+        ${dias>=30?`<button class="btn btn-warn btn-sm" onclick="openJustModal('${c.id}')">${lc('file-pen',13)}</button>`:''}
       </td>
     </tr>`;
   }).join('');
@@ -2675,13 +2675,13 @@ function renderCarteiraEntrResumo(){
   const r3c=naoRetCart.filter(c=>{const d=calcDias(c.ultimaCompra);return d>=31&&d<=40;}).length;
   const r4c=naoRetCart.filter(c=>{const d=calcDias(c.ultimaCompra);return d>40;}).length;
   el.innerHTML=`
-    <div style="font-size:13px;font-weight:700;color:var(--text);margin-bottom:10px">🔴 Risco por Dias Sem Compras</div>
+    <div style="font-size:13px;font-weight:700;color:var(--text);margin-bottom:10px">${riskDot('#dc2626')} Risco por Dias Sem Compras</div>
     <div style="display:grid;grid-template-columns:repeat(5,1fr);gap:10px">
-      <div class="kpi-card risco-baixo" style="padding:12px 8px;text-align:center"><div style="font-size:11px;font-weight:700;color:#16a34a">0–10 dias</div><div style="font-size:24px;font-weight:800">${r0c}</div><div style="font-size:11px">🟢 Baixo</div></div>
-      <div class="kpi-card risco-medio" style="padding:12px 8px;text-align:center"><div style="font-size:11px;font-weight:700;color:#65a30d">11–20 dias</div><div style="font-size:24px;font-weight:800">${r1c}</div><div style="font-size:11px">🟡 Médio</div></div>
-      <div class="kpi-card risco-alto" style="padding:12px 8px;text-align:center"><div style="font-size:11px;font-weight:700;color:var(--yellow)">21–30 dias</div><div style="font-size:24px;font-weight:800">${r2c}</div><div style="font-size:11px">🟠 Alto</div></div>
-      <div class="kpi-card risco-grave" style="padding:12px 8px;text-align:center"><div style="font-size:11px;font-weight:700;color:var(--orange)">31–40 dias</div><div style="font-size:24px;font-weight:800">${r3c}</div><div style="font-size:11px">🔴 Gravíssimo</div></div>
-      <div class="kpi-card risco-perda" style="padding:12px 8px;text-align:center"><div style="font-size:11px;font-weight:700;color:var(--red)">40+ dias</div><div style="font-size:24px;font-weight:800">${r4c}</div><div style="font-size:11px">🚨 Perda</div></div>
+      <div class="kpi-card risco-baixo" style="padding:12px 8px;text-align:center"><div style="font-size:11px;font-weight:700;color:#16a34a">0–10 dias</div><div style="font-size:24px;font-weight:800">${r0c}</div><div style="font-size:11px;display:flex;align-items:center;justify-content:center;gap:4px">${riskDot('#16a34a')} Baixo</div></div>
+      <div class="kpi-card risco-medio" style="padding:12px 8px;text-align:center"><div style="font-size:11px;font-weight:700;color:#65a30d">11–20 dias</div><div style="font-size:24px;font-weight:800">${r1c}</div><div style="font-size:11px;display:flex;align-items:center;justify-content:center;gap:4px">${riskDot('#d97706')} Médio</div></div>
+      <div class="kpi-card risco-alto" style="padding:12px 8px;text-align:center"><div style="font-size:11px;font-weight:700;color:var(--yellow)">21–30 dias</div><div style="font-size:24px;font-weight:800">${r2c}</div><div style="font-size:11px;display:flex;align-items:center;justify-content:center;gap:4px">${riskDot('#ea580c')} Alto</div></div>
+      <div class="kpi-card risco-grave" style="padding:12px 8px;text-align:center"><div style="font-size:11px;font-weight:700;color:var(--orange)">31–40 dias</div><div style="font-size:24px;font-weight:800">${r3c}</div><div style="font-size:11px;display:flex;align-items:center;justify-content:center;gap:4px">${riskDot('#dc2626')} Gravíssimo</div></div>
+      <div class="kpi-card risco-perda" style="padding:12px 8px;text-align:center"><div style="font-size:11px;font-weight:700;color:var(--red)">40+ dias</div><div style="font-size:24px;font-weight:800">${r4c}</div><div style="font-size:11px;display:flex;align-items:center;justify-content:center;gap:4px">${riskDot('#dc2626')} Perda</div></div>
     </div>`;
 }
 
@@ -2690,11 +2690,11 @@ function renderCarteiraEntrResumo(){
 // CONCLUIR TRATATIVA
 // ==============================
 function getTratativaIcon(c){
-  if(!c.tratativa) return '✅';
-  if(c.tratativa.desfecho==='recuperado') return '🟢';
-  if(c.tratativa.desfecho==='sem_sucesso') return '🔴';
-  if(c.tratativa.desfecho==='em_tratativa') return '🔄';
-  return '✅';
+  if(!c.tratativa) return lc('check-circle',14);
+  if(c.tratativa.desfecho==='recuperado') return riskDot('#16a34a');
+  if(c.tratativa.desfecho==='sem_sucesso') return riskDot('#dc2626');
+  if(c.tratativa.desfecho==='em_tratativa') return lc('refresh-cw',14);
+  return lc('check-circle',14);
 }
 
 function openTratativaModal(id){
@@ -2726,9 +2726,9 @@ function atualizarBotaoTratativa(val){
       el.style.background='';
     }
   });
-  if(val==='recuperado'){btn.style.background='#16a34a';btn.textContent='✅ Salvar — Recuperado';}
-  else if(val==='sem_sucesso'){btn.style.background='#dc2626';btn.textContent='🔴 Salvar — Sem Sucesso';}
-  else if(val==='em_tratativa'){btn.style.background='#2563eb';btn.textContent='🔄 Salvar — Em Tratativa';}
+  if(val==='recuperado'){btn.style.background='#16a34a';btn.innerHTML=lc('check-circle',14)+' Salvar — Recuperado';}
+  else if(val==='sem_sucesso'){btn.style.background='#dc2626';btn.innerHTML=riskDot('#dc2626')+' Salvar — Sem Sucesso';}
+  else if(val==='em_tratativa'){btn.style.background='#2563eb';btn.innerHTML=lc('refresh-cw',14)+' Salvar — Em Tratativa';}
   else{btn.style.background='#6366f1';btn.textContent='Salvar';}
 }
 
@@ -2793,10 +2793,10 @@ function renderClientes(){
       <td>${classBadgeHtml(c)}</td>
       <td>${justBadge}</td>
       <td onclick="event.stopPropagation()" style="white-space:nowrap;display:flex;gap:4px;align-items:center">
-        <button class="btn btn-ghost btn-sm" title="Classificar" onclick="openClassModal('${c.id}')">🏷️</button>
+        <button class="btn btn-ghost btn-sm" title="Classificar" onclick="openClassModal('${c.id}')">${lc('tag',13)}</button>
         ${dias>=30
-          ? '<button class=\"btn btn-warn btn-sm\" title=\"Justificar — Sem Compra 30d+\" onclick=\"openJustModal(\'' + c.id + '\')\">' + '📝</button>'
-          : '<button class=\"btn btn-ghost btn-sm\" title=\"Justificar — Sem Compra 30d+\" onclick=\"openJustModal(\'' + c.id + '\')\" disabled style=\"opacity:0.3\">' + '📝</button>'}
+          ? `<button class="btn btn-warn btn-sm" title="Justificar — Sem Compra 30d+" onclick="openJustModal('${c.id}')">${lc('file-pen',13)}</button>`
+          : `<button class="btn btn-ghost btn-sm" title="Justificar — Sem Compra 30d+" onclick="openJustModal('${c.id}')" disabled style="opacity:0.3">${lc('file-pen',13)}</button>`}
         <button class="btn btn-sm" style="background:#6366f1;color:#fff" title="Concluir Tratativa" onclick="openTratativaModal('${c.id}')">${getTratativaIcon(c)}</button>
       </td>
     </tr>`;
@@ -2883,10 +2883,10 @@ function renderJustificativas(){
       <td style="font-size:12px;color:var(--text2)">${(c.vendedor||'').replace(' (ITA)','')}</td>
       <td>${riscoBadge(dias)}</td>
       <td><span class="status-badge ${statusClass(c.status||'')}">${c.status||'—'}</span></td>
-      <td>${jaJust?`<span class="just-badge">${c.justificativa.motivo}</span>`:'<span style="color:var(--red);font-size:11px;font-weight:700">⚠️ Pendente</span>'}</td>
+      <td>${jaJust?`<span class="just-badge">${c.justificativa.motivo}</span>`:`<span style="color:var(--red);font-size:11px;font-weight:700">${lc('alert-triangle',12)} Pendente</span>`}</td>
       <td style="font-size:12px;color:var(--text2)">${c.justificativa?.submotivo||'—'}</td>
       <td style="font-size:12px;color:var(--text2)">${c.justificativa?.obs||'—'}</td>
-      <td><button class="btn ${jaJust?'btn-ghost':'btn-warn'} btn-sm" onclick="openJustModal('${c.id}')">${jaJust?'✏️ Editar':'📝 Justificar'}</button></td>
+      <td><button class="btn ${jaJust?'btn-ghost':'btn-warn'} btn-sm" onclick="openJustModal('${c.id}')">${jaJust?lc('pencil',13)+' Editar':lc('file-pen',13)+' Justificar'}</button></td>
     </tr>`;
   }).join('');
   renderPag('justPag',justPage,pages,p=>{justPage=p;renderJustificativas();});
@@ -2901,14 +2901,14 @@ function renderProcessoRetencao(){
   if(!base.length){el.innerHTML='<p style="color:var(--text3);font-size:13px">Nenhum cliente em processo de retenção.</p>';return;}
   const recuperados=procRetencaoHist.filter(h=>currentRole==='vendedor'?h.vendedor===currentVendedor:true);
   el.innerHTML=`<div style="margin-bottom:16px">
-    <div style="font-size:13px;font-weight:700;margin-bottom:10px">🔄 Atualmente em Processo (${base.length})</div>
+    <div style="font-size:13px;font-weight:700;margin-bottom:10px">${lc('refresh-cw',13)} Atualmente em Processo (${base.length})</div>
     ${base.map(c=>{const dias=calcDias(c.ultimaCompra);return `<div class="proc-ret-item" onclick="openClienteModal('${c.id}')" style="cursor:pointer">
-      <div class="proc-ret-header"><span style="font-weight:700">${c.nome}</span><span class="processo-badge">🔄 Em Processo</span></div>
+      <div class="proc-ret-header"><span style="font-weight:700">${c.nome}</span><span class="processo-badge">${lc('refresh-cw',11)} Em Processo</span></div>
       <div style="font-size:12px;color:var(--text2)">Vendedor: ${(c.vendedor||'').replace(' (ITA)','')} · Última compra: ${c.ultimaCompra||'—'} · ${riscoBadge(dias)}</div>
-      ${c.classificacao?.obs?`<div style="font-size:12px;color:var(--text);margin-top:6px">📋 ${c.classificacao.obs}</div>`:''}
+      ${c.classificacao?.obs?`<div style="font-size:12px;color:var(--text);margin-top:6px">${lc('clipboard-list',12)} ${c.classificacao.obs}</div>`:''}
     </div>`;}).join('')}
   </div>
-  ${recuperados.length?`<div><div style="font-size:13px;font-weight:700;margin-bottom:10px;color:var(--green)">✅ Recuperados após Processo (${recuperados.length})</div>${recuperados.map(h=>`<div class="proc-ret-item proc-ret-recovered"><div class="proc-ret-header"><span style="font-weight:700">${h.nome}</span><span style="font-size:11px;color:var(--green);font-weight:700">✅ Recuperado</span></div><div style="font-size:12px;color:var(--text2)">Vendedor: ${(h.vendedor||'').replace(' (ITA)','')} · Data: ${h.dataRecuperacao}</div></div>`).join('')}</div>`:''}`;
+  ${recuperados.length?`<div><div style="font-size:13px;font-weight:700;margin-bottom:10px;color:var(--green)">${lc('check-circle',13)} Recuperados após Processo (${recuperados.length})</div>${recuperados.map(h=>`<div class="proc-ret-item proc-ret-recovered"><div class="proc-ret-header"><span style="font-weight:700">${h.nome}</span><span style="font-size:11px;color:var(--green);font-weight:700">${lc('check-circle',11)} Recuperado</span></div><div style="font-size:12px;color:var(--text2)">Vendedor: ${(h.vendedor||'').replace(' (ITA)','')} · Data: ${h.dataRecuperacao}</div></div>`).join('')}</div>`:''}`;
 }
 
 // ==============================
@@ -2918,7 +2918,7 @@ function renderObsCoord(){
   const el=document.getElementById('obsCoordContent');
   const obsVisiveis=currentRole==='gestor'?obsCoord:obsCoord.filter(o=>(o.vendedorDest||'').trim().toLowerCase()===(currentVendedor||'').trim().toLowerCase());
   let html='';
-  if(currentRole==='gestor') html+=`<div style="margin-bottom:16px"><button class="btn btn-accent" onclick="openObsCoordModal()">➕ Nova Observação</button></div>`;
+  if(currentRole==='gestor') html+=`<div style="margin-bottom:16px"><button class="btn btn-accent" onclick="openObsCoordModal()">${lc('plus',14)} Nova Observação</button></div>`;
   if(!obsVisiveis.length) html+='<p style="color:var(--text3);font-size:13px">Nenhuma observação ainda.</p>';
   else html+=obsVisiveis.slice().reverse().map(o=>`<div class="obs-card"><div class="obs-header"><span class="obs-from">De: ${o.de}</span><span class="obs-date">${o.data}</span></div><div style="font-size:11px;color:var(--text2);margin-bottom:4px">Para: ${(o.vendedorDest||'').replace(' (ITA)','')}${o.cliente?` · Cliente: ${o.cliente}`:''}</div><div class="obs-text">${o.texto}</div></div>`).join('');
   el.innerHTML=html;
@@ -2970,14 +2970,14 @@ function openClienteModal(id){
   if(c.statusHistorico&&Object.keys(c.statusHistorico).length){
     const meses=mesesHistorico.length?mesesHistorico:Object.keys(c.statusHistorico);
     histMensalHtml=`<div style="margin-bottom:16px">
-      <div style="font-size:13px;font-weight:700;margin-bottom:10px;display:flex;align-items:center;gap:8px">📅 Histórico Mensal
+      <div style="font-size:13px;font-weight:700;margin-bottom:10px;display:flex;align-items:center;gap:8px">${lc('calendar',13)} Histórico Mensal
         <span class="status-badge ${statusClass(statusDisplay)}">${statusDisplay}${colAtual?' ('+colAtual+')':''}</span>
       </div>
       <div style="display:flex;gap:8px;flex-wrap:wrap">
         ${meses.map(m=>{
           const isAtual=m===colAtual;
           return `<div style="text-align:center;min-width:60px${isAtual?';background:rgba(0,91,255,.06);border-radius:8px;padding:4px;border:1px solid rgba(0,91,255,.15)':''}">
-            <div style="font-size:10px;color:${isAtual?'var(--accent)':'var(--text2)'};margin-bottom:4px;font-weight:${isAtual?'700':'400'}">${m}${isAtual?' 📍':''}</div>
+            <div style="font-size:10px;color:${isAtual?'var(--accent)':'var(--text2)'};margin-bottom:4px;font-weight:${isAtual?'700':'400'}">${m}${isAtual?` ${lc('map-pin',10)}`:''}</div>
             ${histBadge(c.statusHistorico[m],isAtual)}
           </div>`;
         }).join('')}
@@ -3382,7 +3382,7 @@ document.addEventListener('DOMContentLoaded',function(){document.getElementById(
             <label style="cursor:pointer">
               <input type="radio" name="tratativaDesfecho" value="sem_sucesso" onchange="atualizarBotaoTratativa(this.value)" style="display:none">
               <div class="tratativa-opt" id="opt-sem_sucesso" style="border:2px solid var(--border);border-radius:10px;padding:10px 6px;text-align:center;font-size:12px;font-weight:600;transition:.15s">
-                <div style="font-size:20px;margin-bottom:4px">🔴</div>Sem Sucesso
+                <div style="margin-bottom:4px"><span style="display:inline-block;width:20px;height:20px;border-radius:50%;background:#dc2626"></span></div>Sem Sucesso
               </div>
             </label>
           </div>
