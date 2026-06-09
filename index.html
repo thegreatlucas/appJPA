@@ -1099,8 +1099,11 @@ body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text);fon
 // ==============================
 // SUPABASE CONFIG
 // ==============================
-const SUPABASE_URL = 'https://ppmkuotkgnbnynyxowoh.supabase.co';
-const SUPABASE_KEY = 'sb_publishable_gvKpAln5IE2P665vXQWL4g_FLma6dGI';
+// Projeto: ldmdfjnieohrjvyselnz (Jampac CRM)
+const SUPABASE_URL = 'https://ldmdfjnieohrjvyselnz.supabase.co';
+// ⚠️ COLE AQUI a chave publishable/anon do projeto (Dashboard → Project Settings → API Keys → publishable/anon).
+// Esta chave é client-side e pode ficar exposta no HTML.
+const SUPABASE_KEY = 'COLE_AQUI_A_CHAVE_PUBLISHABLE';
 const SB_H = ()=>({'Content-Type':'application/json','apikey':SUPABASE_KEY,'Authorization':'Bearer '+SUPABASE_KEY,'Prefer':'resolution=merge-duplicates'});
 
 // Upsert: insere ou atualiza registros numa tabela
@@ -1322,52 +1325,85 @@ function saveLocal(){
   sv('metas',metas);sv('obsCoord',obsCoord);
   sv('procRetencaoHist',procRetencaoHist);
 }
+// Persiste tudo: localStorage (imediato) + Supabase (assíncrono).
+// Retorna uma Promise que resolve com os resultados dos upserts, permitindo
+// que quem chama (ex.: importação de planilhas) confirme a sincronização.
 function saveAll(){
   saveLocal();
+  const ops=[];
   // Clientes (master — sem dados embedded, estes ficam nas tabelas próprias)
-  if(clientes.length) sbUpsert('clientes',clientes.map(c=>({
+  if(clientes.length) ops.push(sbUpsert('clientes',clientes.map(c=>({
     id:c.id,codigo:c.codigo,nome:c.nome,vendedor:c.vendedor||'',
     status:c.status,status_historico:c.statusHistorico||{},status_total:c.statusTotal||null,
     ultima_compra:c.ultimaCompra||null,semana:c.semana||'',entrepostos:c.entrepostos||{}
-  })));
+  }))));
   // Justificativas por vendedor
   const justs=clientes.filter(c=>c.justificativa?.motivo).map(c=>({
     cliente_id:c.id,vendedor:c.vendedor||'',motivo:c.justificativa.motivo,
     submotivo:c.justificativa.submotivo||'',obs:c.justificativa.obs||'',data:c.justificativa.data||''
   }));
-  if(justs.length) sbUpsert('justificativas',justs);
+  if(justs.length) ops.push(sbUpsert('justificativas',justs));
   // Classificações por vendedor
   const clsArr=clientes.filter(c=>c.classificacao?.tipo).map(c=>({
     cliente_id:c.id,vendedor:c.vendedor||'',tipo:c.classificacao.tipo,
     obs:c.classificacao.obs||'',just_processo:c.classificacao.justProcesso||''
   }));
-  if(clsArr.length) sbUpsert('classificacoes',clsArr);
+  if(clsArr.length) ops.push(sbUpsert('classificacoes',clsArr));
   // Tratativas por vendedor
   const tratsArr=clientes.filter(c=>c.tratativa?.desfecho).map(c=>({
     cliente_id:c.id,vendedor:c.vendedor||'',desfecho:c.tratativa.desfecho,
     obs:c.tratativa.obs||'',data:c.tratativa.data||''
   }));
-  if(tratsArr.length) sbUpsert('tratativas',tratsArr);
+  if(tratsArr.length) ops.push(sbUpsert('tratativas',tratsArr));
   // Contatos por vendedor
-  if(contatos.length) sbUpsert('contatos',contatos.map(c=>({
+  if(contatos.length) ops.push(sbUpsert('contatos',contatos.map(c=>({
     id:String(c.id),cliente_id:c.clienteId,vendedor:c.vendedor||'',
     data:c.data||'',tipo:c.tipo||'',num:c.num||'',tentativas:c.tentativas||'',
     status:c.status||'',motivo:c.motivo||'',dif:c.dif||'',obs:c.obs||''
-  })));
+  }))));
   // Obs coordenador
-  if(obsCoord.length) sbUpsert('obs_coordenador',obsCoord.map(o=>({
+  if(obsCoord.length) ops.push(sbUpsert('obs_coordenador',obsCoord.map(o=>({
     id:o.id||String(Date.now()),de:o.de||'',vendedor_dest:o.vendedorDest||'',
     cliente:o.cliente||'',texto:o.texto,data:o.data||''
-  })));
+  }))));
   // Proc retenção histórico
-  if(procRetencaoHist.length) sbUpsert('proc_retencao_hist',procRetencaoHist.map((h,i)=>({
+  if(procRetencaoHist.length) ops.push(sbUpsert('proc_retencao_hist',procRetencaoHist.map((h,i)=>({
     id:h.id||(String(i)+'_'+String(Date.now())),cliente_id:h.clienteId||'',
     nome:h.nome||'',vendedor:h.vendedor||'',data_recuperacao:h.dataRecuperacao||''
-  })));
+  }))));
   // Metas
-  Object.entries(metas).forEach(([k,v])=>sbUpsert('metas',{chave:k,geral:v.geral||0,jpa:v.jpa||0,sul:v.sul||0,krc:v.krc||0,itp:v.itp||0}));
+  Object.entries(metas).forEach(([k,v])=>ops.push(sbUpsert('metas',{chave:k,geral:v.geral||0,jpa:v.jpa||0,sul:v.sul||0,krc:v.krc||0,itp:v.itp||0})));
+  return Promise.all(ops);
 }
 function getAllVendedores(){return _usuarios.filter(u=>u.role==='vendedor'&&u.ativo).map(u=>({nome:u.login,senha:u.senha}));}
+
+// Resume os resultados de um Promise.all de upserts (sbUpsert nunca rejeita —
+// retorna {ok:false,...} em caso de falha). Retorna {ok, error}.
+function _resumoSync(resultados){
+  const arr=(resultados||[]).filter(Boolean);
+  const falha=arr.find(r=>r&&r.ok===false);
+  return falha?{ok:false,error:falha.error||('HTTP '+(falha.status||'?'))}:{ok:true};
+}
+// Mostra, dentro da caixa de status da importação (elId), uma linha indicando
+// se os dados foram sincronizados com o Supabase.
+function mostrarSyncStatus(elId, promise){
+  const box=document.getElementById(elId);
+  if(box){
+    let linha=document.getElementById(elId+'_sync');
+    if(!linha){linha=document.createElement('div');linha.id=elId+'_sync';linha.style.cssText='margin-top:8px;font-size:12px';box.appendChild(linha);}
+    linha.style.color='var(--text2)';
+    linha.innerHTML='⏳ Sincronizando com o Supabase...';
+  }
+  Promise.resolve(promise).then(resultados=>{
+    const s=_resumoSync(resultados);
+    const linha=document.getElementById(elId+'_sync');
+    if(linha){
+      linha.style.color=s.ok?'var(--green)':'var(--yellow)';
+      linha.innerHTML=s.ok?'☁️ Dados sincronizados com o Supabase':('⚠️ Salvo localmente — falha ao sincronizar com o Supabase: '+s.error);
+    }
+    if(!s.ok) console.warn('Sync Supabase falhou:',s.error);
+  });
+}
 
 // Resolve nome da planilha → login exato do Supabase (case-insensitive)
 function resolverVendedor(nomeNaPlanilha){
@@ -1688,7 +1724,7 @@ function processarBaseRetencao(file){
         <span style="font-size:12px">${nC.toLocaleString('pt-BR')} clientes únicos no mês atual · Entrepostos: ITP, JPA, KRC, SUL</span>
         <br><button class="btn btn-danger btn-sm" style="margin-top:8px" onclick="limparBaseRetencao()">🗑️ Remover</button>
       </div>`;
-      crossReferenceAndBuild();
+      mostrarSyncStatus('statusRetencaoImport', crossReferenceAndBuild());
       showToast('Base Retenção importada com sucesso!');
     }catch(err){showToast('Erro: '+err.message,true);}
   };
@@ -1896,7 +1932,7 @@ function processarHistoricoAnual(file){
         </span>
         <br><button class="btn btn-danger btn-sm" style="margin-top:8px" onclick="limparHistoricoAnual()">🗑️ Remover</button>
       </div>`;
-      crossReferenceAndBuild();
+      mostrarSyncStatus('statusHistoricoImport', crossReferenceAndBuild());
       showToast('Histórico Anual importado! Mês detectado: '+(colMesAtualName||'não encontrado'));
     }catch(err){showToast('Erro ao processar: '+err.message,true);console.error(err);}
   };
@@ -1943,8 +1979,8 @@ function crossReferenceAndBuild(){
     } else {
       clientes=[];
     }
-    saveAll();populateVendSelect();atualizarCrossResult();refreshAll();
-    return;
+    const _p=saveAll();populateVendSelect();atualizarCrossResult();refreshAll();
+    return _p;
   }
 
   // ── CONSTRUÇÃO USANDO HISTÓRICO ANUAL COMO FONTE PRIMÁRIA ────────
@@ -2005,13 +2041,14 @@ function crossReferenceAndBuild(){
   });
 
   clientes=novosClientes;
-  saveAll();populateVendSelect();atualizarCrossResult();refreshAll();
+  const _ops=[saveAll()];populateVendSelect();atualizarCrossResult();refreshAll();
   // Persiste config de meses para que vendedores reconstruam o dashboard após login
   if(historicoAnualRaw){
     const cfg={mesAtual:historicoAnualRaw.colMesAtual||null,mesAnterior:historicoAnualRaw.colMesAnterior||null,meses:mesesHistorico};
     sv('crm_config',cfg);
-    sbUpsert('positivacao_atual',{id:'singleton',mes_atual:cfg.mesAtual,mes_anterior:cfg.mesAnterior,meses_historico:cfg.meses});
+    _ops.push(sbUpsert('positivacao_atual',{id:'singleton',mes_atual:cfg.mesAtual,mes_anterior:cfg.mesAnterior,meses_historico:cfg.meses}));
   }
+  return Promise.all(_ops).then(r=>r.flat());
 }
 
 function atualizarCrossResult(){
