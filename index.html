@@ -498,6 +498,7 @@ body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text);fon
             <div class="kpi-label">Positivação Atual <span id="positivacaoMesTag" style="font-size:9px;background:var(--accent);color:#fff;padding:2px 6px;border-radius:10px;margin-left:4px;vertical-align:middle"></span></div>
             <div class="kpi-value" id="kpi-total">—</div>
             <div class="kpi-sub" id="kpi-total-sub">Capt./Cob. + Recuperado + Retido no mês atual</div>
+            <div class="kpi-sub" id="kpi-total-comp" style="margin-top:2px;font-weight:600"></div>
           </div>
           <div class="kpi-card secondary">
             <div class="kpi-label">Total de Atendimentos</div>
@@ -1370,11 +1371,14 @@ async function sbLoadAll(){
     if(paRows.length&&paRows[0].count){
       const vdSupa=paRows[0].vendor_data||null;
       const vdLocal=ld('vendorData',null);
+      const paLocal=ld('positivacaoAtual',null);
       positivacaoAtualCache={
         count:paRows[0].count,
         countAno:paRows[0].count_ano||paRows[0].count,
         ts:paRows[0].ts,
-        vendorData:vdSupa||vdLocal||null
+        vendorData:vdSupa||vdLocal||null,
+        mesAntEquiv:paRows[0].mes_ant_equiv??paLocal?.mesAntEquiv??null,
+        labelEquivAnt:paRows[0].label_equiv_ant||paLocal?.labelEquivAnt||null
       };
       sv('positivacaoAtual',positivacaoAtualCache);
     }
@@ -1861,6 +1865,33 @@ function handleDropRetencao(e){
   const f=e.dataTransfer.files[0];if(f) processarBaseRetencao(f);
 }
 function handleFileInputRetencao(e){if(e.target.files[0]) processarBaseRetencao(e.target.files[0]);}
+// ── DIAS ÚTEIS (apenas feriados NACIONAIS FIXOS + fins de semana) ──
+// Feriados móveis (Carnaval, Sexta-feira Santa, Corpus Christi) NÃO são
+// considerados, pois a operação trabalha nesses dias. Ex.: 09/jun/2026 = 7
+// dias úteis → equivalente a 12/mai (descontando só o feriado de 1º de maio).
+function feriadosBR(year){
+  return new Set(['01-01','04-21','05-01','09-07','10-12','11-02','11-15','12-25']);
+}
+function ehDiaUtil(dt,fer){
+  const wd=dt.getDay();
+  if(wd===0||wd===6) return false;
+  const key=('0'+(dt.getMonth()+1)).slice(-2)+'-'+('0'+dt.getDate()).slice(-2);
+  return !fer.has(key);
+}
+// Quantidade de dias úteis de 1..dia (inclusive) no mês (month 0-based)
+function diasUteisAte(year,month,dia){
+  const fer=feriadosBR(year);let n=0;
+  for(let d=1;d<=dia;d++){if(ehDiaUtil(new Date(year,month,d),fer)) n++;}
+  return n;
+}
+// Dia-do-mês correspondente ao n-ésimo dia útil (month 0-based)
+function diaDoNesimoDiaUtil(year,month,n){
+  const fer=feriadosBR(year);let cnt=0;
+  const last=new Date(year,month+1,0).getDate();
+  for(let d=1;d<=last;d++){if(ehDiaUtil(new Date(year,month,d),fer)){cnt++;if(cnt===n) return d;}}
+  return last;
+}
+
 function processarBaseRetencao(file){
   const reader=new FileReader();
   reader.onload=function(e){
@@ -1875,9 +1906,14 @@ function processarBaseRetencao(file){
       const allClientData={};        // { código → {code,name,vendedor,entrepostos,lastDate,ultimaCompra} }
       const vendorClientMap={};      // { 'nome_vendedor_lower' → Set<codigo> }  (ano inteiro)
       const vendorClientMapMes={};   // { 'nome_vendedor_lower' → Set<codigo> }  (apenas mês atual — titular do mês)
+      const vendorClientMapMesAnt={};// idem, para o mês ANTERIOR (comparação por dias úteis)
+      const firstDayMesAnt={};       // { codigo → menor dia-do-mês de compra no mês anterior }
       const _agora=new Date();
       const _mesAtual=_agora.getMonth();
       const _anoAtual=_agora.getFullYear();
+      // Mês anterior (trata virada de ano)
+      const _mesAntNum=_mesAtual===0?12:_mesAtual;          // 1-based
+      const _anoAnt=_mesAtual===0?_anoAtual-1:_anoAtual;
       // ── Detecta a coluna de data: prioriza DATA DE EMISSÃO da NF; cai para Entrega ──
       const _deburr=s=>String(s).normalize('NFD').replace(/[\u0300-\u036f]/g,'').toUpperCase();
       const _cols=Object.keys(rows[0]||{});
@@ -1938,6 +1974,19 @@ function processarBaseRetencao(file){
           if(!vendorClientMap[vKey]) vendorClientMap[vKey]=new Set();
           vendorClientMap[vKey].add(code);
         });
+        // Mês anterior — rastreia titular e primeiro dia de compra (p/ comparação por dias úteis)
+        const linhaNoMesAnt=(rowMes!=null&&rowAno!=null)
+          ?(rowMes===_mesAntNum&&rowAno===_anoAnt)
+          :(date&&date.getMonth()===(_mesAntNum-1)&&date.getFullYear()===_anoAnt);
+        if(linhaNoMesAnt){
+          [vendedorBruto.toLowerCase(), vendedorCampoA.trim().toLowerCase()].forEach(vKey=>{
+            if(!vKey) return;
+            if(!vendorClientMapMesAnt[vKey]) vendorClientMapMesAnt[vKey]=new Set();
+            vendorClientMapMesAnt[vKey].add(code);
+          });
+          const dia=(date instanceof Date&&!isNaN(date))?date.getDate():31;
+          if(firstDayMesAnt[code]==null||dia<firstDayMesAnt[code]) firstDayMesAnt[code]=dia;
+        }
         // clientData: apenas registros do mês atual
         if(!linhaNoMesAtual) return;
         if(!clientData[code]){clientData[code]={code,name,vendedor:vendedorCampoA,entrepostos:{}};}else{if(name&&!clientData[code].name) clientData[code].name=name;if(vendedorCampoA&&!clientData[code].vendedor) clientData[code].vendedor=vendedorCampoA;}
@@ -1960,7 +2009,15 @@ function processarBaseRetencao(file){
       });
       baseRetencaoRaw={clientData,allClientData,vendorClientMap,vendorClientMapMes};
       const nC=Object.keys(clientData).length;
-      // Serializa vendorClientMap: { vendorKey -> {mes: count, ano: count} }
+      // ── Comparação por DIAS ÚTEIS equivalentes (mês anterior) ──
+      // Quantos dias úteis já se passaram no mês atual até hoje, e qual o dia
+      // de calendário equivalente no mês anterior (descontando fins de semana
+      // e feriados nacionais). Um cliente do mês anterior só conta na base de
+      // comparação se sua primeira compra foi até esse dia equivalente.
+      const _duAtual=diasUteisAte(_anoAtual,_mesAtual,_agora.getDate());
+      const _diaEquivAnt=diaDoNesimoDiaUtil(_anoAnt,_mesAntNum-1,_duAtual);
+      const _labelEquivAnt=('0'+_diaEquivAnt).slice(-2)+'/'+MESES_ABREV[_mesAntNum-1];
+      // Serializa vendorClientMap: { vendorKey -> {mes: count, ano: count, mesAntEquiv} }
       const vendorData={};
       Object.keys(vendorClientMap).forEach(vk=>{
         // conta clientes do mês atual para esse vendedor
@@ -1969,16 +2026,24 @@ function processarBaseRetencao(file){
         // Mês: titular do MÊS ATUAL (VENDEDOR_CLIENTE de junho), não do ano
         const codesMes=vendorClientMapMes[vk];
         const countMes=codesMes?codesMes.size:0;
-        vendorData[vk]={mes:countMes,ano:countAno};
+        // Mês anterior no MESMO ponto de dias úteis
+        const codesAnt=vendorClientMapMesAnt[vk];
+        let countAntEquiv=0;
+        if(codesAnt) codesAnt.forEach(code=>{if((firstDayMesAnt[code]??31)<=_diaEquivAnt) countAntEquiv++;});
+        vendorData[vk]={mes:countMes,ano:countAno,mesAntEquiv:countAntEquiv};
       });
+      // Total geral (gestor): mês anterior no mesmo ponto de dias úteis
+      let _totalAntEquiv=0;
+      Object.keys(firstDayMesAnt).forEach(code=>{if(firstDayMesAnt[code]<=_diaEquivAnt) _totalAntEquiv++;});
       const nAno=Object.keys(allClientData).length;
-      positivacaoAtualCache={count:nC,countAno:nAno,ts:new Date().toISOString(),vendorData};
+      positivacaoAtualCache={count:nC,countAno:nAno,ts:new Date().toISOString(),vendorData,
+        mesAntEquiv:_totalAntEquiv,labelEquivAnt:_labelEquivAnt,diasUteis:_duAtual};
       // Salva no localStorage com vendorData para acesso offline/vendedor
       sv('positivacaoAtual',positivacaoAtualCache);
       // Salva vendorData separado no localStorage (garante acesso mesmo sem coluna no Supabase)
       sv('vendorData',vendorData);
       // Tenta salvar no Supabase (count_ano/vendor_data podem não existir como coluna — não é crítico)
-      sbUpsert('positivacao_atual',{id:'singleton',count:nC,count_ano:nAno,ts:positivacaoAtualCache.ts,vendor_data:vendorData});
+      sbUpsert('positivacao_atual',{id:'singleton',count:nC,count_ano:nAno,ts:positivacaoAtualCache.ts,vendor_data:vendorData,mes_ant_equiv:_totalAntEquiv,label_equiv_ant:_labelEquivAnt});
       document.getElementById('statusRetencaoImport').innerHTML=`<div style="background:var(--green-bg);border:1px solid var(--green-border);border-radius:var(--r-xs);padding:12px 16px;font-size:13px;color:var(--green)">
         ${lc('check-circle',13)} <b>${file.name}</b><br>
         <span style="font-size:12px">${nC.toLocaleString('pt-BR')} clientes únicos no mês atual · Entrepostos: ITP, JPA, KRC, SUL</span>
@@ -2779,6 +2844,34 @@ function renderDash(){
     :(colAtual?`Mês: ${colAtual}`:'—');
   countUp(document.getElementById('kpi-total'),positivacaoTotal);
   document.getElementById('kpi-total-sub').textContent=subAtual;
+  // ── Comparação por dias úteis equivalentes (mês anterior) ──
+  {
+    const compEl=document.getElementById('kpi-total-comp');
+    if(compEl){
+      let posAnt=null,labelAnt=null;
+      const cache=positivacaoAtualCache;
+      if(cache){
+        labelAnt=cache.labelEquivAnt||null;
+        if(vf||currentRole==='vendedor'){
+          const nomeRef=(vf||currentVendedor||'');
+          const vd=cache.vendorData;
+          const vKey=vd?resolverVendorKey(vd,nomeRef):null;
+          if(vKey&&vd[vKey]&&vd[vKey].mesAntEquiv!=null) posAnt=vd[vKey].mesAntEquiv;
+        } else if(cache.mesAntEquiv!=null){
+          posAnt=cache.mesAntEquiv;
+        }
+      }
+      if(posAnt!=null&&labelAnt){
+        const diff=positivacaoTotal-posAnt;
+        const seta=diff>0?'↑':diff<0?'↓':'=';
+        const cor=diff>0?'var(--green)':diff<0?'var(--red)':'var(--text3)';
+        const pct=posAnt>0?Math.abs(Math.round(diff/posAnt*100)):(positivacaoTotal>0?100:0);
+        compEl.innerHTML=`<span style="color:${cor}">${seta} ${pct}% vs ${labelAnt} (${posAnt})</span> <span style="color:var(--text3);font-weight:400">· mesmo dia útil</span>`;
+      } else {
+        compEl.innerHTML='';
+      }
+    }
+  }
   countUp(document.getElementById('kpi-total-acum'),totalAtendimentos);
   {
     const isVend=currentRole==='vendedor';
