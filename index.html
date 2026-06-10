@@ -584,8 +584,10 @@ body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text);fon
         <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:20px">
           <div class="chart-panel">
             <div class="chart-panel-title"><svg class="lc" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="22 7 13.5 15.5 8.5 10.5 2 17"/><polyline points="16 7 22 7 22 13"/></svg> Histórico de Positivações (meses)</div>
+            <div style="overflow-x:auto">
             <div id="chartHistorico" style="display:flex;align-items:flex-end;gap:6px;height:100px;padding:4px 0 0"></div>
             <div id="chartHistoricoLabels" style="display:flex;gap:6px;margin-top:4px"></div>
+            </div>
           </div>
         </div>
       </div>
@@ -812,6 +814,11 @@ body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text);fon
             <option value="ativo">Ativos (positivados no mês atual)</option>
             <option value="inativo_atual">Inativos somente no período atual</option>
             <option value="sem60">Sem compra há mais de 60 dias</option>
+            <optgroup label="── Status Atual ──"></optgroup>
+            <option value="s_retido">Status: Retido</option>
+            <option value="s_recuperado">Status: Recuperado</option>
+            <option value="s_capcob">Status: Cap./Cob.</option>
+            <option value="s_nao_retido">Status: Não Retido</option>
           </select>
           <input class="filter-inp" type="text" id="haSearch" placeholder="Buscar cliente..." oninput="renderHistoricoAnual()" style="width:220px">
           <span id="haCount" style="font-size:12px;color:var(--text2);margin-left:4px"></span>
@@ -822,7 +829,7 @@ body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text);fon
             <tbody id="haBody"></tbody>
           </table>
         </div>
-        <div id="haPag" style="margin-top:14px"></div>
+        <div id="haPag" style="margin-top:14px;display:flex;align-items:center;gap:6px;flex-wrap:wrap"></div>
       </div>
 
       <!-- RANKING -->
@@ -831,7 +838,17 @@ body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text);fon
         <div id="minhaPosicaoRank" style="margin-bottom:14px"></div>
         <div class="table-wrap">
           <table>
-            <thead><tr><th>#</th><th>Vendedor</th><th>Carteira</th><th>Positivados</th><th>Retidos</th><th>Não Retidos</th><th>Capt./Cob.</th><th>Recuperados</th><th>% Positivação</th></tr></thead>
+            <thead id="rankHead"><tr>
+  <th>#</th>
+  <th onclick="sortRanking('v')" style="cursor:pointer;user-select:none">Vendedor <span id="rs-v"></span></th>
+  <th onclick="sortRanking('total')" style="cursor:pointer;user-select:none">Carteira <span id="rs-total"></span></th>
+  <th onclick="sortRanking('positivos')" style="cursor:pointer;user-select:none">Positivados <span id="rs-positivos"></span></th>
+  <th onclick="sortRanking('ret')" style="cursor:pointer;user-select:none">Retidos <span id="rs-ret"></span></th>
+  <th onclick="sortRanking('nao')" style="cursor:pointer;user-select:none">Não Retidos <span id="rs-nao"></span></th>
+  <th onclick="sortRanking('cap')" style="cursor:pointer;user-select:none">Cap./Cob. <span id="rs-cap"></span></th>
+  <th onclick="sortRanking('recup')" style="cursor:pointer;user-select:none">Recuperados <span id="rs-recup"></span></th>
+  <th onclick="sortRanking('pct')" style="cursor:pointer;user-select:none">% Positivação <span id="rs-pct"></span></th>
+</tr></thead>
             <tbody id="rankBody"></tbody>
           </table>
         </div>
@@ -2353,6 +2370,7 @@ function atualizarBadgeEmProcesso(){
 // HISTÓRICO ANUAL
 // ==============================
 let haPage=1;
+let rankSort={col:'pct',dir:-1};
 const HA_PER=50;
 
 function _statusAtualHA(c,colAtual,colAnt,meses){
@@ -2432,6 +2450,17 @@ function renderHistoricoAnual(){
     });
   } else if(tipo==='sem60'){
     base=base.filter(c=>calcDias(c.ultimaCompra)>60);
+  } else if(tipo==='s_retido'){
+    base=base.filter(c=>normalizeStatus(c.statusHistorico?.[colAtual])==='Retido');
+  } else if(tipo==='s_recuperado'){
+    base=base.filter(c=>normalizeStatus(c.statusHistorico?.[colAtual])==='Recuperado');
+  } else if(tipo==='s_capcob'){
+    base=base.filter(c=>normalizeStatus(c.statusHistorico?.[colAtual])==='Capt./Cob.');
+  } else if(tipo==='s_nao_retido'){
+    base=base.filter(c=>{
+      const sn=normalizeStatus(c.statusHistorico?.[colAtual]);
+      return !sn||!STATUS_POSITIVOS.includes(sn);
+    });
   }
 
   const el=document.getElementById('haCount');
@@ -2749,7 +2778,9 @@ function renderDash(){
   // kpi-retencao removido (Taxa de Fidelidade removida)
 
   // Meta
-  const key=getMetaKey();const meta=metas[key];
+  const key=getMetaKey();
+  const metaGestorKey=`gestor_${new Date().getMonth()+1}_${new Date().getFullYear()}`;
+  const meta=metas[key]||(currentRole==='vendedor'?metas[metaGestorKey]:null);
   if(meta&&meta.geral>0){
     const metaPct=Math.round(positivacaoTotal/meta.geral*100);
     countUp(document.getElementById('kpi-meta-pct'),metaPct,'%');
@@ -2826,14 +2857,14 @@ function renderChartHistorico(base,positivacaoMesAtual){
     const max=Math.max(...entries.map(e=>e[1]),1);
     if(el) el.innerHTML=entries.map(([m,n])=>{
       const isAtual=m===colAtual;
-      return `<div style="flex:1;display:flex;flex-direction:column;align-items:center;gap:2px">
+      return `<div style="flex:1;min-width:${Math.max(28,Math.floor(220/Math.max(entries.length,1)))}px;display:flex;flex-direction:column;align-items:center;gap:2px">
         <span style="font-size:10px;font-weight:700;color:${isAtual?'var(--accent)':'var(--text)'}">${n}</span>
         <div style="width:100%;border-radius:4px 4px 0 0;height:${Math.max(4,Math.round(n/max*80))}px;background:${isAtual?'linear-gradient(to top,var(--accent),var(--accent2))':'linear-gradient(to top,var(--border2),var(--border))'}"></div>
       </div>`;
     }).join('');
     if(labEl) labEl.innerHTML=entries.map(([m])=>{
       const isAtual=m===colAtual;
-      return `<div style="flex:1;font-size:9px;color:${isAtual?'var(--accent)':'var(--text2)'};font-weight:${isAtual?'700':'400'};text-align:center;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${m}</div>`;
+      return `<div style="flex:1;min-width:${Math.max(28,Math.floor(220/Math.max(entries.length,1)))}px;font-size:9px;color:${isAtual?'var(--accent)':'var(--text2)'};font-weight:${isAtual?'700':'400'};text-align:center;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${m}</div>`;
     }).join('');
   } else {
     if(el) el.innerHTML='<p style="color:var(--text3);font-size:12px">Importe o Histórico Anual para ver a evolução</p>';
@@ -3287,7 +3318,7 @@ function renderObsCoord(){
   let html='';
   if(currentRole==='gestor') html+=`<div style="margin-bottom:16px"><button class="btn btn-accent" onclick="openObsCoordModal()">${lc('plus',14)} Nova Observação</button></div>`;
   if(!obsVisiveis.length) html+='<p style="color:var(--text3);font-size:13px">Nenhuma observação ainda.</p>';
-  else html+=obsVisiveis.slice().reverse().map(o=>`<div class="obs-card"><div class="obs-header"><span class="obs-from">De: ${o.de}</span><span class="obs-date">${o.data}</span></div><div style="font-size:11px;color:var(--text2);margin-bottom:4px">Para: ${(o.vendedorDest||'').replace(' (ITA)','')}${o.cliente?` · Cliente: ${o.cliente}`:''}</div><div class="obs-text">${o.texto}</div></div>`).join('');
+  else html+=obsVisiveis.slice().reverse().map(o=>`<div class="obs-card"><div class="obs-header"><span class="obs-from">De: ${o.de}</span><div style="display:flex;align-items:center;gap:8px"><span class="obs-date">${o.data}</span>${currentRole==='gestor'?`<button onclick="apagarObs('${o.id}')" style="background:none;border:none;cursor:pointer;color:var(--text3);padding:0;line-height:1" title="Apagar">${lc('trash-2',13)}</button>`:''}</div></div><div style="font-size:11px;color:var(--text2);margin-bottom:4px">Para: ${(o.vendedorDest||'').replace(' (ITA)','')}${o.cliente?` · Cliente: ${o.cliente}`:''}</div><div class="obs-text">${o.texto}</div></div>`).join('');
   el.innerHTML=html;
 }
 function openObsCoordModal(){
@@ -3312,6 +3343,14 @@ function salvarObsCoord(){
   obsCoord.push(novaObs);
   saveLocal();
   sbUpsert('obs_coordenador',[{id:novaObs.id,de:novaObs.de,vendedor_dest:novaObs.vendedorDest,cliente:novaObs.cliente||'',texto:novaObs.texto,data:novaObs.data}]);closeModal('modalObsCoord');renderObsCoord();showToast('Observação enviada!');
+}
+async function apagarObs(id){
+  if(!confirm('Apagar esta observação?')) return;
+  obsCoord=obsCoord.filter(o=>o.id!==id);
+  saveLocal();
+  await sbDelete('obs_coordenador','id=eq.'+encodeURIComponent(id));
+  renderObsCoord();
+  showToast('Observação apagada.');
 }
 
 // ==============================
@@ -3371,12 +3410,34 @@ function openClienteModal(id){
       </div>
     </div>
     ${histMensalHtml}
-    ${c.classificacao?.tipo==='processo_retencao'?`<div style="margin-bottom:12px;padding:12px;background:var(--yellow-bg);border:1px solid var(--yellow-border);border-radius:var(--r-sm)"><span class="processo-badge" style="margin-bottom:6px;display:inline-block">${lc('refresh-cw',11)} Em Processo de Retenção</span>${c.classificacao.justProcesso?`<div style="font-size:12px;color:var(--text);margin-top:6px"><b>Justificativa do Processo:</b> ${c.classificacao.justProcesso}</div>`:''}${c.classificacao.obs?`<div style="font-size:12px;color:var(--text2);margin-top:4px"><b>Observação:</b> ${c.classificacao.obs}</div>`:''}</div>`:''}
+    ${c.classificacao?.tipo==='processo_retencao'?`<div style="margin-bottom:12px;padding:12px;background:var(--yellow-bg);border:1px solid var(--yellow-border);border-radius:var(--r-sm)"><div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:8px"><span class="processo-badge">${lc('refresh-cw',11)} Em Processo de Retenção</span><div style="display:flex;gap:6px"><button class="btn btn-sm" style="background:var(--bg3);border:1px solid var(--border);color:var(--text);font-size:11px" onclick="editarJustProcesso('${c.id}')">${lc('edit-3',12)} Editar</button><button class="btn btn-danger btn-sm" style="font-size:11px" onclick="encerrarProcesso('${c.id}')">${lc('x',12)} Encerrar</button></div></div>${c.classificacao.justProcesso?`<div style="font-size:12px;color:var(--text);margin-top:4px" id="justProcessoText_${c.id}"><b>Justificativa:</b> ${c.classificacao.justProcesso}</div>`:''}${c.classificacao.obs?`<div style="font-size:12px;color:var(--text2);margin-top:4px"><b>Observação:</b> ${c.classificacao.obs}</div>`:''}</div>`:''}
     ${c.classificacao?.tipo&&c.classificacao.tipo!=='processo_retencao'?`<div style="margin-bottom:12px;padding:10px;background:var(--bg3);border:1px solid var(--border);border-radius:var(--r-sm)"><span style="font-size:11px;color:var(--text3);text-transform:uppercase;letter-spacing:.5px">Classificação: </span>${classBadgeHtml(c)}${c.classificacao.obs?`<div style="font-size:12px;color:var(--text2);margin-top:4px">${c.classificacao.obs}</div>`:''}</div>`:''}
     ${c.justificativa?.motivo?`<div style="margin-bottom:12px;padding:10px;background:var(--yellow-bg);border:1px solid var(--yellow-border);border-radius:var(--r-sm)"><span style="font-size:11px;color:var(--yellow)">JUSTIFICATIVA: </span><span class="just-badge">${c.justificativa.motivo}</span>${c.justificativa.submotivo?`<span class="just-badge" style="margin-left:4px">${c.justificativa.submotivo}</span>`:''}${c.justificativa.obs?`<span style="font-size:12px;color:var(--text2);margin-left:8px">${c.justificativa.obs}</span>`:''}</div>`:''}
     <div style="margin-bottom:16px"><div style="font-size:13px;font-weight:700;margin-bottom:10px">Entrepostos</div>${entrRows}</div>
+    ${(c.historico&&c.historico.length)?`<div style="margin-bottom:16px"><div style="font-size:13px;font-weight:700;margin-bottom:10px;display:flex;align-items:center;gap:8px">${lc('clock',13)} Histórico de Retenção <span style="background:var(--bg3);color:var(--text3);border-radius:10px;padding:1px 8px;font-size:11px">${c.historico.length}</span></div><div style="display:flex;flex-direction:column;gap:8px">${c.historico.slice().reverse().map(h=>`<div style="background:var(--bg3);border:1px solid var(--border);border-radius:var(--r-sm);padding:10px 12px;font-size:12px"><div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:4px"><span style="font-weight:700;color:var(--text2)">${h.tipo==='processo_retencao_inicio'?'Início de Processo':h.tipo==='processo_retencao'?'Processo Registrado':'Retenção'}</span><span style="color:var(--text3)">${h.data||''}</span></div>${h.justProcesso?`<div style="color:var(--text)"><b>Justificativa:</b> ${h.justProcesso}</div>`:''}${h.obs?`<div style="color:var(--text2)"><b>Obs:</b> ${h.obs}</div>`:''}${h.status?`<div style="color:var(--text3)">Status: ${h.status}</div>`:''}${h.encerradoManualmente?`<div style="color:var(--red);margin-top:2px">Encerrado manualmente</div>`:''}</div>`).join('')}</div></div>`:''}
     `;
   openModal('modalCliente');
+}
+function editarJustProcesso(id){
+  const c=clientes.find(x=>x.id===id);if(!c||!c.classificacao) return;
+  const nova=prompt('Editar justificativa do processo:',c.classificacao.justProcesso||'');
+  if(nova===null) return;
+  c.classificacao.justProcesso=nova.trim();
+  saveAll();showToast('Justificativa atualizada!');
+  openClienteModal(id);
+}
+function encerrarProcesso(id){
+  const c=clientes.find(x=>x.id===id);if(!c) return;
+  if(!confirm('Encerrar processo de retenção de '+c.nome+'? O histórico será registrado.')) return;
+  const entrada={tipo:'processo_retencao',data:new Date().toLocaleDateString('pt-BR'),
+    justProcesso:c.classificacao?.justProcesso||'',obs:c.classificacao?.obs||'',
+    status:c.status||'',encerradoManualmente:true};
+  c.historico=c.historico||[];
+  c.historico.push(entrada);
+  c.classificacao=null;
+  saveAll();closeModal('modalCliente');
+  renderProcessoRetencao();renderClientes();
+  showToast('Processo encerrado e registrado no histórico.');
 }
 
 // ==============================
@@ -3463,6 +3524,10 @@ function salvarClassificacao(){
     const justProc=document.getElementById('just-processo').value.trim();
     if(!justProc){showToast('Preencha a justificativa para Processo de Retenção',true);return;}
     c.classificacao={tipo,obs,justProcesso:justProc};
+    // Registra início no histórico de retenções
+    c.historico=c.historico||[];
+    c.historico.push({tipo:'processo_retencao_inicio',data:new Date().toLocaleDateString('pt-BR'),
+      justProcesso:justProc,obs,status:c.status||''});
   } else {
     c.classificacao=tipo?{tipo,obs}:null;
   }
@@ -3491,7 +3556,14 @@ function renderRanking(){
     const pct=base.length?Math.round(positivos/base.length*100):0;
     const pts=ret*10+recup*15+cap*5+contsV.length*2;
     return {v,total:base.length,positivos,ret,nao,cap,recup,pct,conts:contsV.length,pts};
-  }).filter(x=>x.total>0).sort((a,b)=>b.positivos-a.positivos||b.pct-a.pct);
+  }).filter(x=>x.total>0);
+  // sort
+  const {col,dir}=rankSort;
+  ranking.sort((a,b)=>{
+    const av=col==='v'?a.v:a[col];const bv=col==='v'?b.v:b[col];
+    if(typeof av==='string') return dir*(av.localeCompare(bv));
+    return dir*(bv-av);
+  });
   if(currentRole==='vendedor'){
     const minhaPosEl=document.getElementById('minhaPosicaoRank');
     const pos=ranking.findIndex(r=>r.v===currentVendedor)+1;
@@ -3513,6 +3585,16 @@ function renderRanking(){
       <td style="font-weight:700;color:${r.pct>=70?'var(--green)':r.pct>=50?'var(--yellow)':'var(--red)'}">${r.pct}%</td>
     </tr>`;
   }).join('');
+  // Update sort indicators
+  ['v','total','positivos','ret','nao','cap','recup','pct'].forEach(c=>{
+    const el=document.getElementById('rs-'+c);
+    if(el) el.textContent=c===rankSort.col?(rankSort.dir===-1?'↓':'↑'):'';
+  });
+}
+function sortRanking(col){
+  if(rankSort.col===col) rankSort.dir*=-1;
+  else{rankSort.col=col;rankSort.dir=(col==='nao'||col==='v')?1:-1;}
+  renderRanking();
 }
 
 // ==============================
@@ -3549,12 +3631,14 @@ function exportCSV(){
 function renderPag(elId,cur,total,cb){
   const el=document.getElementById(elId);if(!el) return;
   if(total<=1){el.innerHTML='';return;}
-  let h=`<button class="page-btn" onclick="(${cb.toString()})(${Math.max(1,cur-1)})" ${cur===1?'disabled':''}>‹</button>`;
+  let h=`<div style="display:flex;align-items:center;gap:6px;flex-wrap:wrap">`;
+  h+=`<button class="page-btn" onclick="(${cb.toString()})(${Math.max(1,cur-1)})" ${cur===1?'disabled':''}>‹</button>`;
   for(let p=Math.max(1,cur-2);p<=Math.min(total,cur+2);p++){
     h+=`<button class="page-btn ${p===cur?'active':''}" onclick="(${cb.toString()})(${p})">${p}</button>`;
   }
   h+=`<button class="page-btn" onclick="(${cb.toString()})(${Math.min(total,cur+1)})" ${cur===total?'disabled':''}>›</button>`;
   h+=`<span class="page-info">Pág ${cur}/${total}</span>`;
+  h+=`</div>`;
   el.innerHTML=h;
 }
 
@@ -3569,8 +3653,26 @@ function renderAdmin(){
     <td style="font-weight:600">${v.nome}</td>
     <td style="font-family:'DM Mono',monospace;font-size:12px">${'*'.repeat(v.senha.length)||'—'}</td>
     <td><span style="font-size:11px;color:var(--text3)">${fromSupa?'Supabase':'Local'}</span></td>
-    <td><button class="btn btn-danger btn-sm" onclick="removerVendedor('${v.nome}')">${lc('trash-2',13)} Remover</button></td>
+    <td style="display:flex;gap:6px;flex-wrap:wrap"><button class="btn btn-sm" style="background:var(--bg3);border:1px solid var(--border);color:var(--text)" onclick="editarSenha('${v.nome}')">${lc('key',13)} Senha</button><button class="btn btn-danger btn-sm" onclick="removerVendedor('${v.nome}')">${lc('trash-2',13)} Remover</button></td>
   </tr>`).join('');
+}
+function editarSenha(nome){
+  const nova=prompt(`Nova senha para ${nome}:`,'');
+  if(nova===null) return;
+  if(!nova.trim()){showToast('Senha não pode ser vazia',true);return;}
+  const v=_usuarios.find(u=>u.login===nome||u.nome===nome);
+  if(v){
+    v.senha=nova.trim();
+    sbUpsert('usuarios',[{login:v.login||v.nome,senha:nova.trim(),role:v.role||'vendedor'}]);
+  } else {
+    // fallback: local storage only
+    const locals=ld('usuarios_local',[]);
+    const lv=locals.find(u=>u.nome===nome||u.login===nome);
+    if(lv){lv.senha=nova.trim();sv('usuarios_local',locals);}
+  }
+  saveLocal();
+  showToast('Senha de '+nome+' atualizada!');
+  renderAdmin();
 }
 async function testarConexaoAdmin(){
   const el=document.getElementById('adminDiagResult');
