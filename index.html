@@ -1862,17 +1862,22 @@ function processarBaseRetencao(file){
         const linhaNoMesAtual=(rowMes!=null&&rowAno!=null)
           ?(rowMes===(_mesAtual+1)&&rowAno===_anoAtual)
           :(date&&date.getMonth()===_mesAtual&&date.getFullYear()===_anoAtual);
+        // Ordem cronológica da linha: prioriza MES/ANO (DATA_EMISSAO pode vir
+        // como serial do Excel, que quebraria a comparação por Date)
+        const _ordemLinha=(rowMes!=null&&rowAno!=null&&!isNaN(rowMes)&&!isNaN(rowAno))
+          ?(rowAno*100+rowMes)
+          :(date?(date.getFullYear()*100+date.getMonth()+1):null);
         // allClientData + vendorClientMap: TODOS os clientes de TODOS os meses da planilha
         if(!allClientData[code]){
-          allClientData[code]={code,name,vendedor:vendedorCampoA,_lastDate:date||new Date(0),entrepostos:{},lastDate:null,ultimaCompra:null};
+          allClientData[code]={code,name,vendedor:vendedorCampoA,_ordVend:_ordemLinha??-1,entrepostos:{},lastDate:null,ultimaCompra:null};
         } else {
           if(name&&!allClientData[code].name) allClientData[code].name=name;
-          // Vendedor = VENDEDOR_CLIENTE da linha mais recente (data mais nova).
+          // Vendedor = VENDEDOR_CLIENTE da linha mais recente (maior ANO/MES).
           // Garante que clientes transferidos de carteira ficam com o dono atual,
           // não com o primeiro vendedor que aparece no arquivo.
-          if(date&&(!allClientData[code]._lastDate||date>allClientData[code]._lastDate)){
+          if(_ordemLinha!=null&&_ordemLinha>=(allClientData[code]._ordVend??-1)){
             allClientData[code].vendedor=vendedorCampoA;
-            allClientData[code]._lastDate=date;
+            allClientData[code]._ordVend=_ordemLinha;
           }
         }
         // Detalhe de entreposto/compra do ANO inteiro (entrepostos 3 estados, última compra e risco)
