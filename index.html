@@ -2029,44 +2029,39 @@ function processarHistoricoAnual(file){
       // Para cada cliente único, o titular é o vendedor com maior recencyScore
       // (i.e., que tem status na coluna mensal mais recente/à direita)
       // Em caso de empate, o último encontrado na planilha vence (preserva ordem natural)
-      const titularMap={};   // code → { vendedor, recencyScore }
-      const clientDataMap={}; // code → dados do cliente
+      // O titular é a LINHA (vendedor×cliente) com maior recencyScore.
+      // IMPORTANTE: o histórico mensal é tomado INTEGRALMENTE da linha do
+      // titular — NÃO se preenchem lacunas com status de outros vendedores.
+      // Preencher lacunas vazava o status de um vendedor para a carteira de
+      // outro (ex.: Retido da Samara aparecendo no cliente vazio da Bruna),
+      // inflando a contagem de positivados por vendedor.
+      const titularRow={}; // code → linha vencedora (maior recencyScore)
 
       clientVendorRows.forEach(row=>{
-        const {code,name,monthHistory,statusTotal,vendedor,recencyScore}=row;
-        // Atualiza mapa de titular
-        if(!titularMap[code]||recencyScore>titularMap[code].recencyScore){
-          titularMap[code]={vendedor,recencyScore};
-        }
-        // Merge dados do cliente (acumula histórico)
-        if(!clientDataMap[code]){
-          clientDataMap[code]={code,name,history:monthHistory,statusTotal};
-        } else {
-          // Merge histórico: preenche lacunas com dados de outros vendedores
-          monthCols.forEach(m=>{
-            if(!clientDataMap[code].history[m]&&monthHistory[m]){
-              clientDataMap[code].history[m]=monthHistory[m];
-            }
-          });
-          // statusTotal: usa o mais recente (não nulo)
-          if(!clientDataMap[code].statusTotal&&statusTotal){
-            clientDataMap[code].statusTotal=statusTotal;
-          }
+        const {code,recencyScore}=row;
+        if(!titularRow[code]||recencyScore>titularRow[code].recencyScore){
+          titularRow[code]=row;
         }
       });
 
-      // Monta estrutura final de clients com vendedor titular
+      // Monta estrutura final usando exclusivamente a linha do titular
       const clients_final={};
-      Object.keys(clientDataMap).forEach(code=>{
-        const d=clientDataMap[code];
+      Object.keys(titularRow).forEach(code=>{
+        const d=titularRow[code];
         clients_final[code]={
           code:d.code,
           name:d.name,
-          history:d.history,
+          history:d.monthHistory,
           statusAtual:d.statusTotal,
-          vendedorTitular:titularMap[code]?.vendedor||null,
-          recencyScore:titularMap[code]?.recencyScore??-1
+          vendedorTitular:d.vendedor,
+          recencyScore:d.recencyScore
         };
+      });
+
+      // Mapa código → vendedor titular (compatibilidade com consumidores)
+      const titularMap={};
+      Object.keys(titularRow).forEach(code=>{
+        titularMap[code]={vendedor:titularRow[code].vendedor,recencyScore:titularRow[code].recencyScore};
       });
 
       // Conta deduplicações detectadas
