@@ -457,6 +457,7 @@ body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text);fon
       <button class="sidebar-item" id="importMenu" data-label="Importar Excel" onclick="goPage('importar')"><span class="sidebar-icon"><svg class="lc" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" x2="12" y1="3" y2="15"/></svg></span><span class="sidebar-label">Importar Excel</span></button>
       <button class="sidebar-item" id="adminMenu" data-label="Administração" onclick="goPage('admin')"><span class="sidebar-icon"><svg class="lc" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12.22 2h-.44a2 2 0 0 0-2 2v.18a2 2 0 0 1-1 1.73l-.43.25a2 2 0 0 1-2 0l-.15-.08a2 2 0 0 0-2.73.73l-.22.38a2 2 0 0 0 .73 2.73l.15.1a2 2 0 0 1 1 1.72v.51a2 2 0 0 1-1 1.74l-.15.09a2 2 0 0 0-.73 2.73l.22.38a2 2 0 0 0 2.73.73l.15-.08a2 2 0 0 1 2 0l.43.25a2 2 0 0 1 1 1.73V20a2 2 0 0 0 2 2h.44a2 2 0 0 0 2-2v-.18a2 2 0 0 1 1-1.73l.43-.25a2 2 0 0 1 2 0l.15.08a2 2 0 0 0 2.73-.73l.22-.39a2 2 0 0 0-.73-2.73l-.15-.08a2 2 0 0 1-1-1.74v-.5a2 2 0 0 1 1-1.74l.15-.09a2 2 0 0 0 .73-2.73l-.22-.38a2 2 0 0 0-2.73-.73l-.15.08a2 2 0 0 1-2 0l-.43-.25a2 2 0 0 1-1-1.73V4a2 2 0 0 0-2-2z"/><circle cx="12" cy="12" r="3"/></svg></span><span class="sidebar-label">Administração</span></button>
       <button class="sidebar-item" id="exportMenuBtn" data-label="Exportar CSV" onclick="exportCSV()"><span class="sidebar-icon"><svg class="lc" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" x2="12" y1="15" y2="3"/></svg></span><span class="sidebar-label">Exportar CSV</span></button>
+      <div id="buildStamp" style="margin-top:auto;padding:10px 12px;font-size:9px;color:var(--text3);font-family:'DM Mono',monospace;opacity:.7;word-break:break-all"></div>
     </div>
 
     <!-- MAIN -->
@@ -1115,6 +1116,12 @@ body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text);fon
 <div class="toast" id="toast"></div>
 
 <script>
+
+// Carimbo de versão — confirma qual build do JS está rodando no navegador.
+// Se este número não bater com o último deploy, o navegador está em cache
+// (faça Ctrl+Shift+R / hard refresh).
+const APP_BUILD='2026-06-10-positivacao-titular-mes';
+console.log('%cJampac CRM build: '+APP_BUILD,'color:#2667FF;font-weight:bold');
 
 // ==============================
 // LUCIDE ICON HELPERS
@@ -3664,7 +3671,7 @@ function showToast(msg,error,warn){
 // ==============================
 // INIT
 // ==============================
-document.addEventListener('DOMContentLoaded',function(){document.getElementById('dashSub').textContent=new Date().toLocaleDateString('pt-BR',{weekday:'long',year:'numeric',month:'long',day:'numeric'});});
+document.addEventListener('DOMContentLoaded',function(){document.getElementById('dashSub').textContent=new Date().toLocaleDateString('pt-BR',{weekday:'long',year:'numeric',month:'long',day:'numeric'});const bs=document.getElementById('buildStamp');if(bs) bs.textContent='build '+APP_BUILD;});
 </script>
 
   <!-- MODAL CONCLUIR TRATATIVA -->
