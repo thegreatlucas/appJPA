@@ -1805,7 +1805,8 @@ function processarBaseRetencao(file){
       // allClientData = todos os meses do ano (Total de Atendimentos / risco / entrepostos)
       const clientData={};
       const allClientData={};        // { código → {code,name,vendedor,entrepostos,lastDate,ultimaCompra} }
-      const vendorClientMap={};      // { 'nome_vendedor_lower' → Set<codigo> }
+      const vendorClientMap={};      // { 'nome_vendedor_lower' → Set<codigo> }  (ano inteiro)
+      const vendorClientMapMes={};   // { 'nome_vendedor_lower' → Set<codigo> }  (apenas mês atual — titular do mês)
       const _agora=new Date();
       const _mesAtual=_agora.getMonth();
       const _anoAtual=_agora.getFullYear();
@@ -1857,6 +1858,14 @@ function processarBaseRetencao(file){
         // clientData: apenas registros do mês atual
         if(!linhaNoMesAtual) return;
         if(!clientData[code]){clientData[code]={code,name,vendedor:vendedorCampoA,entrepostos:{}};}else{if(name&&!clientData[code].name) clientData[code].name=name;if(vendedorCampoA&&!clientData[code].vendedor) clientData[code].vendedor=vendedorCampoA;}
+        // Titular DO MÊS ATUAL — usa o VENDEDOR_CLIENTE da linha de junho.
+        // Evita contar como positivado da Bruna um cliente que migrou de
+        // carteira (era dela em meses anteriores, mas em junho já é de outro).
+        [vendedorBruto.toLowerCase(), vendedorCampoA.trim().toLowerCase()].forEach(vKey=>{
+          if(!vKey) return;
+          if(!vendorClientMapMes[vKey]) vendorClientMapMes[vKey]=new Set();
+          vendorClientMapMes[vKey].add(code);
+        });
         if(entre&&date&&ENTRS_ATIVOS.includes(entre)){
           if(!clientData[code].entrepostos[entre]) clientData[code].entrepostos[entre]={date,ultimaCompra:formatDate(date),meses:{}};
           const obj=clientData[code].entrepostos[entre];
@@ -1866,7 +1875,7 @@ function processarBaseRetencao(file){
           obj.meses[mk]=(obj.meses[mk]||0)+1;
         }
       });
-      baseRetencaoRaw={clientData,allClientData,vendorClientMap};
+      baseRetencaoRaw={clientData,allClientData,vendorClientMap,vendorClientMapMes};
       const nC=Object.keys(clientData).length;
       // Serializa vendorClientMap: { vendorKey -> {mes: count, ano: count} }
       const vendorData={};
@@ -1874,7 +1883,9 @@ function processarBaseRetencao(file){
         // conta clientes do mês atual para esse vendedor
         const codesAno=vendorClientMap[vk];
         const countAno=codesAno.size;
-        const countMes=Object.keys(clientData).filter(code=>codesAno.has(code)).length;
+        // Mês: titular do MÊS ATUAL (VENDEDOR_CLIENTE de junho), não do ano
+        const codesMes=vendorClientMapMes[vk];
+        const countMes=codesMes?codesMes.size:0;
         vendorData[vk]={mes:countMes,ano:countAno};
       });
       const nAno=Object.keys(allClientData).length;
@@ -2534,10 +2545,12 @@ function renderDash(){
   if(baseRetencaoRaw){
     if(vf || currentRole==='vendedor'){
       const nomeRef=(vf||currentVendedor||'');
-      const vKey=resolverVendorKey(baseRetencaoRaw.vendorClientMap,nomeRef);
-      if(vKey){
-        const codesVend=baseRetencaoRaw.vendorClientMap[vKey];
-        positivacaoTotal=Object.keys(baseRetencaoRaw.clientData).filter(c=>codesVend.has(c)).length;
+      // Titular do MÊS ATUAL (VENDEDOR_CLIENTE de junho) — não do ano inteiro.
+      // Um cliente que migrou de carteira não conta mais para o titular antigo.
+      const mapaMes=baseRetencaoRaw.vendorClientMapMes||baseRetencaoRaw.vendorClientMap;
+      const vKey=resolverVendorKey(mapaMes,nomeRef);
+      if(vKey&&mapaMes[vKey]){
+        positivacaoTotal=mapaMes[vKey].size;
       } else {
         positivacaoTotal=0;
       }
