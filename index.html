@@ -1218,6 +1218,27 @@ async function sbGet(table, filter=''){  try{
 }
 
 // Delete com filtro (ex: "cliente_id=eq.X&vendedor=eq.Y")
+// Remove da tabela clientes do Supabase os registros cujo id não existe mais
+// no clientes[] atual. Necessário porque saveAll() só faz upsert: quando um
+// cliente muda de vendedor o id muda (code_vendedor) e o registro antigo
+// fica órfão — e podia "ganhar" do novo no dedupClientesByCodigo ao recarregar.
+async function limparClientesOrfaos(){
+  try{
+    const rows=await sbGet('clientes','');
+    if(!rows.length) return {ok:true,removidos:0};
+    const idsAtuais=new Set(clientes.map(c=>c.id));
+    const orfaos=rows.map(r=>r.id).filter(id=>id&&!idsAtuais.has(id));
+    if(!orfaos.length) return {ok:true,removidos:0};
+    // Deleta em lotes (limite de tamanho de URL)
+    for(let i=0;i<orfaos.length;i+=40){
+      const lote=orfaos.slice(i,i+40);
+      await sbDelete('clientes','id=in.('+lote.map(encodeURIComponent).join(',')+')');
+    }
+    console.log('limparClientesOrfaos: removidos',orfaos.length,orfaos);
+    return {ok:true,removidos:orfaos.length};
+  }catch(e){console.warn('limparClientesOrfaos',e);return {ok:false};}
+}
+
 async function sbDelete(table, filter){
   if(!filter) return {ok:false};
   try{
@@ -2202,6 +2223,7 @@ function crossReferenceAndBuild(){
       clientes=[];
     }
     const _p=saveAll();populateVendSelect();atualizarCrossResult();refreshAll();
+    limparClientesOrfaos();
     return _p;
   }
 
@@ -2265,6 +2287,7 @@ function crossReferenceAndBuild(){
 
   clientes=novosClientes;
   const _ops=[saveAll()];populateVendSelect();atualizarCrossResult();refreshAll();
+  _ops.push(limparClientesOrfaos());
   // Persiste config de meses para que vendedores reconstruam o dashboard após login
   if(historicoAnualRaw){
     const cfg={mesAtual:historicoAnualRaw.colMesAtual||null,mesAnterior:historicoAnualRaw.colMesAnterior||null,meses:mesesHistorico};
