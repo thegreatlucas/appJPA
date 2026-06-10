@@ -1842,8 +1842,18 @@ function processarBaseRetencao(file){
           ?(rowMes===(_mesAtual+1)&&rowAno===_anoAtual)
           :(date&&date.getMonth()===_mesAtual&&date.getFullYear()===_anoAtual);
         // allClientData + vendorClientMap: TODOS os clientes de TODOS os meses da planilha
-        if(!allClientData[code]){allClientData[code]={code,name,vendedor:vendedorCampoA,entrepostos:{},lastDate:null,ultimaCompra:null};}
-        else{if(name&&!allClientData[code].name) allClientData[code].name=name;}
+        if(!allClientData[code]){
+          allClientData[code]={code,name,vendedor:vendedorCampoA,_lastDate:date||new Date(0),entrepostos:{},lastDate:null,ultimaCompra:null};
+        } else {
+          if(name&&!allClientData[code].name) allClientData[code].name=name;
+          // Vendedor = VENDEDOR_CLIENTE da linha mais recente (data mais nova).
+          // Garante que clientes transferidos de carteira ficam com o dono atual,
+          // não com o primeiro vendedor que aparece no arquivo.
+          if(date&&(!allClientData[code]._lastDate||date>allClientData[code]._lastDate)){
+            allClientData[code].vendedor=vendedorCampoA;
+            allClientData[code]._lastDate=date;
+          }
+        }
         // Detalhe de entreposto/compra do ANO inteiro (entrepostos 3 estados, última compra e risco)
         if(entre&&date&&ENTRS_ATIVOS.includes(entre)){
           const ae=allClientData[code].entrepostos;
