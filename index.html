@@ -936,7 +936,25 @@ body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text);fon
           <button class="btn btn-accent" onclick="cadastrarVendedor()"><svg class="lc" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"/><path d="M12 5v14"/></svg> Cadastrar Vendedor</button>
         </div>
         <div class="admin-section">
-          <h3>Vendedores Cadastrados</h3>
+          <h3>Definir Metas do Mês (em massa)</h3>
+          <div style="background:var(--accent-light);border:1px solid rgba(0,91,255,.2);border-radius:var(--r-xs);padding:10px 14px;font-size:12px;color:var(--accent);margin-bottom:14px">
+            Aplica esta meta <b>individual</b> para todos os vendedores ativos no mês atual. Cada vendedor pode ajustar a dele depois na dashboard.
+          </div>
+          <div class="form-row">
+            <div class="form-group"><label>Meta Geral (clientes)</label><input type="number" id="metaMassaGeral" placeholder="Ex: 60"></div>
+            <div class="form-group"><label>JPA</label><input type="number" id="metaMassaJpa" placeholder="0"></div>
+            <div class="form-group"><label>SUL</label><input type="number" id="metaMassaSul" placeholder="0"></div>
+            <div class="form-group"><label>KRC</label><input type="number" id="metaMassaKrc" placeholder="0"></div>
+            <div class="form-group"><label>ITP</label><input type="number" id="metaMassaItp" placeholder="0"></div>
+          </div>
+          <label style="display:flex;align-items:center;gap:8px;font-size:13px;margin-bottom:12px;cursor:pointer"><input type="checkbox" id="metaMassaSobrescrever"> Sobrescrever metas já definidas individualmente</label>
+          <button class="btn btn-accent" onclick="aplicarMetaTodos()"><svg class="lc" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg> Aplicar para todos os vendedores</button>
+        </div>
+        <div class="admin-section">
+          <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px">
+            <h3 style="margin:0">Vendedores Cadastrados</h3>
+            <button class="btn btn-ghost btn-sm" id="adminToggleInativos" onclick="toggleInativos()">Mostrar inativos</button>
+          </div>
           <div class="table-wrap">
             <table>
               <thead><tr><th>#</th><th>Nome</th><th>Senha</th><th>Fonte</th><th>Ações</th></tr></thead>
@@ -1155,6 +1173,10 @@ const LC_PATHS={
   'users':          `<path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/>`,
   'layout-dashboard':`<rect width="7" height="9" x="3" y="3" rx="1"/><rect width="7" height="5" x="14" y="3" rx="1"/><rect width="7" height="9" x="14" y="12" rx="1"/><rect width="7" height="5" x="3" y="16" rx="1"/>`,
   'refresh-cw':     `<path d="M3 12a9 9 0 0 1 9-9 9.75 9.75 0 0 1 6.74 2.74L21 8"/><path d="M21 3v5h-5"/><path d="M21 12a9 9 0 0 1-9 9 9.75 9.75 0 0 1-6.74-2.74L3 16"/><path d="M8 16H3v5"/>`,
+  'key':            `<path d="m15.5 7.5 2.3 2.3a1 1 0 0 0 1.4 0l2.1-2.1a1 1 0 0 0 0-1.4L19 4"/><path d="m21 2-9.6 9.6"/><circle cx="7.5" cy="15.5" r="5.5"/>`,
+  'user-x':         `<path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><line x1="17" x2="22" y1="8" y2="13"/><line x1="22" x2="17" y1="8" y2="13"/>`,
+  'edit-3':         `<path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4Z"/>`,
+  'clock':          `<circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/>`,
   'message-square': `<path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/>`,
   'trophy':         `<path d="M6 9H4.5a2.5 2.5 0 0 1 0-5H6"/><path d="M18 9h1.5a2.5 2.5 0 0 0 0-5H18"/><path d="M4 22h16"/><path d="M10 14.66V17c0 .55-.47.98-.97 1.21C7.85 18.75 7 20.24 7 22"/><path d="M14 14.66V17c0 .55.47.98.97 1.21C16.15 18.75 17 20.24 17 22"/><path d="M18 2H6v7a6 6 0 0 0 12 0V2Z"/>`,
   'upload':         `<path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" x2="12" y1="3" y2="15"/>`,
@@ -1386,6 +1408,7 @@ async function sbLoadAll(){
 // USUÁRIOS — cache local após load do Supabase
 // ==============================
 let _usuarios = []; // { login, senha, role, ativo }
+let _usuariosAdmin = []; // todos os usuários (inclusive inativos) — uso na tela Admin
 
 // Carrega usuários do Supabase e popula o dropdown de login
 async function carregarUsuarios(){
@@ -2563,6 +2586,31 @@ function salvarMeta(){
   };
   saveAll();closeModal('modalMeta');renderDash();showToast('Meta salva!');
 }
+// Aplica uma meta individual igual para TODOS os vendedores ativos no mês atual.
+// Cada vendedor continua podendo ajustar a sua depois na dashboard.
+function aplicarMetaTodos(){
+  const geral=+document.getElementById('metaMassaGeral').value||0;
+  const jpa=+document.getElementById('metaMassaJpa').value||0;
+  const sul=+document.getElementById('metaMassaSul').value||0;
+  const krc=+document.getElementById('metaMassaKrc').value||0;
+  const itp=+document.getElementById('metaMassaItp').value||0;
+  if(!geral){showToast('Informe ao menos a meta geral',true);return;}
+  const now=new Date();const mm=now.getMonth()+1,yy=now.getFullYear();
+  const vends=getAllVendedores();
+  if(!vends.length){showToast('Nenhum vendedor ativo para aplicar',true);return;}
+  const sobrescrever=document.getElementById('metaMassaSobrescrever')?.checked;
+  let aplicadas=0;
+  vends.forEach(v=>{
+    const key=`${v.nome}_${mm}_${yy}`;
+    if(metas[key]&&metas[key].geral>0&&!sobrescrever) return; // respeita meta já definida
+    metas[key]={geral,jpa,sul,krc,itp};
+    aplicadas++;
+  });
+  // Também define a meta do gestor (fallback/visão geral)
+  metas[`gestor_${mm}_${yy}`]={geral,jpa,sul,krc,itp};
+  saveAll();renderDash();
+  showToast(`Meta aplicada a ${aplicadas} vendedor(es)${sobrescrever?'':' (metas já definidas foram preservadas)'}.`);
+}
 
 // ==============================
 // DASHBOARD
@@ -3645,16 +3693,65 @@ function renderPag(elId,cur,total,cb){
 // ==============================
 // ADMIN
 // ==============================
-function renderAdmin(){
-  const allVends=getAllVendedores();
-  const fromSupa=_usuarios.length>0;
-  document.getElementById('adminVendBody').innerHTML=allVends.map((v,i)=>`<tr>
+let _mostrarInativos=false;
+async function renderAdmin(){
+  // Carrega TODOS os usuários (inclusive inativos) para a tela de admin
+  try{
+    const todos=await sbGet('usuarios','');
+    if(todos.length){
+      // Mescla: mantém os ativos em memória e adiciona/atualiza com os do banco
+      const map={};
+      _usuarios.forEach(u=>{map[u.login]=u;});
+      todos.forEach(u=>{map[u.login]={...map[u.login],...u};});
+      _usuariosAdmin=Object.values(map);
+    } else {
+      _usuariosAdmin=_usuarios.slice();
+    }
+  }catch(e){_usuariosAdmin=_usuarios.slice();}
+  const fromSupa=_usuariosAdmin.length>0;
+  const vends=_usuariosAdmin.filter(u=>u.role==='vendedor');
+  const ativos=vends.filter(u=>u.ativo!==false);
+  const inativos=vends.filter(u=>u.ativo===false);
+  const lista=_mostrarInativos?vends:ativos;
+  const row=(v,i)=>{
+    const inativo=v.ativo===false;
+    return `<tr style="${inativo?'opacity:.55':''}">
     <td>${i+1}</td>
-    <td style="font-weight:600">${v.nome}</td>
-    <td style="font-family:'DM Mono',monospace;font-size:12px">${'*'.repeat(v.senha.length)||'—'}</td>
+    <td style="font-weight:600">${v.login}${inativo?' <span style="font-size:10px;color:var(--red);font-weight:700">(INATIVO)</span>':''}</td>
+    <td style="font-family:'DM Mono',monospace;font-size:12px">${'*'.repeat((v.senha||'').length)||'—'}</td>
     <td><span style="font-size:11px;color:var(--text3)">${fromSupa?'Supabase':'Local'}</span></td>
-    <td style="display:flex;gap:6px;flex-wrap:wrap"><button class="btn btn-sm" style="background:var(--bg3);border:1px solid var(--border);color:var(--text)" onclick="editarSenha('${v.nome}')">${lc('key',13)} Senha</button><button class="btn btn-danger btn-sm" onclick="removerVendedor('${v.nome}')">${lc('trash-2',13)} Remover</button></td>
-  </tr>`).join('');
+    <td style="display:flex;gap:6px;flex-wrap:wrap">${inativo
+      ?`<button class="btn btn-sm" style="background:var(--green-bg);border:1px solid var(--green-border);color:var(--green)" onclick="reativarVendedor('${v.login}')">${lc('refresh-cw',13)} Reativar</button>`
+      :`<button class="btn btn-sm" style="background:var(--bg3);border:1px solid var(--border);color:var(--text)" onclick="editarSenha('${v.login}')">${lc('key',13)} Senha</button><button class="btn btn-sm" style="background:var(--yellow-bg);border:1px solid var(--yellow-border);color:var(--yellow)" onclick="desativarVendedor('${v.login}')">${lc('user-x',13)} Desativar</button><button class="btn btn-danger btn-sm" onclick="removerVendedor('${v.login}')">${lc('trash-2',13)} Remover</button>`
+    }</td>
+  </tr>`;
+  };
+  document.getElementById('adminVendBody').innerHTML=lista.map(row).join('')
+    ||`<tr><td colspan="5" style="color:var(--text3);font-size:13px;padding:16px">Nenhum vendedor.</td></tr>`;
+  const tog=document.getElementById('adminToggleInativos');
+  if(tog) tog.textContent=_mostrarInativos?`Ocultar inativos (${inativos.length})`:`Mostrar inativos (${inativos.length})`;
+}
+function toggleInativos(){_mostrarInativos=!_mostrarInativos;renderAdmin();}
+function desativarVendedor(nome){
+  if(!confirm('Desativar '+nome+'? Ele some dos filtros, ranking e dashboard, mas o histórico é preservado e pode ser reativado.')) return;
+  const u=_usuarios.find(x=>x.login===nome);
+  if(u) u.ativo=false;
+  const ua=_usuariosAdmin.find(x=>x.login===nome);
+  if(ua) ua.ativo=false;
+  // Remove dos ativos em memória para sumir dos filtros imediatamente
+  _usuarios=_usuarios.filter(x=>!(x.login===nome&&x.role==='vendedor'));
+  sbUpsert('usuarios',[{login:nome,senha:u?.senha||ua?.senha||'',role:'vendedor',ativo:false}]);
+  saveAll();renderAdmin();populateVendSelect();showToast(nome+' desativado.');
+}
+function reativarVendedor(nome){
+  const ua=_usuariosAdmin.find(x=>x.login===nome);
+  if(ua){
+    ua.ativo=true;
+    if(!_usuarios.find(x=>x.login===nome)) _usuarios.push({...ua,ativo:true});
+    else _usuarios.find(x=>x.login===nome).ativo=true;
+    sbUpsert('usuarios',[{login:nome,senha:ua.senha||'',role:'vendedor',ativo:true}]);
+  }
+  saveAll();renderAdmin();populateVendSelect();showToast(nome+' reativado.');
 }
 function editarSenha(nome){
   const nova=prompt(`Nova senha para ${nome}:`,'');
