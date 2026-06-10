@@ -103,7 +103,7 @@ body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text);fon
 .sidebar.collapsed .sidebar-item:hover::after{content:attr(data-label);position:absolute;left:calc(var(--sidebar-collapsed) - 4px);background:var(--text);color:#fff;font-size:12px;font-weight:600;padding:6px 10px;border-radius:var(--r-xs);white-space:nowrap;z-index:300;pointer-events:none;box-shadow:var(--shadow-md)}
 
 /* MAIN */
-.main{flex:1;overflow-y:auto;padding:24px;background:var(--bg)}
+.main{flex:1;overflow-y:auto;padding:24px;background:var(--bg);min-width:0;overflow-x:hidden}
 .page{display:none}
 .page.active{display:block}
 
@@ -2100,9 +2100,13 @@ function crossReferenceAndBuild(){
     clientesPorVendedor[vend].push(ch);
   });
 
+  // Deduplica por código: Campo A (VENDEDOR_CLIENTE) é a fonte de verdade do vendedor.
+  // Se o mesmo código aparecer em múltiplos grupos do Campo B, só a primeira ocorrência entra.
+  const _seenCodes=new Set();
   Object.entries(clientesPorVendedor).forEach(([vendedor,chList])=>{
     chList.forEach(ch=>{
       const code=ch.code;
+      if(_seenCodes.has(code)) return;
       // Dados de entreposto do Campo A — ANO inteiro (entrepostos 3 estados, última compra, risco)
       const cb=baseRetencaoRaw?.allClientData[code]||null;
       let lastPurchaseStr=cb?.ultimaCompra||null;
@@ -2125,6 +2129,7 @@ function crossReferenceAndBuild(){
 
       const vendedorFinal=(cb?.vendedor)||vendedor||'';
       const clientId=code+'_'+vendedorFinal.replace(/\W/g,'_');
+      _seenCodes.add(code);
       novosClientes.push(_aplicarDadosNegocio({
         id:clientId,
         codigo:code,
@@ -2292,8 +2297,10 @@ function renderDash(){
   const _contaStatus=(col)=>{
     const r={Retido:0,'Não Retido':0,'Capt./Cob.':0,Recuperado:0};
     base.forEach(c=>{
-      const sn=col?normalizeStatus(c.statusHistorico?.[col]):normalizeStatus(c.status);
+      const raw=col?c.statusHistorico?.[col]:c.status;
+      const sn=normalizeStatus(raw);
       if(sn&&r[sn]!==undefined) r[sn]++;
+      else if(col&&sn===null) r['Não Retido']++; // sem status no mês = Não Retido
     });
     return r;
   };
@@ -2564,30 +2571,32 @@ function renderChartHistorico(base,positivacaoMesAtual){
   }
 }
 
-function pieSVG(counts){
-  const total=counts.reduce((s,x)=>s+x.n,0);
-  if(!total) return '<div style="color:var(--text3);font-size:12px;padding:20px 0">Sem compras no mês</div>';
-  const R=52,CX=60,CY=60;let ang=-Math.PI/2;
-  const arcs=counts.filter(x=>x.n>0).map(({en,n,c})=>{
-    const frac=n/total,a2=ang+frac*2*Math.PI;
-    const x1=CX+R*Math.cos(ang),y1=CY+R*Math.sin(ang);
-    const x2=CX+R*Math.cos(a2),y2=CY+R*Math.sin(a2);
-    const large=frac>0.5?1:0;
-    const path=frac>=0.999
-      ?`<circle cx="${CX}" cy="${CY}" r="${R}" fill="${c}"/>`
-      :`<path d="M${CX},${CY} L${x1.toFixed(2)},${y1.toFixed(2)} A${R},${R} 0 ${large} 1 ${x2.toFixed(2)},${y2.toFixed(2)} Z" fill="${c}"/>`;
-    ang=a2;return path;
+function barChartEntr(counts,totalBase){
+  if(!totalBase) return '<div style="color:var(--text3);font-size:12px;padding:20px 0">Sem dados</div>';
+  const maxPct=Math.max(...counts.map(x=>Math.round(x.n/totalBase*100)),1);
+  const bars=counts.map(({en,n,c})=>{
+    const pct=Math.round(n/totalBase*100);
+    const h=maxPct>0?Math.max(4,Math.round(pct/maxPct*72)):4;
+    return `<div style="flex:1;display:flex;flex-direction:column;align-items:center;gap:3px">
+      <span style="font-size:12px;font-weight:800;color:${c}">${pct}%</span>
+      <div style="width:36px;height:${h}px;background:${c};border-radius:4px 4px 0 0"></div>
+      <span style="font-size:10px;font-weight:700;color:var(--text2)">${en}</span>
+    </div>`;
   }).join('');
-  const leg=counts.filter(x=>x.n>0).map(({en,n,c})=>`<span class="pie-legend-item"><span class="pie-legend-dot" style="background:${c}"></span>${en} <b style="color:var(--text)">${n}</b></span>`).join('');
-  return `<svg viewBox="0 0 120 120" width="120" height="120" style="display:block;margin:0 auto">${arcs}<circle cx="${CX}" cy="${CY}" r="26" fill="var(--bg2)"/><text x="${CX}" y="${CY-2}" text-anchor="middle" font-size="18" font-weight="800" fill="var(--text)">${total}</text><text x="${CX}" y="${CY+12}" text-anchor="middle" font-size="8" fill="var(--text3)">clientes</text></svg><div class="pie-legend">${leg}</div>`;
+  const leg=counts.map(({en,n,c})=>{
+    const pct=Math.round(n/totalBase*100);
+    return `<span class="pie-legend-item"><span class="pie-legend-dot" style="background:${c}"></span>${en} <b style="color:var(--text)">${n}</b> <span style="color:var(--text3);font-size:10px">(${pct}%)</span></span>`;
+  }).join('');
+  return `<div style="display:flex;align-items:flex-end;gap:8px;height:100px;padding:4px 8px 0">${bars}</div><div class="pie-legend" style="margin-top:8px">${leg}</div>`;
 }
 function renderChartEntr(base){
   const mAtual=getMesAtualKey(), mAnt=getMesAnteriorKey();
   const tagA=document.getElementById('entrPieMesAtual2'); if(tagA) tagA.textContent=mAtual;
   const tagP=document.getElementById('entrPieMesAnt2'); if(tagP) tagP.textContent=mAnt;
+  const totalBase=base.length||1;
   const mk=(mesKey)=>ENTRS_ATIVOS.map(en=>({en,n:base.filter(c=>comprouNoMes(c,en,mesKey)).length,c:ENTRS_CORES[en]||'var(--accent)'}));
-  const elA=document.getElementById('chartEntr2'); if(elA) elA.innerHTML=pieSVG(mk(mAtual));
-  const elP=document.getElementById('chartEntrAnt2'); if(elP) elP.innerHTML=pieSVG(mk(mAnt));
+  const elA=document.getElementById('chartEntr2'); if(elA) elA.innerHTML=barChartEntr(mk(mAtual),totalBase);
+  const elP=document.getElementById('chartEntrAnt2'); if(elP) elP.innerHTML=barChartEntr(mk(mAnt),totalBase);
 }
 
 // ==============================
