@@ -2780,17 +2780,13 @@ function renderAlertas(){
 function renderCarteiraEntrResumo(){
   const base=getClientesFiltrados();
   const el=document.getElementById('carteiraEntrResumo');if(!el) return;
-  const naoRetCart=base.filter(c=>{
-    const colAtual=historicoAnualRaw?.colMesAtual||null;
-    const sAtual=colAtual?c.statusHistorico?.[colAtual]:null;
-    const sn=sAtual?normalizeStatus(sAtual):c.status;
-    return !STATUS_POSITIVOS.includes(sn);
-  });
-  const r0c=naoRetCart.filter(c=>{const d=calcDias(c.ultimaCompra);return d<=10;}).length;
-  const r1c=naoRetCart.filter(c=>{const d=calcDias(c.ultimaCompra);return d>=11&&d<=20;}).length;
-  const r2c=naoRetCart.filter(c=>{const d=calcDias(c.ultimaCompra);return d>=21&&d<=30;}).length;
-  const r3c=naoRetCart.filter(c=>{const d=calcDias(c.ultimaCompra);return d>=31&&d<=40;}).length;
-  const r4c=naoRetCart.filter(c=>{const d=calcDias(c.ultimaCompra);return d>40;}).length;
+  // Mesma lógica do Dashboard: conta TODOS os clientes por última compra,
+  // independente de status (não filtra positivados).
+  const r0c=base.filter(c=>{const d=calcDias(c.ultimaCompra);return d<=10;}).length;
+  const r1c=base.filter(c=>{const d=calcDias(c.ultimaCompra);return d>=11&&d<=20;}).length;
+  const r2c=base.filter(c=>{const d=calcDias(c.ultimaCompra);return d>=21&&d<=30;}).length;
+  const r3c=base.filter(c=>{const d=calcDias(c.ultimaCompra);return d>=31&&d<=40;}).length;
+  const r4c=base.filter(c=>{const d=calcDias(c.ultimaCompra);return d>40;}).length;
   el.innerHTML=`
     <div style="font-size:13px;font-weight:700;color:var(--text);margin-bottom:10px">${riskDot('#dc2626')} Risco por Dias Sem Compras</div>
     <div style="display:grid;grid-template-columns:repeat(5,1fr);gap:10px">
