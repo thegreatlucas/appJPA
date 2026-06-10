@@ -1865,12 +1865,23 @@ function handleDropRetencao(e){
   const f=e.dataTransfer.files[0];if(f) processarBaseRetencao(f);
 }
 function handleFileInputRetencao(e){if(e.target.files[0]) processarBaseRetencao(e.target.files[0]);}
-// ── DIAS ÚTEIS (apenas feriados NACIONAIS FIXOS + fins de semana) ──
-// Feriados móveis (Carnaval, Sexta-feira Santa, Corpus Christi) NÃO são
-// considerados, pois a operação trabalha nesses dias. Ex.: 09/jun/2026 = 7
-// dias úteis → equivalente a 12/mai (descontando só o feriado de 1º de maio).
+// ── DIAS ÚTEIS (feriados nacionais FIXOS + MÓVEIS + fins de semana) ──
+// Inclui os feriados móveis (Carnaval, Sexta-feira Santa, Corpus Christi),
+// calculados a partir da Páscoa (algoritmo de Meeus/Jones/Butcher).
 function feriadosBR(year){
-  return new Set(['01-01','04-21','05-01','09-07','10-12','11-02','11-15','12-25']);
+  const f=new Set(['01-01','04-21','05-01','09-07','10-12','11-02','11-15','12-25']);
+  const a=year%19,b=Math.floor(year/100),c=year%100,d=Math.floor(b/4),e=b%4,
+    g=Math.floor((8*b+13)/25),h=(19*a+b-d-g+15)%30,i=Math.floor(c/4),k=c%4,
+    l=(32+2*e+2*i-h-k)%7,m=Math.floor((a+11*h+22*l)/451),
+    mes=Math.floor((h+l-7*m+114)/31),dia=((h+l-7*m+114)%31)+1;
+  const easter=new Date(year,mes-1,dia);
+  const add=(base,days)=>{const dt=new Date(base);dt.setDate(dt.getDate()+days);
+    return ('0'+(dt.getMonth()+1)).slice(-2)+'-'+('0'+dt.getDate()).slice(-2);};
+  f.add(add(easter,-48)); // Carnaval (segunda)
+  f.add(add(easter,-47)); // Carnaval (terça)
+  f.add(add(easter,-2));  // Sexta-feira Santa
+  f.add(add(easter,60));  // Corpus Christi
+  return f;
 }
 function ehDiaUtil(dt,fer){
   const wd=dt.getDay();
