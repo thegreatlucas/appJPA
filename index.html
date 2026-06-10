@@ -1152,8 +1152,7 @@ async function sbUpsert(table, data){
 }
 
 // Select com filtro opcional (ex: 'vendedor=eq.NOME&')
-async function sbGet(table, filter=''){
-  try{
+async function sbGet(table, filter=''){  try{
     const ctrl=new AbortController();
     setTimeout(()=>ctrl.abort(),8000);
     const res=await fetch(SUPABASE_URL+'/rest/v1/'+table+'?'+filter+'select=*',{
@@ -1162,6 +1161,16 @@ async function sbGet(table, filter=''){
     if(!res.ok) return [];
     return await res.json();
   }catch(e){console.warn('sbGet',table,e);return [];}
+}
+
+// Delete com filtro (ex: "cliente_id=eq.X&vendedor=eq.Y")
+async function sbDelete(table, filter){
+  if(!filter) return {ok:false};
+  try{
+    const res=await fetch(SUPABASE_URL+'/rest/v1/'+table+'?'+filter,{method:'DELETE',headers:SB_H()});
+    if(!res.ok){const err=await res.text();console.error('sbDelete ERR',table,res.status,err);return {ok:false,status:res.status,error:err};}
+    return {ok:true};
+  }catch(e){console.warn('sbDelete',table,e);return {ok:false,error:e.message};}
 }
 
 async function sbLoadAll(){
@@ -2774,6 +2783,8 @@ function openTratativaModal(id){
     r.checked=r.value===(t.desfecho||'');
   });
   atualizarBotaoTratativa(t.desfecho||'');
+  const btnLimpar=document.getElementById('btnLimparTratativa');
+  if(btnLimpar) btnLimpar.style.display=c.tratativa?'inline-flex':'none';
   openModal('modalTratativa');
 }
 
@@ -2809,6 +2820,21 @@ function salvarTratativa(){
   saveAll();
   closeModal('modalTratativa');
   renderClientes();
+}
+
+// Remove a tratativa do cliente — apaga em memória, localStorage E Supabase
+// (saveAll só faz upsert, então o DELETE explícito evita que volte ao recarregar).
+function limparTratativa(){
+  const id=document.getElementById('tratativaClienteId').value;
+  const c=clientes.find(x=>x.id===id);if(!c) return;
+  if(!c.tratativa){closeModal('modalTratativa');return;}
+  c.tratativa=null;
+  const filtro='cliente_id=eq.'+encodeURIComponent(c.id)+'&vendedor=eq.'+encodeURIComponent(c.vendedor||'');
+  saveAll();
+  sbDelete('tratativas',filtro);
+  closeModal('modalTratativa');
+  renderClientes();
+  showToast('Tratativa removida',false,true);
 }
 
 function renderClientes(){
@@ -3457,9 +3483,12 @@ document.addEventListener('DOMContentLoaded',function(){document.getElementById(
           <textarea id="tratativaObs" placeholder="Descreva o desfecho, detalhes da conversa, motivos..."></textarea>
         </div>
       </div>
-      <div class="modal-footer">
-        <button class="btn btn-ghost" onclick="closeModal('modalTratativa')">Cancelar</button>
-        <button id="btnSalvarTratativa" class="btn btn-accent" onclick="salvarTratativa()">Salvar Tratativa</button>
+      <div class="modal-footer" style="justify-content:space-between">
+        <button id="btnLimparTratativa" class="btn btn-danger" onclick="limparTratativa()">Limpar Tratativa</button>
+        <div style="display:flex;gap:8px">
+          <button class="btn btn-ghost" onclick="closeModal('modalTratativa')">Cancelar</button>
+          <button id="btnSalvarTratativa" class="btn btn-accent" onclick="salvarTratativa()">Salvar Tratativa</button>
+        </div>
       </div>
     </div>
   </div>
