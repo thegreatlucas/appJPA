@@ -1183,6 +1183,38 @@ async function sbDelete(table, filter){
   }catch(e){console.warn('sbDelete',table,e);return {ok:false,error:e.message};}
 }
 
+// Deduplica clientes por código. Linhas órfãs no Supabase surgem quando o
+// formato do vendedor muda (ex.: "6170-SAMARA CARINA" → "SAMARA CARINA"),
+// gerando id novo sem apagar o antigo. Mantém o registro mais completo
+// (com última compra / mais dados) e mescla os dados de negócio (classificação,
+// tratativa, justificativa) para não perder nada do que foi inserido.
+function dedupClientesByCodigo(lista){
+  const _score=c=>{
+    let s=0;
+    if(c.ultimaCompra&&c.ultimaCompra!=='—') s+=4;
+    if(c.entrepostos&&Object.keys(c.entrepostos).length) s+=2;
+    if(c.statusHistorico&&Object.keys(c.statusHistorico).length) s+=1;
+    if(c.vendedor&&/\d/.test(c.vendedor)) s+=1; // formato Campo A "6170-NOME"
+    return s;
+  };
+  const byCode={};
+  lista.forEach(c=>{
+    const k=c.codigo||c.id;
+    if(!byCode[k]){byCode[k]=c;return;}
+    const prev=byCode[k];
+    const keep=_score(c)>=_score(prev)?c:prev;
+    const drop=keep===c?prev:c;
+    // Mescla dados de negócio: o registro mantido herda o que faltar do descartado
+    keep.classificacao=keep.classificacao||drop.classificacao;
+    keep.tratativa=keep.tratativa||drop.tratativa;
+    keep.justificativa=keep.justificativa||drop.justificativa;
+    keep.capcobObs=keep.capcobObs||drop.capcobObs;
+    if((!keep.historico||!keep.historico.length)&&drop.historico?.length) keep.historico=drop.historico;
+    byCode[k]=keep;
+  });
+  return Object.values(byCode);
+}
+
 async function sbLoadAll(){
   try{
     const isVend=currentRole==='vendedor';
@@ -1206,7 +1238,7 @@ async function sbLoadAll(){
       jRows.forEach(r=>{mkJ[r.cliente_id+'|'+r.vendedor]={motivo:r.motivo,submotivo:r.submotivo,obs:r.obs,data:r.data};});
       clsRows.forEach(r=>{mkC[r.cliente_id+'|'+r.vendedor]={tipo:r.tipo,obs:r.obs,justProcesso:r.just_processo};});
       tRows.forEach(r=>{mkT[r.cliente_id+'|'+r.vendedor]={desfecho:r.desfecho,obs:r.obs,data:r.data};});
-      clientes=clRows.map(r=>({
+      clientes=dedupClientesByCodigo(clRows.map(r=>({
         id:r.id,codigo:r.codigo,nome:r.nome,vendedor:r.vendedor||'',
         status:r.status,statusHistorico:r.status_historico||{},statusTotal:r.status_total,
         ultimaCompra:r.ultima_compra,semana:r.semana,entrepostos:r.entrepostos||{},
@@ -1214,7 +1246,7 @@ async function sbLoadAll(){
         classificacao:mkC[r.id+'|'+r.vendedor]||null,
         tratativa:    mkT[r.id+'|'+r.vendedor]||null,
         capcobObs:null,historico:[]
-      }));
+      })));
     }
     if(ctRows.length) contatos=ctRows.map(r=>({
       id:r.id,clienteId:r.cliente_id,vendedor:r.vendedor,
