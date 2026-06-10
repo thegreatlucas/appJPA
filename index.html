@@ -320,6 +320,14 @@ body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text);fon
 .form-group input:focus,.form-group select:focus,.form-group textarea:focus{border-color:var(--accent);background:#fff;box-shadow:0 0 0 3px rgba(0,91,255,.08)}
 .form-group textarea{resize:vertical;min-height:70px}
 
+/* HISTÓRICO ANUAL — células */
+.ha-cell{display:inline-flex;align-items:center;justify-content:center;width:28px;height:22px;border-radius:4px;font-size:10px;font-weight:700}
+.ha-pos{background:#dcfce7;color:#16a34a}
+.ha-neg{background:#fee2e2;color:#dc2626}
+.ha-vazio{background:var(--bg3);color:var(--text3)}
+.ha-head-mes{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.4px;white-space:nowrap;min-width:36px;text-align:center}
+.ha-head-mes.atual{color:var(--accent)}
+
 /* TRATATIVA OPTIONS */
 .tratativa-opt{border:1.5px solid var(--border);border-radius:var(--r-xs);padding:12px 6px;text-align:center;font-size:12px;font-weight:600;color:var(--text2);transition:all var(--transition);background:var(--bg3);display:flex;flex-direction:column;align-items:center;gap:6px}
 .tratativa-opt:hover{border-color:var(--accent);background:var(--accent-light)}
@@ -441,6 +449,7 @@ body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text);fon
       <button class="sidebar-item active" data-label="Dashboard" onclick="goPage('dashboard')"><span class="sidebar-icon"><svg class="lc" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="7" height="9" x="3" y="3" rx="1"/><rect width="7" height="5" x="14" y="3" rx="1"/><rect width="7" height="9" x="14" y="12" rx="1"/><rect width="7" height="5" x="3" y="16" rx="1"/></svg></span><span class="sidebar-label">Dashboard</span></button>
       <span class="sidebar-section">Clientes</span>
       <button class="sidebar-item" data-label="Carteira" onclick="goPage('clientes')"><span class="sidebar-icon"><svg class="lc" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg></span><span class="sidebar-label">Carteira</span></button>
+      <button class="sidebar-item" data-label="Histórico Anual" onclick="goPage('historico_anual')"><span class="sidebar-icon"><svg class="lc" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="18" height="18" x="3" y="4" rx="2"/><path d="M16 2v4"/><path d="M8 2v4"/><path d="M3 10h18"/><path d="M8 14h.01"/><path d="M12 14h.01"/><path d="M16 14h.01"/><path d="M8 18h.01"/><path d="M12 18h.01"/></svg></span><span class="sidebar-label">Histórico Anual</span></button>
       <button class="sidebar-item" data-label="Em Processo" onclick="goPage('processo_retencao');document.getElementById('emProcessoCount').style.display='none';"><span class="sidebar-icon"><svg class="lc" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 12a9 9 0 0 1 9-9 9.75 9.75 0 0 1 6.74 2.74L21 8"/><path d="M21 3v5h-5"/><path d="M21 12a9 9 0 0 1-9 9 9.75 9.75 0 0 1-6.74-2.74L3 16"/><path d="M8 16H3v5"/></svg></span><span class="sidebar-label"><span id="emProcessoBadge" style="display:inline-flex;align-items:center;gap:6px">Em Processo <span id="emProcessoCount" style="background:var(--red);color:#fff;border-radius:10px;padding:1px 7px;font-size:10px;font-weight:700;display:none">0</span></span></span></button>
       <button class="sidebar-item" data-label="Obs. Coordenador" onclick="goPage('obs_coordenador');document.getElementById('emProcessoCountObs').style.display='none';"><span class="sidebar-icon"><svg class="lc" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg></span><span class="sidebar-label"><span style="display:inline-flex;align-items:center;gap:6px">Obs. Coordenador <span id="emProcessoCountObs" style="background:var(--red);color:#fff;border-radius:10px;padding:1px 7px;font-size:10px;font-weight:700;display:none">0</span></span></span></button>
       <span class="sidebar-section" id="gestorSection">Gestão</span>
@@ -785,6 +794,34 @@ body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text);fon
       <div class="page" id="page-obs_coordenador">
         <div class="page-header"><div class="section-title"><svg class="lc" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg> Observações do Coordenador</div></div>
         <div id="obsCoordContent"></div>
+      </div>
+
+      <!-- HISTÓRICO ANUAL -->
+      <div class="page" id="page-historico_anual">
+        <div class="page-header">
+          <div>
+            <div class="section-title"><svg class="lc" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="18" height="18" x="3" y="4" rx="2"/><path d="M16 2v4"/><path d="M8 2v4"/><path d="M3 10h18"/><path d="M8 14h.01"/><path d="M12 14h.01"/><path d="M16 14h.01"/><path d="M8 18h.01"/><path d="M12 18h.01"/></svg> Histórico Anual de Compras</div>
+            <div class="section-sub">Positivação mês a mês — atualizado a cada importação do Campo B</div>
+          </div>
+        </div>
+        <div class="filters-bar">
+          <select class="filter-inp" id="haVendFilter" onchange="renderHistoricoAnual()"><option value="">Todos Vendedores</option></select>
+          <select class="filter-inp" id="haTipoFilter" onchange="renderHistoricoAnual()">
+            <option value="">Todos os clientes</option>
+            <option value="ativo">Ativos (positivados no mês atual)</option>
+            <option value="inativo_atual">Inativos somente no período atual</option>
+            <option value="sem60">Sem compra há mais de 60 dias</option>
+          </select>
+          <input class="filter-inp" type="text" id="haSearch" placeholder="Buscar cliente..." oninput="renderHistoricoAnual()" style="width:220px">
+          <span id="haCount" style="font-size:12px;color:var(--text2);margin-left:4px"></span>
+        </div>
+        <div class="table-wrap" style="overflow-x:auto">
+          <table id="haTable" style="min-width:700px">
+            <thead><tr id="haHead"></tr></thead>
+            <tbody id="haBody"></tbody>
+          </table>
+        </div>
+        <div id="haPag" style="margin-top:14px"></div>
       </div>
 
       <!-- RANKING -->
@@ -2255,6 +2292,115 @@ function atualizarBadgeEmProcesso(){
   }
 }
 
+// ==============================
+// HISTÓRICO ANUAL
+// ==============================
+let haPage=1;
+const HA_PER=50;
+
+function _statusAtualHA(c,colAtual,colAnt){
+  const sAtual=colAtual?normalizeStatus(c.statusHistorico?.[colAtual]):null;
+  const sAnt=colAnt?normalizeStatus(c.statusHistorico?.[colAnt]):null;
+  if(!sAtual||sAtual===null){
+    // sem dado no mês atual → Não Retido
+    return {label:'Não Retido',cls:'s-nao-retido'};
+  }
+  if(STATUS_POSITIVOS.includes(sAtual)){
+    // positivo no mês atual: se anterior era negativo/vazio → Recuperado
+    const antPos=sAnt&&STATUS_POSITIVOS.includes(sAnt);
+    if(!antPos) return {label:'Recuperado',cls:'s-recuperado'};
+    return {label:'Retido',cls:'s-retido'};
+  }
+  if(sAtual==='Não Retido') return {label:'Não Retido',cls:'s-nao-retido'};
+  return {label:sAtual,cls:'s-sem-info'};
+}
+
+function renderHistoricoAnual(){
+  const meses=mesesHistorico.length?mesesHistorico:(
+    // fallback: pega as chaves de statusHistorico dos clientes
+    [...new Set(clientes.flatMap(c=>Object.keys(c.statusHistorico||{})))].sort()
+  );
+  const colAtual=getMesAtualKey();
+  const colAnt=getMesAnteriorKey();
+
+  // Cabeçalho
+  const head=document.getElementById('haHead');
+  if(head){
+    head.innerHTML=`<th style="min-width:200px;position:sticky;left:0;background:var(--bg3);z-index:3">Cliente</th>`
+      +`<th style="min-width:140px">Vendedor</th>`
+      +meses.map(m=>{
+        const lbl=m.split('/')[0].toUpperCase();
+        const isAtual=m===colAtual;
+        return `<th class="ha-head-mes${isAtual?' atual':''}" title="${m}">${lbl}${isAtual?' ◀':''}</th>`;
+      }).join('')
+      +`<th style="min-width:110px;white-space:nowrap">Status Atual</th>`;
+  }
+
+  // Popula select de vendedor
+  const vSel=document.getElementById('haVendFilter');
+  if(vSel&&vSel.options.length===1){
+    [...new Set(clientes.map(c=>c.vendedor).filter(Boolean))].sort()
+      .forEach(v=>{const o=document.createElement('option');o.value=v;o.textContent=v.replace(' (ITA)','');vSel.appendChild(o);});
+  }
+
+  // Filtros
+  const vf=(document.getElementById('haVendFilter')?.value||'').trim().toLowerCase();
+  const tipo=document.getElementById('haTipoFilter')?.value||'';
+  const search=(document.getElementById('haSearch')?.value||'').toLowerCase();
+
+  let base=getClientesFiltrados();
+  if(vf) base=base.filter(c=>(c.vendedor||'').trim().toLowerCase()===vf);
+  if(search) base=base.filter(c=>c.nome.toLowerCase().includes(search)||(c.codigo||'').includes(search));
+  if(tipo==='ativo'){
+    base=base.filter(c=>STATUS_POSITIVOS.includes(normalizeStatus(c.statusHistorico?.[colAtual])));
+  } else if(tipo==='inativo_atual'){
+    base=base.filter(c=>{
+      const sAtual=normalizeStatus(c.statusHistorico?.[colAtual]);
+      const sAnt=normalizeStatus(c.statusHistorico?.[colAnt]);
+      // era positivo no mês anterior mas não no atual
+      return !STATUS_POSITIVOS.includes(sAtual) && STATUS_POSITIVOS.includes(sAnt);
+    });
+  } else if(tipo==='sem60'){
+    base=base.filter(c=>calcDias(c.ultimaCompra)>60);
+  }
+
+  const el=document.getElementById('haCount');
+  if(el) el.textContent=base.length+' clientes';
+
+  const pages=Math.max(1,Math.ceil(base.length/HA_PER));
+  if(haPage>pages) haPage=1;
+  const slice=base.slice((haPage-1)*HA_PER,haPage*HA_PER);
+
+  const body=document.getElementById('haBody');
+  if(!body) return;
+  if(!meses.length){
+    body.innerHTML=`<tr><td colspan="99" style="color:var(--text3);font-size:13px;padding:24px 16px">Importe o Histórico Anual por Vendedor (Campo B) para visualizar esta tela.</td></tr>`;
+    return;
+  }
+
+  body.innerHTML=slice.map(c=>{
+    const statusAtual=_statusAtualHA(c,colAtual,colAnt);
+    const cellsMeses=meses.map(m=>{
+      const raw=c.statusHistorico?.[m];
+      const sn=normalizeStatus(raw);
+      let cls,label;
+      if(!raw||!sn){cls='ha-vazio';label='—';}
+      else if(STATUS_POSITIVOS.includes(sn)){cls='ha-pos';label='✓';}
+      else{cls='ha-neg';label='✗';}
+      const isAtual=m===colAtual;
+      return `<td style="text-align:center;${isAtual?'background:rgba(0,91,255,.04)':''}"><span class="ha-cell ${cls}" title="${sn||'Sem dado'}">${label}</span></td>`;
+    }).join('');
+    return `<tr onclick="openClienteModal('${c.id}')" style="cursor:pointer">
+      <td style="font-weight:600;position:sticky;left:0;background:#fff;z-index:2">${c.nome}<br><span style="font-size:11px;color:var(--text3);font-family:'DM Mono',monospace">${c.codigo}</span></td>
+      <td style="font-size:12px;color:var(--text2)">${(c.vendedor||'').replace(' (ITA)','')}</td>
+      ${cellsMeses}
+      <td><span class="status-badge ${statusAtual.cls}">${statusAtual.label}</span></td>
+    </tr>`;
+  }).join('');
+
+  renderPag('haPag',haPage,pages,p=>{haPage=p;renderHistoricoAnual();});
+}
+
 function refreshAll(){
   atualizarBadgeEmProcesso();
   renderDash();renderAlertasBadge();renderJustBadge();
@@ -2286,6 +2432,7 @@ function refreshAll(){
       mdb.style.display='none';
     }
   }
+  renderHistoricoAnual();
 }
 
 // ==============================
