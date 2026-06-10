@@ -2298,7 +2298,7 @@ function atualizarBadgeEmProcesso(){
 let haPage=1;
 const HA_PER=50;
 
-function _statusAtualHA(c,colAtual,colAnt){
+function _statusAtualHA(c,colAtual,colAnt,meses){
   const sAtual=colAtual?normalizeStatus(c.statusHistorico?.[colAtual]):null;
   const sAnt=colAnt?normalizeStatus(c.statusHistorico?.[colAnt]):null;
   if(!sAtual||sAtual===null){
@@ -2306,9 +2306,22 @@ function _statusAtualHA(c,colAtual,colAnt){
     return {label:'Não Retido',cls:'s-nao-retido'};
   }
   if(STATUS_POSITIVOS.includes(sAtual)){
-    // positivo no mês atual: se anterior era negativo/vazio → Recuperado
+    // positivo no mês atual: se anterior era negativo/vazio → Recuperado ou Cap./Cob.
     const antPos=sAnt&&STATUS_POSITIVOS.includes(sAnt);
-    if(!antPos) return {label:'Recuperado',cls:'s-recuperado'};
+    if(!antPos){
+      // verifica se houve QUALQUER compra positiva em meses anteriores
+      let comprouAntes=false;
+      if(Array.isArray(meses)){
+        const idxAtual=colAtual?meses.indexOf(colAtual):meses.length-1;
+        const limite=idxAtual>=0?idxAtual:meses.length;
+        for(let i=0;i<limite;i++){
+          if(STATUS_POSITIVOS.includes(normalizeStatus(c.statusHistorico?.[meses[i]]))){comprouAntes=true;break;}
+        }
+      }
+      // primeira compra no período → Cap./Cob.; já comprou antes e voltou → Recuperado
+      if(!comprouAntes) return {label:'Cap./Cob.',cls:'s-capcob'};
+      return {label:'Recuperado',cls:'s-recuperado'};
+    }
     return {label:'Retido',cls:'s-retido'};
   }
   if(sAtual==='Não Retido') return {label:'Não Retido',cls:'s-nao-retido'};
@@ -2379,7 +2392,7 @@ function renderHistoricoAnual(){
   }
 
   body.innerHTML=slice.map(c=>{
-    const statusAtual=_statusAtualHA(c,colAtual,colAnt);
+    const statusAtual=_statusAtualHA(c,colAtual,colAnt,meses);
     const cellsMeses=meses.map(m=>{
       const raw=c.statusHistorico?.[m];
       const sn=normalizeStatus(raw);
