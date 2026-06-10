@@ -847,6 +847,16 @@ body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text);fon
             <div id="statusHistoricoImport" style="margin-top:12px"></div>
           </div>
         </div>
+
+        <!-- MANUTENÇÃO DE DADOS -->
+        <div style="background:#fff;border:1px solid var(--border);border-radius:var(--r);padding:24px;box-shadow:var(--shadow)">
+          <div style="display:flex;align-items:center;gap:8px;margin-bottom:6px">
+            <svg class="lc" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--red)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6h18"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg>
+            <span style="font-size:14px;font-weight:700">Manutenção de Dados</span>
+          </div>
+          <div style="font-size:12px;color:var(--text2);margin-bottom:14px;line-height:1.7">Remove dados operacionais sem afetar a base de clientes importada.</div>
+          <button class="btn btn-danger btn-sm" onclick="limparTodasTratativas()"><svg class="lc" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6h18"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6"/></svg> Limpar todas as tratativas</button>
+        </div>
       </div>
 
       <!-- ADMIN -->
@@ -2835,6 +2845,18 @@ function limparTratativa(){
   closeModal('modalTratativa');
   renderClientes();
   showToast('Tratativa removida',false,true);
+}
+
+// Limpa TODAS as tratativas (ação do gestor) — memória, localStorage e Supabase.
+function limparTodasTratativas(){
+  const n=clientes.filter(c=>c.tratativa).length;
+  if(!n){showToast('Não há tratativas para remover',false,true);return;}
+  if(!confirm(`Remover todas as ${n} tratativa(s)? Esta ação não pode ser desfeita.`)) return;
+  clientes.forEach(c=>{c.tratativa=null;});
+  saveAll();
+  sbDelete('tratativas','cliente_id=neq.__none__'); // cliente_id é NOT NULL → casa todas as linhas
+  renderClientes();
+  showToast(`${n} tratativa(s) removida(s)`,false,true);
 }
 
 function renderClientes(){
