@@ -1238,9 +1238,13 @@ async function sbUpsert(table, data){
   if(!data) return null;
   const arr=Array.isArray(data)?data:[data];
   if(!arr.length) return null;
+  const CHUNK=500;
   try{
-    const res=await fetch(SUPABASE_URL+'/rest/v1/'+table,{method:'POST',headers:SB_H(),body:JSON.stringify(arr)});
-    if(!res.ok){const err=await res.text();console.error('sbUpsert ERR',table,res.status,err);return {ok:false,status:res.status,error:err};}
+    for(let i=0;i<arr.length;i+=CHUNK){
+      const slice=arr.slice(i,i+CHUNK);
+      const res=await fetch(SUPABASE_URL+'/rest/v1/'+table,{method:'POST',headers:SB_H(),body:JSON.stringify(slice)});
+      if(!res.ok){const err=await res.text();console.error('sbUpsert ERR',table,res.status,err);return {ok:false,status:res.status,error:err};}
+    }
     return {ok:true};
   }catch(e){console.warn('sbUpsert',table,e);return {ok:false,error:e.message};}
 }
@@ -1337,8 +1341,29 @@ async function sbLoadAll(){
       sbGet('positivacao_atual','id=eq.singleton&'),
     ]);
 
+    // ── RECONCILIAÇÃO LOCAL × SUPABASE ──────────────────────────────
+    // Se a importação local é mais recente que a do Supabase (provável write
+    // anterior incompleto/abortado), mantém o local e o re-envia — em vez de
+    // sobrescrever a base recém-importada com os dados antigos do Supabase.
+    const supaTs=paRows.length?paRows[0].ts:null;
+    const localTs=ld('dataVersion',null);
+    const localMaisNovo=!!localTs&&(!supaTs||localTs>supaTs);
+    if(localMaisNovo){
+      console.warn('Dados locais mais recentes que o Supabase — re-sincronizando o import local.');
+      const res=await saveAll();
+      if(_resumoSync(res).ok){
+        await limparClientesOrfaos();
+        const cfg=ld('crm_config',null);
+        const pac=positivacaoAtualCache||{};
+        await sbUpsert('positivacao_atual',{id:'singleton',ts:localTs,
+          count:pac.count||0,count_ano:pac.countAno||0,vendor_data:pac.vendorData||null,
+          mes_atual:cfg?.mesAtual||null,mes_anterior:cfg?.mesAnterior||null,meses_historico:cfg?.meses||null,
+          mes_ant_equiv:pac.mesAntEquiv??null,label_equiv_ant:pac.labelEquivAnt||null});
+      }
+    }
+
     // Clientes com dados embedded por vendedor reconstituídos
-    if(clRows.length){
+    if(!localMaisNovo&&clRows.length){
       const mkJ={},mkC={},mkT={};
       jRows.forEach(r=>{mkJ[r.cliente_id+'|'+r.vendedor]={motivo:r.motivo,submotivo:r.submotivo,obs:r.obs,data:r.data};});
       clsRows.forEach(r=>{mkC[r.cliente_id+'|'+r.vendedor]={tipo:r.tipo,obs:r.obs,justProcesso:r.just_processo};});
@@ -1368,7 +1393,7 @@ async function sbLoadAll(){
       metas={};
       mRows.forEach(r=>{metas[r.chave]={geral:r.geral,jpa:r.jpa,sul:r.sul,krc:r.krc,itp:r.itp};});
     }
-    if(paRows.length&&paRows[0].count){
+    if(!localMaisNovo&&paRows.length&&paRows[0].count){
       const vdSupa=paRows[0].vendor_data||null;
       const vdLocal=ld('vendorData',null);
       const paLocal=ld('positivacaoAtual',null);
@@ -1382,6 +1407,8 @@ async function sbLoadAll(){
       };
       sv('positivacaoAtual',positivacaoAtualCache);
     }
+    // Quando o Supabase é a fonte usada, alinha o marcador local ao ts do Supabase
+    if(!localMaisNovo&&supaTs) sv('dataVersion',supaTs);
     // Reconstrói historicoAnualRaw para vendedores (gestor salva config de meses no import)
     if(!historicoAnualRaw){
       const pa=paRows.length?paRows[0]:null;
@@ -2053,8 +2080,11 @@ function processarBaseRetencao(file){
       sv('positivacaoAtual',positivacaoAtualCache);
       // Salva vendorData separado no localStorage (garante acesso mesmo sem coluna no Supabase)
       sv('vendorData',vendorData);
-      // Tenta salvar no Supabase (count_ano/vendor_data podem não existir como coluna — não é crítico)
-      sbUpsert('positivacao_atual',{id:'singleton',count:nC,count_ano:nAno,ts:positivacaoAtualCache.ts,vendor_data:vendorData,mes_ant_equiv:_totalAntEquiv,label_equiv_ant:_labelEquivAnt});
+      // Salva contagem no Supabase. O TIMESTAMP (ts) NÃO é gravado aqui — só
+      // depois que o write dos clientes confirmar, em crossReferenceAndBuild().
+      // Assim, se o write falhar, o ts do Supabase fica atrás do local e o
+      // próximo reload preserva a importação local em vez de descartá-la.
+      sbUpsert('positivacao_atual',{id:'singleton',count:nC,count_ano:nAno,vendor_data:vendorData,mes_ant_equiv:_totalAntEquiv,label_equiv_ant:_labelEquivAnt});
       document.getElementById('statusRetencaoImport').innerHTML=`<div style="background:var(--green-bg);border:1px solid var(--green-border);border-radius:var(--r-xs);padding:12px 16px;font-size:13px;color:var(--green)">
         ${lc('check-circle',13)} <b>${file.name}</b><br>
         <span style="font-size:12px">${nC.toLocaleString('pt-BR')} clientes únicos no mês atual · Entrepostos: ITP, JPA, KRC, SUL</span>
@@ -2343,9 +2373,18 @@ function crossReferenceAndBuild(){
     } else {
       clientes=[];
     }
-    const _p=saveAll();populateVendSelect();atualizarCrossResult();refreshAll();
-    limparClientesOrfaos();
-    return _p;
+    // Marca a versão dos dados localmente já; carimba o ts no Supabase só após
+    // o write confirmar (ver comentário no branch principal).
+    const ts=new Date().toISOString();
+    sv('dataVersion',ts);
+    populateVendSelect();atualizarCrossResult();refreshAll();
+    return saveAll().then(async res=>{
+      if(_resumoSync(res).ok){
+        await limparClientesOrfaos();
+        return sbUpsert('positivacao_atual',{id:'singleton',ts});
+      }
+      return res;
+    });
   }
 
   // ── CONSTRUÇÃO USANDO HISTÓRICO ANUAL COMO FONTE PRIMÁRIA ────────
@@ -2407,15 +2446,25 @@ function crossReferenceAndBuild(){
   });
 
   clientes=novosClientes;
-  const _ops=[saveAll()];populateVendSelect();atualizarCrossResult();refreshAll();
-  _ops.push(limparClientesOrfaos());
-  // Persiste config de meses para que vendedores reconstruam o dashboard após login
-  if(historicoAnualRaw){
-    const cfg={mesAtual:historicoAnualRaw.colMesAtual||null,mesAnterior:historicoAnualRaw.colMesAnterior||null,meses:mesesHistorico};
-    sv('crm_config',cfg);
-    _ops.push(sbUpsert('positivacao_atual',{id:'singleton',mes_atual:cfg.mesAtual,mes_anterior:cfg.mesAnterior,meses_historico:cfg.meses}));
-  }
-  return Promise.all(_ops).then(r=>r.flat());
+  // Marca a versão dos dados localmente AGORA (antes do write assíncrono).
+  const ts=new Date().toISOString();
+  sv('dataVersion',ts);
+  const cfg=historicoAnualRaw
+    ?{mesAtual:historicoAnualRaw.colMesAtual||null,mesAnterior:historicoAnualRaw.colMesAnterior||null,meses:mesesHistorico}
+    :null;
+  if(cfg) sv('crm_config',cfg);
+  populateVendSelect();atualizarCrossResult();refreshAll();
+  // Só carimba o ts no Supabase QUANDO o write dos clientes confirmar. Se falhar,
+  // o ts do Supabase fica atrás do local → o próximo reload mantém o import local
+  // e re-envia, em vez de descartar a base nova.
+  return saveAll().then(async res=>{
+    await limparClientesOrfaos();
+    if(_resumoSync(res).ok){
+      return sbUpsert('positivacao_atual',{id:'singleton',ts,
+        mes_atual:cfg?.mesAtual||null,mes_anterior:cfg?.mesAnterior||null,meses_historico:cfg?.meses||null});
+    }
+    return res;
+  });
 }
 
 function atualizarCrossResult(){
