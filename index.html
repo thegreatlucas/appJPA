@@ -3257,9 +3257,9 @@ function renderCarteiraEntrResumo(){
 // ==============================
 function getTratativaIcon(c){
   if(!c.tratativa) return lc('check-circle',14);
-  if(c.tratativa.desfecho==='recuperado') return riskDot('#16a34a');
-  if(c.tratativa.desfecho==='sem_sucesso') return riskDot('#dc2626');
-  if(c.tratativa.desfecho==='em_tratativa') return lc('refresh-cw',14);
+  if(c.tratativa.desfecho==='recuperado') return `<span style="color:#16a34a">${lc('check-circle',14)}</span>`;
+  if(c.tratativa.desfecho==='sem_sucesso') return `<span style="color:#dc2626">${lc('x-circle',14)}</span>`;
+  if(c.tratativa.desfecho==='em_tratativa') return `<span style="color:#d97706">${lc('refresh-cw',14)}</span>`;
   return lc('check-circle',14);
 }
 
@@ -4084,7 +4084,7 @@ document.addEventListener('DOMContentLoaded',function(){document.getElementById(
             <label style="cursor:pointer">
               <input type="radio" name="tratativaDesfecho" value="recuperado" onchange="atualizarBotaoTratativa(this.value)" style="display:none">
               <div class="tratativa-opt" id="opt-recuperado">
-                <span class="tratativa-opt-icon"><span style="display:inline-block;width:18px;height:18px;border-radius:50%;background:#16a34a"></span></span>Recuperado
+                <span class="tratativa-opt-icon"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#16a34a" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><path d="m9 11 3 3L22 4"/></svg></span>Recuperado
               </div>
             </label>
             <label style="cursor:pointer">
@@ -4096,7 +4096,7 @@ document.addEventListener('DOMContentLoaded',function(){document.getElementById(
             <label style="cursor:pointer">
               <input type="radio" name="tratativaDesfecho" value="sem_sucesso" onchange="atualizarBotaoTratativa(this.value)" style="display:none">
               <div class="tratativa-opt" id="opt-sem_sucesso">
-                <span class="tratativa-opt-icon"><span style="display:inline-block;width:18px;height:18px;border-radius:50%;background:#dc2626"></span></span>Sem Sucesso
+                <span class="tratativa-opt-icon"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#dc2626" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="m15 9-6 6"/><path d="m9 9 6 6"/></svg></span>Sem Sucesso
               </div>
             </label>
           </div>
