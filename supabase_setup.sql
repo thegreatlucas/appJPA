@@ -156,15 +156,19 @@ create table if not exists public.positivacao_atual (
   id               text primary key,
   count            integer default 0,    -- clientes distintos no MÊS atual (Base Retenção)
   count_ano        integer default 0,    -- clientes distintos no ANO (Total de Atendimentos)
-  ts               text,                 -- ISO string gerada pelo app
-  vendor_data      jsonb,                -- { "nome_vendedor": { mes, ano }, ... }
+  ts               text,                 -- ISO string gerada pelo app (versão dos dados)
+  vendor_data      jsonb,                -- { "nome_vendedor": { mes, ano, mesAntEquiv }, ... }
   mes_atual        text,                 -- ex.: "jun/2026"
   mes_anterior     text,
   meses_historico  jsonb,                -- ["jan/2026", "fev/2026", ...]
+  mes_ant_equiv    integer default 0,    -- positivação do mês anterior no mesmo dia útil
+  label_equiv_ant  text,                 -- rótulo do comparativo equivalente (ex.: "até 6º dia útil")
   atualizado_em    timestamptz not null default now()
 );
--- Migração p/ bancos já criados (adiciona count_ano se faltar)
-alter table public.positivacao_atual add column if not exists count_ano integer default 0;
+-- Migração p/ bancos já criados (adiciona colunas novas se faltarem)
+alter table public.positivacao_atual add column if not exists count_ano       integer default 0;
+alter table public.positivacao_atual add column if not exists mes_ant_equiv   integer default 0;
+alter table public.positivacao_atual add column if not exists label_equiv_ant text;
 
 -- =====================================================================
 -- RLS + POLÍTICAS DE ACESSO

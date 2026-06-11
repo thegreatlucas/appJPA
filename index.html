@@ -1599,7 +1599,8 @@ function getAllVendedores(){return _usuarios.filter(u=>u.role==='vendedor'&&u.at
 // Resume os resultados de um Promise.all de upserts (sbUpsert nunca rejeita —
 // retorna {ok:false,...} em caso de falha). Retorna {ok, error}.
 function _resumoSync(resultados){
-  const arr=(resultados||[]).filter(Boolean);
+  // Aceita array, array aninhado ou objeto único de resultado.
+  const arr=[].concat(resultados||[]).flat(Infinity).filter(Boolean);
   const falha=arr.find(r=>r&&r.ok===false);
   return falha?{ok:false,error:falha.error||('HTTP '+(falha.status||'?'))}:{ok:true};
 }
@@ -2379,11 +2380,10 @@ function crossReferenceAndBuild(){
     sv('dataVersion',ts);
     populateVendSelect();atualizarCrossResult();refreshAll();
     return saveAll().then(async res=>{
-      if(_resumoSync(res).ok){
-        await limparClientesOrfaos();
-        return sbUpsert('positivacao_atual',{id:'singleton',ts});
-      }
-      return res;
+      const ops=[].concat(res);
+      ops.push(await limparClientesOrfaos());
+      if(_resumoSync(res).ok) ops.push(await sbUpsert('positivacao_atual',{id:'singleton',ts}));
+      return ops;
     });
   }
 
@@ -2458,12 +2458,13 @@ function crossReferenceAndBuild(){
   // o ts do Supabase fica atrás do local → o próximo reload mantém o import local
   // e re-envia, em vez de descartar a base nova.
   return saveAll().then(async res=>{
-    await limparClientesOrfaos();
+    const ops=[].concat(res);
+    ops.push(await limparClientesOrfaos());
     if(_resumoSync(res).ok){
-      return sbUpsert('positivacao_atual',{id:'singleton',ts,
-        mes_atual:cfg?.mesAtual||null,mes_anterior:cfg?.mesAnterior||null,meses_historico:cfg?.meses||null});
+      ops.push(await sbUpsert('positivacao_atual',{id:'singleton',ts,
+        mes_atual:cfg?.mesAtual||null,mes_anterior:cfg?.mesAnterior||null,meses_historico:cfg?.meses||null}));
     }
-    return res;
+    return ops;
   });
 }
 
