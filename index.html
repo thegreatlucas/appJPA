@@ -818,15 +818,11 @@ body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text);fon
         <div class="filters-bar">
           <select class="filter-inp" id="haVendFilter" onchange="renderHistoricoAnual()"><option value="">Todos Vendedores</option></select>
           <select class="filter-inp" id="haTipoFilter" onchange="renderHistoricoAnual()">
-            <option value="">Todos os clientes</option>
-            <option value="ativo">Ativos (positivados no mês atual)</option>
-            <option value="inativo_atual">Inativos somente no período atual</option>
-            <option value="sem60">Sem compra há mais de 60 dias</option>
-            <optgroup label="── Status Atual ──"></optgroup>
-            <option value="s_retido">Status: Retido</option>
-            <option value="s_recuperado">Status: Recuperado</option>
-            <option value="s_capcob">Status: Cap./Cob.</option>
-            <option value="s_nao_retido">Status: Não Retido</option>
+            <option value="">Status do Cliente</option>
+            <option value="s_retido">Retido</option>
+            <option value="s_nao_retido">Não Retido</option>
+            <option value="s_recuperado">Recuperado</option>
+            <option value="s_capcob">Cap./Cob.</option>
           </select>
           <input class="filter-inp" type="text" id="haSearch" placeholder="Buscar cliente..." oninput="renderHistoricoAnual()" style="width:220px">
           <span id="haCount" style="font-size:12px;color:var(--text2);margin-left:4px"></span>
