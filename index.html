@@ -3268,10 +3268,17 @@ function renderCarteiraEntrResumo(){
 // ==============================
 function getTratativaIcon(c){
   if(!c.tratativa) return lc('check-circle',14);
-  if(c.tratativa.desfecho==='recuperado') return `<span style="color:#16a34a">${lc('check-circle',14)}</span>`;
-  if(c.tratativa.desfecho==='sem_sucesso') return `<span style="color:#dc2626">${lc('x-circle',14)}</span>`;
-  if(c.tratativa.desfecho==='em_tratativa') return `<span style="color:#d97706">${lc('refresh-cw',14)}</span>`;
+  if(c.tratativa.desfecho==='recuperado') return lc('check-circle',14);
+  if(c.tratativa.desfecho==='sem_sucesso') return lc('x-circle',14);
+  if(c.tratativa.desfecho==='em_tratativa') return lc('refresh-cw',14);
   return lc('check-circle',14);
+}
+function getTratativaBtnClass(c){
+  if(!c.tratativa) return 'btn-warn';
+  if(c.tratativa.desfecho==='recuperado') return 'btn-success';
+  if(c.tratativa.desfecho==='sem_sucesso') return 'btn-danger';
+  if(c.tratativa.desfecho==='em_tratativa') return 'btn-warn';
+  return 'btn-ghost';
 }
 
 function openTratativaModal(id){
@@ -3408,7 +3415,7 @@ function renderClientes(){
         ${dias>=30
           ? `<button class="btn btn-warn btn-sm" title="Justificar — Sem Compra 30d+" onclick="openJustModal('${c.id}')">${lc('file-pen',13)}</button>`
           : `<button class="btn btn-ghost btn-sm" title="Justificar — Sem Compra 30d+" onclick="openJustModal('${c.id}')" disabled style="opacity:0.3">${lc('file-pen',13)}</button>`}
-        <button class="btn btn-ghost btn-sm" title="Concluir Tratativa" onclick="openTratativaModal('${c.id}')">${getTratativaIcon(c)}</button>
+        <button class="btn btn-sm ${getTratativaBtnClass(c)}" title="Concluir Tratativa" onclick="openTratativaModal('${c.id}')">${getTratativaIcon(c)}</button>
         </div>
       </td>
     </tr>`;
