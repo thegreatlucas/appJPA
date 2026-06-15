@@ -407,9 +407,9 @@ body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text);fon
       <button class="role-tab active" id="tabGestor" onclick="selectRole('gestor')"><svg class="lc" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m2 4 3 12h14l3-12-6 5-4-5-4 5-6-5zm3 16h14"/></svg> Gestor</button>
       <button class="role-tab" id="tabVendedor" onclick="selectRole('vendedor')"><svg class="lc" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg> Vendedor</button>
     </div>
-    <div class="inp-group" id="vendedorSelectGroup" style="display:none">
-      <label>Seu Nome</label>
-      <input type="text" id="vendedorSelect" placeholder="Digite seu nome de usuário..." onkeydown="if(event.key==='Enter')doLogin()" autocomplete="off">
+    <div class="inp-group" id="vendedorSelectGroup">
+      <label id="vendedorSelectLabel">Login do Gestor</label>
+      <input type="text" id="vendedorSelect" placeholder="Digite seu login..." onkeydown="if(event.key==='Enter')doLogin()" autocomplete="off">
     </div>
     <div class="inp-group">
       <label>Senha</label>
@@ -937,6 +937,7 @@ body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text);fon
           <div class="form-row">
             <div class="form-group"><label>Nome do Vendedor</label><input type="text" id="adminNome" placeholder="Ex: BRUNA SOUSA (ITA)"></div>
             <div class="form-group"><label>Senha</label><input type="password" id="adminSenha" placeholder="Senha de acesso"></div>
+            <div class="form-group"><label>Equipe</label><input type="text" id="adminEquipe" placeholder="Ex: Victoria"></div>
           </div>
           <button class="btn btn-accent" onclick="cadastrarVendedor()"><svg class="lc" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"/><path d="M12 5v14"/></svg> Cadastrar Vendedor</button>
         </div>
@@ -962,7 +963,7 @@ body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text);fon
           </div>
           <div class="table-wrap">
             <table>
-              <thead><tr><th>#</th><th>Nome</th><th>Senha</th><th>Fonte</th><th>Ações</th></tr></thead>
+              <thead><tr><th>#</th><th>Nome</th><th>Senha</th><th>Equipe</th><th>Fonte</th><th>Ações</th></tr></thead>
               <tbody id="adminVendBody"></tbody>
             </table>
           </div>
@@ -1496,7 +1497,7 @@ const STATUS_POSITIVOS = ['Capt./Cob.', 'Recuperado', 'Retido', 'Start Compra'];
 // ==============================
 // STATE
 // ==============================
-let currentRole='gestor',currentUser='',currentVendedor='';
+let currentRole='gestor',currentUser='',currentVendedor='',currentEquipe='';
 let contatoClienteId=null,justClienteId=null,classClienteId=null;
 let clientePage=1,contatoPage=1,alertaPage=1,entrPage=1,justPage=1;
 let currentEntr='JPA';
@@ -1716,7 +1717,15 @@ function riscoBadge(dias){
 }
 
 function getClientesFiltrados(){
-  if(currentRole==='gestor') return clientes;
+  if(currentRole==='gestor'){
+    if(!currentEquipe||currentEquipe==='*') return clientes;
+    const myVends=new Set(
+      _usuarios.filter(u=>u.role==='vendedor'&&u.ativo&&(u.equipe||'').toLowerCase()===currentEquipe.toLowerCase())
+               .map(u=>u.login.toLowerCase())
+    );
+    if(!myVends.size) return clientes;
+    return clientes.filter(c=>myVends.has((c.vendedor||'').toLowerCase()));
+  }
   const cv=(currentVendedor||'').trim().toLowerCase();
   return clientes.filter(c=>(c.vendedor||'').trim().toLowerCase()===cv);
 }
@@ -1781,7 +1790,7 @@ function toggleSidebar(){
 // ==============================
 function populateVendSelect(){
   const vends=currentRole==='gestor'
-    ?[...new Set(clientes.map(c=>c.vendedor).filter(Boolean))].sort()
+    ?[...new Set(getClientesFiltrados().map(c=>c.vendedor).filter(Boolean))].sort()
     :[];
   ['dashVendFilter','entrVendFilter','alertaVendFilter','fVend','fContatoVend','fJustVend'].forEach(id=>{
     const el=document.getElementById(id);
@@ -1810,7 +1819,7 @@ async function tentarAutoLogin(){
   let sess;try{sess=JSON.parse(raw);}catch(e){localStorage.removeItem('crm4_session');return false;}
   if(!sess||!sess.role) return false;
   await carregarUsuarios();
-  if(sess.role==='gestor'){iniciarApp('gestor',sess.user||'Gestor');return true;}
+  if(sess.role==='gestor'){iniciarApp('gestor',sess.user||'Gestor',sess.equipe||'');return true;}
   if(sess.role==='vendedor'&&sess.user){
     const u=_usuarios.find(u=>u.login===sess.user&&u.role==='vendedor'&&u.ativo);
     if(u){iniciarApp('vendedor',u.login);return true;}
@@ -1824,7 +1833,10 @@ function selectRole(role){
   currentRole=role;
   document.getElementById('tabGestor').classList.toggle('active',role==='gestor');
   document.getElementById('tabVendedor').classList.toggle('active',role==='vendedor');
-  document.getElementById('vendedorSelectGroup').style.display=role==='vendedor'?'block':'none';
+  const lbl=document.getElementById('vendedorSelectLabel');
+  const inp=document.getElementById('vendedorSelect');
+  if(role==='gestor'){lbl.textContent='Login do Gestor';inp.placeholder='Digite seu login...';}
+  else{lbl.textContent='Seu Nome';inp.placeholder='Digite seu nome de usuário...';}
   document.getElementById('loginError').style.display='none';
 }
 async function doLogin(){
@@ -1839,9 +1851,16 @@ async function doLogin(){
   }
   btnLogin.textContent='Entrar →';btnLogin.disabled=false;
   if(currentRole==='gestor'){
-    const g=_usuarios.find(u=>u.role==='gestor'&&u.ativo);
-    if((g&&g.senha===senha)||senha===GESTOR_SENHA){iniciarApp('gestor','Gestor');return;}
-    errEl.textContent='Senha incorreta';errEl.style.display='block';return;
+    const nome=(document.getElementById('vendedorSelect').value||'').trim();
+    if(!nome){errEl.textContent='Digite seu login de gestor';errEl.style.display='block';return;}
+    const g=_usuarios.find(u=>u.role==='gestor'&&u.ativo&&u.login.toLowerCase()===nome.toLowerCase());
+    const senhaOk=g?(g.senha===senha||senha===GESTOR_SENHA):senha===GESTOR_SENHA;
+    if(senhaOk){
+      const displayName=g?g.login:nome;
+      const equipe=g?.equipe||(nome.charAt(0).toUpperCase()+nome.slice(1));
+      iniciarApp('gestor',displayName,equipe);return;
+    }
+    errEl.textContent='Login ou senha incorretos';errEl.style.display='block';return;
   }
   const nomeDigitado=document.getElementById('vendedorSelect').value.trim();
   if(!nomeDigitado){errEl.textContent='Digite seu nome de usuário';errEl.style.display='block';return;}
@@ -1850,15 +1869,18 @@ async function doLogin(){
   if(u.senha!==senha){errEl.textContent='Senha incorreta';errEl.style.display='block';return;}
   iniciarApp('vendedor',u.login);
 }
-function iniciarApp(role,user){
-  localStorage.setItem('crm4_session',JSON.stringify({role,user}));
+function iniciarApp(role,user,equipe=''){
+  currentEquipe=equipe;
+  localStorage.setItem('crm4_session',JSON.stringify({role,user,equipe}));
   currentRole=role;currentUser=user;
   currentVendedor=role==='vendedor'?user:'';
   loadLocalForUser();
   document.getElementById('loginScreen').style.display='none';
   document.getElementById('app').style.display='flex';
   document.getElementById('userDisplay').textContent=user.replace(' (ITA)','');
-  document.getElementById('userSubDisplay').textContent=role==='gestor'?'Acesso Gestor':'Vendedor';
+  document.getElementById('userSubDisplay').textContent=role==='gestor'
+    ?(equipe&&equipe!=='*'?'Gestor — Equipe '+equipe:'Acesso Gestor')
+    :'Vendedor';
   const rb=document.getElementById('roleBadge');
   rb.innerHTML=role==='gestor'?`${lc('crown',12)} Gestor`:`${lc('user',12)} Vendedor`;
   rb.className='badge-role '+(role==='gestor'?'gestor':'vendedor');
@@ -1883,7 +1905,7 @@ function doLogout(){
   clientes=[];contatos=[];metas={};obsCoord=[];
   procRetencaoHist=[];positivacaoAtualCache=null;
   baseRetencaoRaw=null;historicoAnualRaw=null;
-  currentRole='gestor';currentUser='';currentVendedor='';
+  currentRole='gestor';currentUser='';currentVendedor='';currentEquipe='';
   document.getElementById('loginScreen').style.display='flex';
   document.getElementById('app').style.display='none';
   document.getElementById('senhaInp').value='';
@@ -3876,6 +3898,9 @@ function renderPag(elId,cur,total,cb){
 // ==============================
 let _mostrarInativos=false;
 async function renderAdmin(){
+  // Pre-preenche equipe no formulário de cadastro
+  const equipeInp=document.getElementById('adminEquipe');
+  if(equipeInp&&currentEquipe&&currentEquipe!=='*'&&!equipeInp.value) equipeInp.value=currentEquipe;
   // Carrega TODOS os usuários (inclusive inativos) para a tela de admin
   try{
     const todos=await sbGet('usuarios','');
@@ -3890,7 +3915,12 @@ async function renderAdmin(){
     }
   }catch(e){_usuariosAdmin=_usuarios.slice();}
   const fromSupa=_usuariosAdmin.length>0;
-  const vends=_usuariosAdmin.filter(u=>u.role==='vendedor');
+  const vends=_usuariosAdmin.filter(u=>{
+    if(u.role!=='vendedor') return false;
+    if(!currentEquipe||currentEquipe==='*') return true;
+    const ue=(u.equipe||'').toLowerCase();
+    return ue===currentEquipe.toLowerCase()||ue==='';
+  });
   const ativos=vends.filter(u=>u.ativo!==false);
   const inativos=vends.filter(u=>u.ativo===false);
   const lista=_mostrarInativos?vends:ativos;
@@ -3900,6 +3930,7 @@ async function renderAdmin(){
     <td>${i+1}</td>
     <td style="font-weight:600">${v.login}${inativo?' <span style="font-size:10px;color:var(--red);font-weight:700">(INATIVO)</span>':''}</td>
     <td style="font-family:'DM Mono',monospace;font-size:12px">${'*'.repeat((v.senha||'').length)||'—'}</td>
+    <td style="font-size:12px;color:var(--text2)">${v.equipe||'—'}</td>
     <td><span style="font-size:11px;color:var(--text3)">${fromSupa?'Supabase':'Local'}</span></td>
     <td style="display:flex;gap:6px;flex-wrap:wrap">${inativo
       ?`<button class="btn btn-sm" style="background:var(--green-bg);border:1px solid var(--green-border);color:var(--green)" onclick="reativarVendedor('${v.login}')">${lc('refresh-cw',13)} Reativar</button>`
@@ -3921,7 +3952,7 @@ function desativarVendedor(nome){
   if(ua) ua.ativo=false;
   // Remove dos ativos em memória para sumir dos filtros imediatamente
   _usuarios=_usuarios.filter(x=>!(x.login===nome&&x.role==='vendedor'));
-  sbUpsert('usuarios',[{login:nome,senha:u?.senha||ua?.senha||'',role:'vendedor',ativo:false}]);
+  sbUpsert('usuarios',[{login:nome,senha:u?.senha||ua?.senha||'',role:'vendedor',ativo:false,equipe:u?.equipe||ua?.equipe||''}]);
   saveAll();renderAdmin();populateVendSelect();showToast(nome+' desativado.');
 }
 function reativarVendedor(nome){
@@ -3930,7 +3961,7 @@ function reativarVendedor(nome){
     ua.ativo=true;
     if(!_usuarios.find(x=>x.login===nome)) _usuarios.push({...ua,ativo:true});
     else _usuarios.find(x=>x.login===nome).ativo=true;
-    sbUpsert('usuarios',[{login:nome,senha:ua.senha||'',role:'vendedor',ativo:true}]);
+    sbUpsert('usuarios',[{login:nome,senha:ua.senha||'',role:'vendedor',ativo:true,equipe:ua.equipe||''}]);
   }
   saveAll();renderAdmin();populateVendSelect();showToast(nome+' reativado.');
 }
@@ -3976,6 +4007,8 @@ async function testarConexaoAdmin(){
 async function cadastrarVendedor(){
   const nome=document.getElementById('adminNome').value.trim();
   const senha=document.getElementById('adminSenha').value.trim();
+  const equipeInp=document.getElementById('adminEquipe');
+  const equipe=(equipeInp?.value||'').trim()||currentEquipe||'';
   const diagEl=document.getElementById('adminDiagResult');
   if(!nome||!senha){showToast('Preencha nome e senha',true);return;}
   // Verifica duplicata ignorando case
@@ -3998,7 +4031,7 @@ async function cadastrarVendedor(){
         'Authorization':'Bearer '+SUPABASE_KEY,
         'Prefer':'resolution=merge-duplicates,return=representation'
       },
-      body:JSON.stringify([{login:nome,senha:senha,role:'vendedor',ativo:true}])
+      body:JSON.stringify([{login:nome,senha:senha,role:'vendedor',ativo:true,equipe:equipe}])
     });
     const bodyText=await res.text();
     if(!res.ok){
@@ -4013,9 +4046,10 @@ async function cadastrarVendedor(){
     // Atualiza lista local — remove entrada antiga com mesmo login (pode estar ativo:false) e insere nova
     const idx=_usuarios.findIndex(u=>u.login.trim().toLowerCase()===nome.toLowerCase());
     if(idx>=0) _usuarios.splice(idx,1);
-    _usuarios.push({login:nome,senha:senha,role:'vendedor',ativo:true});
+    _usuarios.push({login:nome,senha:senha,role:'vendedor',ativo:true,equipe:equipe});
     document.getElementById('adminNome').value='';
     document.getElementById('adminSenha').value='';
+    if(equipeInp) equipeInp.value='';
     if(diagEl) diagEl.innerHTML=`<span style="color:var(--green)">${lc('check-circle',13)} Vendedor <b>`+nome+'</b> cadastrado com sucesso!</span>';
     renderAdmin();
     populateVendSelect();
