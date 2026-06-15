@@ -265,6 +265,10 @@ body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text);fon
 .filter-inp{background:#fff;border:1.5px solid var(--border);border-radius:var(--r-xs);padding:8px 12px;color:var(--text);font-size:13px;outline:none;transition:all var(--transition);font-family:inherit;box-shadow:var(--shadow)}
 .filter-inp:focus{border-color:var(--accent);box-shadow:0 0 0 3px rgba(0,91,255,.08)}
 .filter-inp::placeholder{color:var(--text3)}
+/* CARTEIRA sticky filters + header */
+#carteiraFiltersBar{position:sticky;top:0;z-index:20;background:var(--bg);padding:8px 0 10px;margin-bottom:0}
+.carteira-table-wrap{overflow-x:auto;overflow-y:visible}
+.carteira-table-wrap th{top:54px}
 
 /* CHARTS */
 .chart-panel{background:#fff;border:1px solid var(--border);border-radius:var(--r);padding:20px;box-shadow:var(--shadow)}
@@ -692,7 +696,7 @@ body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text);fon
           <span class="seq-step s3"><b>3.</b> Concluir Tratativa</span>
         </div>
         <div id="carteiraEntrResumo" style="margin-bottom:16px"></div>
-        <div class="filters-bar">
+        <div class="filters-bar" id="carteiraFiltersBar">
           <input class="filter-inp" type="text" placeholder="Nome ou código..." id="srchCliente" oninput="renderClientes()" style="width:220px">
           <select class="filter-inp" id="fStatus" onchange="renderClientes()">
             <option value="">Todos os Status</option>
@@ -731,7 +735,7 @@ body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text);fon
             <option value="perda">Perda</option>
           </select>
         </div>
-        <div class="table-wrap">
+        <div class="table-wrap carteira-table-wrap">
           <table>
             <thead><tr id="clientesTableHead"><th>Código</th><th>Cliente</th><th>Entrepostos</th><th>Últ. Compra</th><th>Risco</th><th>Status Atual</th><th>Classificação</th><th>Justificativa</th><th>Ações</th></tr></thead>
             <tbody id="clientesBody"></tbody>
