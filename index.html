@@ -724,11 +724,11 @@ body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text);fon
           </select>
           <select class="filter-inp" id="fDias" onchange="renderClientes()">
             <option value="">Risco por Dias</option>
-            <option value="10">Baixo</option>
-            <option value="21">Médio</option>
-            <option value="31">Alto</option>
-            <option value="40">Gravíssimo</option>
-            <option value="41">Perda</option>
+            <option value="baixo">Baixo</option>
+            <option value="medio">Médio</option>
+            <option value="alto">Alto</option>
+            <option value="gravissimo">Gravíssimo</option>
+            <option value="perda">Perda</option>
           </select>
         </div>
         <div class="table-wrap">
@@ -3369,7 +3369,7 @@ function renderClientes(){
   if(fe) base=base.filter(c=>c.entrepostos&&c.entrepostos[fe]&&c.entrepostos[fe].ultimaCompra);
   if(fv) base=base.filter(c=>(c.vendedor||'').trim().toLowerCase()===fv.trim().toLowerCase());
   if(fc) base=base.filter(c=>c.classificacao&&c.classificacao.tipo===fc);
-  if(fd) base=base.filter(c=>calcDias(c.ultimaCompra)>=+fd);
+  if(fd) base=base.filter(c=>{const d=calcDias(c.ultimaCompra);if(fd==='baixo')return d<=10;if(fd==='medio')return d>=11&&d<=20;if(fd==='alto')return d>=21&&d<=30;if(fd==='gravissimo')return d>=31&&d<=40;if(fd==='perda')return d>40;return true;});
   document.getElementById('clienteCount').textContent=base.length+' clientes';
   const pages=Math.max(1,Math.ceil(base.length/PER));
   if(clientePage>pages) clientePage=1;
