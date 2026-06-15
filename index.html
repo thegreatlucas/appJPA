@@ -3689,9 +3689,11 @@ function salvarContato(){
 // ==============================
 // MODAL JUSTIFICATIVA
 // ==============================
+let _justBackup=null;
 function openJustModal(id){
   justClienteId=id;
   const c=clientes.find(x=>x.id===id);if(!c) return;
+  _justBackup=c.justificativa?JSON.parse(JSON.stringify(c.justificativa)):null;
   document.getElementById('mJustSub').textContent=c.nome+' — '+calcDias(c.ultimaCompra)+'d sem compra';
   document.getElementById('just-motivo').value=c.justificativa?.motivo||'';
   document.getElementById('just-obs').value=c.justificativa?.obs||'';
@@ -3714,9 +3716,11 @@ function salvarJustificativa(){
 // ==============================
 // MODAL CLASSIFICAÇÃO
 // ==============================
+let _classBackup=null;
 function openClassModal(id){
   classClienteId=id;
   const c=clientes.find(x=>x.id===id);if(!c) return;
+  _classBackup=c.classificacao?JSON.parse(JSON.stringify(c.classificacao)):null;
   document.getElementById('mClassSub').textContent=c.nome;
   document.getElementById('class-tipo').value=c.classificacao?.tipo||'';
   document.getElementById('just-processo').value=c.classificacao?.justProcesso||'';
@@ -3744,18 +3748,22 @@ function salvarClassificacao(){
 }
 function cancelarClass(){
   const c=clientes.find(x=>x.id===classClienteId);
-  document.getElementById('class-tipo').value=c?.classificacao?.tipo||'';
-  document.getElementById('just-processo').value=c?.classificacao?.justProcesso||'';
+  if(c){c.classificacao=_classBackup;saveAll();}
+  document.getElementById('class-tipo').value='';
+  document.getElementById('just-processo').value='';
   document.getElementById('justProcessoGroup').style.display='none';
   closeModal('modalClass');
+  renderClientes();
 }
 function cancelarJust(){
   const c=clientes.find(x=>x.id===justClienteId);
-  document.getElementById('just-motivo').value=c?.justificativa?.motivo||'';
-  document.getElementById('just-obs').value=c?.justificativa?.obs||'';
-  document.getElementById('just-submotivo').value=c?.justificativa?.submotivo||'';
+  if(c){c.justificativa=_justBackup;saveAll();}
+  document.getElementById('just-motivo').value='';
+  document.getElementById('just-obs').value='';
+  document.getElementById('just-submotivo').value='';
   document.getElementById('submotivoGroup').style.display='none';
   closeModal('modalJust');
+  renderClientes();
 }
 
 // ==============================
