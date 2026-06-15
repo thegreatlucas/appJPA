@@ -1037,7 +1037,7 @@ body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text);fon
         <div class="modal-title">Justificar — Sem Compra 30d+</div>
         <div style="font-size:12px;color:var(--text2);margin-top:2px" id="mJustSub"></div>
       </div>
-      <button class="modal-close" onclick="closeModal('modalJust')">×</button>
+      <button class="modal-close" onclick="cancelarJust()">×</button>
     </div>
     <div class="modal-body">
       <div class="form-group"><label>Motivo Principal *</label>
@@ -1058,7 +1058,7 @@ body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text);fon
       <div class="form-group"><label>Observação</label><textarea id="just-obs" placeholder="Detalhes adicionais..."></textarea></div>
     </div>
     <div class="modal-footer">
-      <button class="btn btn-ghost" onclick="closeModal('modalJust')">Cancelar</button>
+      <button class="btn btn-ghost" onclick="cancelarJust()">Cancelar</button>
       <button class="btn btn-accent" onclick="salvarJustificativa()">Salvar Justificativa</button>
     </div>
   </div>
@@ -1072,7 +1072,7 @@ body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text);fon
         <div class="modal-title">Classificar Cliente</div>
         <div style="font-size:12px;color:var(--text2);margin-top:2px" id="mClassSub"></div>
       </div>
-      <button class="modal-close" onclick="closeModal('modalClass')">×</button>
+      <button class="modal-close" onclick="cancelarClass()">×</button>
     </div>
     <div class="modal-body">
       <div class="form-group"><label>Classificação</label>
@@ -1095,7 +1095,7 @@ body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text);fon
       </div>
     </div>
     <div class="modal-footer">
-      <button class="btn btn-ghost" onclick="closeModal('modalClass')">Cancelar</button>
+      <button class="btn btn-ghost" onclick="cancelarClass()">Cancelar</button>
       <button class="btn btn-accent" onclick="salvarClassificacao()">Salvar</button>
     </div>
   </div>
@@ -3741,6 +3741,21 @@ function salvarClassificacao(){
     c.classificacao=tipo?{tipo}:null;
   }
   saveAll();closeModal('modalClass');renderClientes();showToast('Classificação salva!');
+}
+function cancelarClass(){
+  const c=clientes.find(x=>x.id===classClienteId);
+  document.getElementById('class-tipo').value=c?.classificacao?.tipo||'';
+  document.getElementById('just-processo').value=c?.classificacao?.justProcesso||'';
+  document.getElementById('justProcessoGroup').style.display='none';
+  closeModal('modalClass');
+}
+function cancelarJust(){
+  const c=clientes.find(x=>x.id===justClienteId);
+  document.getElementById('just-motivo').value=c?.justificativa?.motivo||'';
+  document.getElementById('just-obs').value=c?.justificativa?.obs||'';
+  document.getElementById('just-submotivo').value=c?.justificativa?.submotivo||'';
+  document.getElementById('submotivoGroup').style.display='none';
+  closeModal('modalJust');
 }
 
 // ==============================
