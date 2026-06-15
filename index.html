@@ -3718,7 +3718,6 @@ function openClassModal(id){
   const c=clientes.find(x=>x.id===id);if(!c) return;
   document.getElementById('mClassSub').textContent=c.nome;
   document.getElementById('class-tipo').value=c.classificacao?.tipo||'';
-  document.getElementById('class-obs').value=c.classificacao?.obs||'';
   document.getElementById('just-processo').value=c.classificacao?.justProcesso||'';
   onClassTipoChange();
   openModal('modalClass');
@@ -3728,18 +3727,17 @@ function onClassTipoChange(){
 }
 function salvarClassificacao(){
   const tipo=document.getElementById('class-tipo').value;
-  const obs=document.getElementById('class-obs').value;
   const c=clientes.find(x=>x.id===classClienteId);if(!c) return;
   if(tipo==='processo_retencao'){
     const justProc=document.getElementById('just-processo').value.trim();
     if(!justProc){showToast('Preencha a justificativa para Processo de Retenção',true);return;}
-    c.classificacao={tipo,obs,justProcesso:justProc};
+    c.classificacao={tipo,justProcesso:justProc};
     // Registra início no histórico de retenções
     c.historico=c.historico||[];
     c.historico.push({tipo:'processo_retencao_inicio',data:new Date().toLocaleDateString('pt-BR'),
-      justProcesso:justProc,obs,status:c.status||''});
+      justProcesso:justProc,status:c.status||''});
   } else {
-    c.classificacao=tipo?{tipo,obs}:null;
+    c.classificacao=tipo?{tipo}:null;
   }
   saveAll();closeModal('modalClass');renderClientes();showToast('Classificação salva!');
 }
