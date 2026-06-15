@@ -3748,7 +3748,14 @@ function salvarClassificacao(){
 }
 function cancelarClass(){
   const c=clientes.find(x=>x.id===classClienteId);
-  if(c){c.classificacao=_classBackup;saveAll();}
+  if(c){
+    c.classificacao=_classBackup;
+    saveAll();
+    if(!_classBackup){
+      const f='cliente_id=eq.'+encodeURIComponent(c.id)+'&vendedor=eq.'+encodeURIComponent(c.vendedor||'');
+      sbDelete('classificacoes',f);
+    }
+  }
   document.getElementById('class-tipo').value='';
   document.getElementById('just-processo').value='';
   document.getElementById('justProcessoGroup').style.display='none';
@@ -3757,7 +3764,14 @@ function cancelarClass(){
 }
 function cancelarJust(){
   const c=clientes.find(x=>x.id===justClienteId);
-  if(c){c.justificativa=_justBackup;saveAll();}
+  if(c){
+    c.justificativa=_justBackup;
+    saveAll();
+    if(!_justBackup){
+      const f='cliente_id=eq.'+encodeURIComponent(c.id)+'&vendedor=eq.'+encodeURIComponent(c.vendedor||'');
+      sbDelete('justificativas',f);
+    }
+  }
   document.getElementById('just-motivo').value='';
   document.getElementById('just-obs').value='';
   document.getElementById('just-submotivo').value='';
