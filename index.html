@@ -191,7 +191,7 @@ body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text);fon
 .table-wrap{background:#fff;border:1px solid var(--border);border-radius:var(--r);overflow:auto;box-shadow:var(--shadow)}
 .table-wrap table{width:100%;border-collapse:collapse;min-width:700px}
 .table-wrap th{background:var(--bg3);padding:10px 14px;text-align:left;font-size:11px;font-weight:700;color:var(--text2);text-transform:uppercase;letter-spacing:.6px;border-bottom:1px solid var(--border);white-space:nowrap;position:sticky;top:0;z-index:2}
-#haTableWrap th{box-shadow:0 2px 4px rgba(0,0,0,.08)}
+#haTableWrap th,#carteiraTableWrap th{box-shadow:0 2px 4px rgba(0,0,0,.08)}
 .table-wrap td{padding:11px 14px;font-size:13px;border-bottom:1px solid var(--border);color:var(--text);vertical-align:middle}
 .table-wrap tr:last-child td{border-bottom:none}
 .table-wrap tr:hover td{background:var(--accent-light)}
@@ -732,7 +732,7 @@ body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text);fon
             <option value="perda">Perda</option>
           </select>
         </div>
-        <div class="table-wrap">
+        <div class="table-wrap" id="carteiraTableWrap" style="overflow:auto;max-height:calc(100vh - 220px)">
           <table>
             <thead><tr id="clientesTableHead"><th>Código</th><th>Cliente</th><th>Entrepostos</th><th>Últ. Compra</th><th>Risco</th><th>Status Atual</th><th>Classificação</th><th>Justificativa</th><th>Ações</th></tr></thead>
             <tbody id="clientesBody"></tbody>
