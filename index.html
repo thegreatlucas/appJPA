@@ -3746,14 +3746,15 @@ function salvarClassificacao(){
   }
   saveAll();closeModal('modalClass');renderClientes();showToast('Classificação salva!');
 }
-function cancelarClass(){
+async function cancelarClass(){
   const c=clientes.find(x=>x.id===classClienteId);
   if(c){
     c.classificacao=_classBackup;
-    saveAll();
     if(!_classBackup){
       const f='cliente_id=eq.'+encodeURIComponent(c.id)+'&vendedor=eq.'+encodeURIComponent(c.vendedor||'');
-      sbDelete('classificacoes',f);
+      await sbDelete('classificacoes',f);
+    } else {
+      await saveAll();
     }
   }
   document.getElementById('class-tipo').value='';
@@ -3762,14 +3763,15 @@ function cancelarClass(){
   closeModal('modalClass');
   renderClientes();
 }
-function cancelarJust(){
+async function cancelarJust(){
   const c=clientes.find(x=>x.id===justClienteId);
   if(c){
     c.justificativa=_justBackup;
-    saveAll();
     if(!_justBackup){
       const f='cliente_id=eq.'+encodeURIComponent(c.id)+'&vendedor=eq.'+encodeURIComponent(c.vendedor||'');
-      sbDelete('justificativas',f);
+      await sbDelete('justificativas',f);
+    } else {
+      await saveAll();
     }
   }
   document.getElementById('just-motivo').value='';
@@ -3778,6 +3780,7 @@ function cancelarJust(){
   document.getElementById('submotivoGroup').style.display='none';
   closeModal('modalJust');
   renderClientes();
+}
 }
 
 // ==============================
