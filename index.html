@@ -2507,9 +2507,14 @@ function atualizarCrossResult(){
 // ==============================
 
 // Atualiza badges do menu: "Em Processo" e "Obs. Coordenador"
+function emProcessoAtivo(c){
+  return c.classificacao?.tipo==='processo_retencao'
+    && c.tratativa?.desfecho!=='recuperado'
+    && c.tratativa?.desfecho!=='sem_sucesso';
+}
 function atualizarBadgeEmProcesso(){
-  // Em Processo de Retenção — nº de clientes classificados
-  const total=clientes.filter(c=>c.classificacao&&c.classificacao.tipo==='processo_retencao').length;
+  // Em Processo de Retenção — nº de clientes ainda em tratativa ativa
+  const total=clientes.filter(emProcessoAtivo).length;
   const el=document.getElementById('emProcessoCount');
   if(el){
     el.textContent=total;
@@ -3507,7 +3512,7 @@ function renderJustificativas(){
 // PROCESSO RETENÇÃO
 // ==============================
 function renderProcessoRetencao(){
-  const base=getClientesFiltrados().filter(c=>c.classificacao?.tipo==='processo_retencao');
+  const base=getClientesFiltrados().filter(emProcessoAtivo);
   const el=document.getElementById('processoRetencaoList');
   if(!base.length){el.innerHTML='<p style="color:var(--text3);font-size:13px">Nenhum cliente em processo de retenção.</p>';return;}
   const recuperados=procRetencaoHist.filter(h=>currentRole==='vendedor'?h.vendedor===currentVendedor:true);
