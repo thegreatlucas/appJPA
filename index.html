@@ -682,15 +682,15 @@ body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text);fon
               <div class="section-title"><svg class="lc" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg> Carteira de Clientes</div>
               <div class="section-sub" id="clienteCount">0 clientes</div>
             </div>
+            <div class="seq-bar" style="margin-bottom:0;background:none;border:none;padding:2px 0;box-shadow:none">
+              <span class="seq-label">Sequência:</span>
+              <span class="seq-step s1"><b>1.</b> Classificar</span>
+              <span class="seq-arrow">→</span>
+              <span class="seq-step s2"><b>2.</b> Justificar Não Recompra</span>
+              <span class="seq-arrow">→</span>
+              <span class="seq-step s3"><b>3.</b> Concluir Tratativa</span>
+            </div>
           </div>
-        </div>
-        <div class="seq-bar">
-          <span class="seq-label">Sequência:</span>
-          <span class="seq-step s1"><b>1.</b> Classificar</span>
-          <span class="seq-arrow">→</span>
-          <span class="seq-step s2"><b>2.</b> Justificar Não Recompra</span>
-          <span class="seq-arrow">→</span>
-          <span class="seq-step s3"><b>3.</b> Concluir Tratativa</span>
         </div>
         <div id="carteiraEntrResumo" style="margin-bottom:16px"></div>
         <div class="filters-bar">
@@ -723,8 +723,8 @@ body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text);fon
             <option value="outro_vendedor">Atendido com outro vendedor</option>
             <option value="outro_cnpj">Atendido com outro CNPJ</option>
           </select>
-          <select class="filter-inp" id="fDias" onchange="renderClientes()">
-            <option value="">Risco por Dias</option>
+          <select class="filter-inp" id="fDias" onchange="renderClientes()" style="font-size:11px;padding:5px 8px;width:auto">
+            <option value="">Risco/Dias</option>
             <option value="baixo">Baixo</option>
             <option value="medio">Médio</option>
             <option value="alto">Alto</option>
