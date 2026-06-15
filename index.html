@@ -776,11 +776,12 @@ body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text);fon
           <select class="filter-inp" id="fJustVend" onchange="renderJustificativas()"><option value="">Todos vendedores</option></select>
           <select class="filter-inp" id="fJustMotivo" onchange="renderJustificativas()">
             <option value="">Todos motivos</option>
-            <option value="Logística">Logística</option>
             <option value="Comercial">Comercial</option>
-            <option value="Faturamento">Faturamento</option>
+            <option value="Logística">Logística</option>
+            <option value="Qualidade">Qualidade</option>
             <option value="Financeiro">Financeiro</option>
             <option value="Cliente">Cliente</option>
+            <option value="Não quis informar">Não quis informar</option>
             <option value="Não quis informar">Não quis informar</option>
             <option value="Consumo Próprio">Consumo Próprio</option>
             <option value="Sem justificativa">Sem justificativa</option>
@@ -1044,11 +1045,10 @@ body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text);fon
           <option value="">Selecione o motivo...</option>
           <option value="Comercial">Comercial</option>
           <option value="Logística">Logística</option>
-          <option value="Faturamento">Faturamento</option>
+          <option value="Qualidade">Qualidade</option>
           <option value="Financeiro">Financeiro</option>
           <option value="Cliente">Cliente</option>
           <option value="Não quis informar">Não quis informar</option>
-          <option value="Consumo Próprio">Consumo Próprio</option>
         </select>
       </div>
       <div class="form-group" id="submotivoGroup" style="display:none">
@@ -1463,11 +1463,12 @@ async function carregarUsuarios(){
 const GESTOR_SENHA = 'jampacg';
 
 const SUBMOTIVOS = {
-  'Comercial':['Preço acima do mercado','Prazo de pagamento insuficiente','Abertura para concorrência'],
-  'Logística':['Atraso no horário da entrega','Reembarque','Má conduta do motorista','Demora no processo de retirada','Produto fora de temperatura','Mercadoria avariada','Caixa avariada'],
-  'Faturamento':['Limite de crédito insuficiente','Inadimplência do cliente','Envio indevido para cartório'],
-  'Financeiro':['Limite de crédito insuficiente','Inadimplência do cliente','Dificuldade de pagamento'],
-  'Cliente':['Abertura para concorrência','Redução de consumo','Sazonalidade','Encerrou as atividades']
+  'Comercial':['Preço acima do mercado','Abertura para concorrência','Falta de produto (ruptura)'],
+  'Logística':['Atraso no horário de entrega','Reembarque','Demora no processo de retirada','Quebra de peso','Produto avariado (pacote/caixa)','Produto fora de temperatura'],
+  'Qualidade':['Qualidade inconsistente','Produto fora do especificado'],
+  'Financeiro':['Limite de crédito insuficiente','Prazo de pagamento insuficiente','Cliente inadimplente','Envio indevido para cartório'],
+  'Cliente':['Redução de consumo','Baixa temporada','Encerrou as atividades'],
+  'Não quis informar':[]
 };
 
 const ENTRS_ATIVOS = ['ITP','JPA','KRC','SUL'];
