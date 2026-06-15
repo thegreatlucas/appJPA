@@ -3708,7 +3708,7 @@ function salvarJustificativa(){
   if(subs&&subs.length&&!submotivo){showToast('Selecione o submotivo',true);return;}
   const c=clientes.find(x=>x.id===justClienteId);
   if(c) c.justificativa={motivo,submotivo,obs:document.getElementById('just-obs').value,data:new Date().toLocaleDateString('pt-BR')};
-  saveAll();closeModal('modalJust');refreshAll();renderJustificativas();showToast('Justificativa salva!');
+  saveAll();closeModal('modalJust');refreshAll();renderJustificativas();renderClientes();showToast('Justificativa salva!');
 }
 
 // ==============================
