@@ -1860,7 +1860,7 @@ function iniciarApp(role,user){
   document.getElementById('userDisplay').textContent=user.replace(' (ITA)','');
   document.getElementById('userSubDisplay').textContent=role==='gestor'?'Acesso Gestor':'Vendedor';
   const rb=document.getElementById('roleBadge');
-  rb.innerHTML=role==='gestor'?`${lc('crown',12)} Gestor`:`${lc('user',12)} Vendedor`;
+  rb.innerHTML=role==='gestor'?`${lc('crown',12)} Victória`:`${lc('user',12)} Vendedor`;
   rb.className='badge-role '+(role==='gestor'?'gestor':'vendedor');
   ['gestorSection','rankMenu','importMenu','exportMenuBtn','adminMenu'].forEach(id=>{
     const el=document.getElementById(id);
